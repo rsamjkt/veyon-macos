@@ -54,6 +54,7 @@ jobs:
             mingw-w64-x86_64-libjpeg-turbo
             mingw-w64-x86_64-lzo2
             mingw-w64-x86_64-libpng
+            mingw-w64-x86_64-nsis
 
       - name: Vendor the Interception SDK (needed by windows-platform)
         run: |
@@ -145,9 +146,29 @@ jobs:
           echo "--- staged file count ---"; find "$STAGE" -type f | wc -l
           ls -la "$STAGE"
 
-      - name: Upload artifact
+      - name: Upload artifact (folder)
         uses: actions/upload-artifact@v4
         with:
           name: AruniControl-Server-win64
           path: AruniControl-Server-win64
+          if-no-files-found: error
+
+      - name: Build one-click installer (NSIS)
+        run: |
+          set -e
+          STAGE="$GITHUB_WORKSPACE/AruniControl-Server-win64"
+          OUT="$GITHUB_WORKSPACE/AruniControl-Setup-1.0.0-Aurora-Windows-x64.exe"
+          makensis \
+            -DSRC="$(cygpath -w "$STAGE")" \
+            -DICON="$(cygpath -w "$GITHUB_WORKSPACE/nsis/installer.ico")" \
+            -DOUTFILE="$(cygpath -w "$OUT")" \
+            -DVERSION=1.0.0 \
+            "$GITHUB_WORKSPACE/nsis/aruni-installer.nsi"
+          ls -lh "$OUT"
+
+      - name: Upload installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: AruniControl-Setup-win64
+          path: AruniControl-Setup-1.0.0-Aurora-Windows-x64.exe
           if-no-files-found: error
