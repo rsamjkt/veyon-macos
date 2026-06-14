@@ -63,6 +63,13 @@ Veyon's commercial add-ons):
   per computer; messages are shown in the user's session and they can reply.
   (The client side relies on the worker running in the user's GUI session.)
 
+- **Internet Access Control** (`plugins/internetaccess`) — toggle *Block internet*
+  from the Master to restrict internet access on selected computers (e.g. during
+  exams). The client loads a `pf` ruleset that blocks outbound traffic to the
+  public internet while keeping loopback/LAN reachable. **Requires administrator
+  rights on the client** (pf firewall) — for unattended deployment grant `pfctl`
+  passwordless sudo or run the service as a privileged LaunchDaemon.
+
 ## Packaging a distributable app bundle
 
 ```bash
