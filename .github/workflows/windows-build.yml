@@ -49,6 +49,7 @@ jobs:
             mingw-w64-x86_64-qt6-tools
             mingw-w64-x86_64-qt6-svg
             mingw-w64-x86_64-qt6-5compat
+            mingw-w64-x86_64-qt6-multimedia
             mingw-w64-x86_64-qca-qt6
             mingw-w64-x86_64-openssl
             mingw-w64-x86_64-libjpeg-turbo
@@ -122,6 +123,12 @@ jobs:
             exit 1
           fi
           echo "--- bundled crypto providers ---"; ls -la "$STAGE/crypto"
+
+          # Qt Multimedia backend plugin (needed by AruniVoice's QAudioSource/Sink).
+          # windeployqt does not see Multimedia because only the plugin links it.
+          mkdir -p "$STAGE/multimedia"
+          find /mingw64 -ipath '*plugins/multimedia*' -iname '*.dll' -print -exec cp {} "$STAGE/multimedia/" \; 2>/dev/null || true
+          echo "--- bundled multimedia backends ---"; ls -la "$STAGE/multimedia" || true
 
           # Qt runtime + Qt plugins (platforms/tls/imageformats/styles)
           cd "$STAGE"

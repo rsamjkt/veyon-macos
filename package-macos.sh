@@ -64,6 +64,8 @@ cat > "${CONTENTS}/Info.plist" <<PLIST
 	<string>AruniControl controls system power and session state on your behalf.</string>
 	<key>NSLocalNetworkUsageDescription</key>
 	<string>AruniControl discovers and connects to computers running AruniControl Server on your local network.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>AruniControl uses the microphone for two-way voice (AruniVoice) with selected computers.</string>
 </dict>
 </plist>
 PLIST

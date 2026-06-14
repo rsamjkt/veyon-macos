@@ -1,0 +1,5 @@
+<RCC>
+	<qresource prefix="/arunivoice">
+		<file>voice.png</file>
+	</qresource>
+</RCC>
