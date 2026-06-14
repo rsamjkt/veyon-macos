@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/internetaccess">
+        <file>no-internet.png</file>
+    </qresource>
+</RCC>
