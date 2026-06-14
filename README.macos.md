@@ -51,6 +51,12 @@ Veyon's commercial add-ons):
   (port 11100) and lists them automatically. Enable it in the Configurator under
   the *network object directory* plugin setting, or via:
   `veyon-cli config set NetworkObjectDirectory/Plugin "{3c5e9a14-2b7d-4e6f-8a1c-9d0f2e4b6c81}"`.
+  Requires the macOS **Local Network** permission (granted to the app on first run).
+
+- **Screen Recorder** (`plugins/screenrecorder`) — records the screens of the
+  selected computers to H.264 `.mov` files using AVFoundation. Toggle the
+  *Record screen* button in the Master toolbar; click again to stop. Videos are
+  saved to `~/Movies/AruniControl/`.
 
 ## Packaging a distributable app bundle
 
