@@ -37,7 +37,7 @@ AboutDialog::AboutDialog( QWidget *parent ) :
 {
 	ui->setupUi( this );
 
-	setWindowTitle(tr("About Veyon %1").arg(VeyonCore::versionString()));
+	setWindowTitle(tr("About AruniControl %1").arg(VeyonCore::versionString()));
 
 	ui->versionLabel->setText( VeyonCore::versionString() );
 

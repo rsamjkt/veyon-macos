@@ -54,25 +54,25 @@ bool ConfigurationManager::applyConfiguration()
 	// update Veyon Service configuration
 	if( VeyonServiceControl().setAutostart( m_configuration.autostartService() ) == false )
 	{
-		m_errorString = tr("Could not modify the autostart property for the Veyon Service.");
+		m_errorString = tr("Could not modify the autostart property for the AruniControl Service.");
 		return false;
 	}
 
 	auto& network = VeyonCore::platform().networkFunctions();
 
 	if( network.configureFirewallException( VeyonCore::filesystem().serverFilePath(),
-											QStringLiteral("Veyon Server"),
+											QStringLiteral("AruniControl Server"),
 											m_configuration.isFirewallExceptionEnabled() ) == false )
 	{
-		m_errorString = tr("Could not configure the firewall configuration for the Veyon Server.");
+		m_errorString = tr("Could not configure the firewall configuration for the AruniControl Server.");
 		return false;
 	}
 
 	if( network.configureFirewallException( VeyonCore::filesystem().workerFilePath(),
-											QStringLiteral("Veyon Worker"),
+											QStringLiteral("AruniControl Worker"),
 											m_configuration.isFirewallExceptionEnabled() ) == false )
 	{
-		m_errorString = tr("Could not configure the firewall configuration for the Veyon Worker.");
+		m_errorString = tr("Could not configure the firewall configuration for the AruniControl Worker.");
 		return false;
 	}
 

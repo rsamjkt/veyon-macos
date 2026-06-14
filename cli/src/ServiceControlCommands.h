@@ -51,12 +51,12 @@ public:
 
 	QString description() const override
 	{
-		return tr( "Configure and control Veyon service" );
+		return tr( "Configure and control AruniControl service" );
 	}
 
 	QString vendor() const override
 	{
-		return QStringLiteral( "Veyon Community" );
+		return QStringLiteral( "AruniControl Community" );
 	}
 
 	QString copyright() const override
@@ -71,7 +71,7 @@ public:
 
 	QString commandLineModuleHelp() const override
 	{
-		return tr( "Commands for configuring and controlling Veyon Service" );
+		return tr( "Commands for configuring and controlling AruniControl Service" );
 	}
 
 	QStringList commands() const override

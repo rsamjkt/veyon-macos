@@ -292,7 +292,7 @@ void ComputerControlServer::updateTrayIconToolTip()
 		return;
 	}
 
-	auto toolTip = tr("Veyon Service %1 at %2:%3").arg(VeyonCore::versionString(), HostAddress::localFQDN())
+	auto toolTip = tr("AruniControl Service %1 at %2:%3").arg(VeyonCore::versionString(), HostAddress::localFQDN())
 				   .arg(VeyonCore::config().veyonServerPort() + VeyonCore::sessionId());
 
 	QMutexLocker locker( &m_dataMutex );

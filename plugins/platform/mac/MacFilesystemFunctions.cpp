@@ -46,7 +46,7 @@ QString MacFilesystemFunctions::globalAppDataPath() const
 	// Use a per-user location so the Configurator can write the configuration
 	// without administrator privileges (suitable for a personal Mac). For a
 	// shared/multi-user deployment this could be "/Library/Application Support/Veyon".
-	return QDir::homePath() + QStringLiteral( "/Library/Application Support/Veyon" );
+	return QDir::homePath() + QStringLiteral( "/Library/Application Support/AruniControl" );
 }
 
 

@@ -223,9 +223,11 @@ QString VeyonCore::sessionIdEnvironmentVariable()
 
 void VeyonCore::setupApplicationParameters()
 {
-	QCoreApplication::setOrganizationName( QStringLiteral( "Veyon Solutions" ) );
-	QCoreApplication::setOrganizationDomain( QStringLiteral( "veyon.io" ) );
-	QCoreApplication::setApplicationName( QStringLiteral( "Veyon" ) );
+	// AruniControl - rebranded distribution of Veyon (GPLv2). Original work:
+	// Copyright (c) 2004-2026 Tobias Junghans / Veyon Solutions (see COPYING).
+	QCoreApplication::setOrganizationName( QStringLiteral( "Arunika" ) );
+	QCoreApplication::setOrganizationDomain( QStringLiteral( "arunika.id" ) );
+	QCoreApplication::setApplicationName( QStringLiteral( "AruniControl" ) );
 
 	QCoreApplication::setAttribute( Qt::AA_ShareOpenGLContexts );
 

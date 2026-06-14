@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 #
-# package-macos.sh - assemble a self-contained Veyon.app bundle (experimental)
+# package-macos.sh - assemble a self-contained AruniControl.app bundle (experimental)
 #
 # Run ./build-macos.sh first (it must have produced build/ with all targets).
-# Produces dist/Veyon.app, bundling every Veyon executable, libveyon-core, all
+# Produces dist/AruniControl.app, bundling every Veyon executable, libveyon-core, all
 # plugins, Qt and the other Homebrew dependencies, then ad-hoc code-signs it.
 #
 set -euo pipefail
@@ -11,7 +11,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 BUILD_DIR="${SCRIPT_DIR}/build"
 DIST_DIR="${SCRIPT_DIR}/dist"
-APP="${DIST_DIR}/Veyon.app"
+APP="${DIST_DIR}/AruniControl.app"
 CONTENTS="${APP}/Contents"
 MACOS_DIR="${CONTENTS}/MacOS"
 FRAMEWORKS_DIR="${CONTENTS}/Frameworks"
@@ -19,7 +19,7 @@ PLUGIN_DIR="${CONTENTS}/lib/veyon"
 RES_DIR="${CONTENTS}/Resources"
 
 VERSION="4.10.4"
-BUNDLE_ID="io.veyon.veyon"
+BUNDLE_ID="id.arunika.arunicontrol"
 
 if ! command -v brew >/dev/null 2>&1; then echo "error: Homebrew required" >&2; exit 1; fi
 eval "$(brew shellenv)"
@@ -49,8 +49,8 @@ cat > "${CONTENTS}/Info.plist" <<PLIST
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>CFBundleName</key>            <string>Veyon</string>
-	<key>CFBundleDisplayName</key>     <string>Veyon Master</string>
+	<key>CFBundleName</key>            <string>AruniControl</string>
+	<key>CFBundleDisplayName</key>     <string>AruniControl Master</string>
 	<key>CFBundleIdentifier</key>      <string>${BUNDLE_ID}</string>
 	<key>CFBundleExecutable</key>      <string>veyon-master</string>
 	<key>CFBundlePackageType</key>     <string>APPL</string>
@@ -60,7 +60,7 @@ cat > "${CONTENTS}/Info.plist" <<PLIST
 	<key>NSHighResolutionCapable</key> <true/>
 	<key>NSPrincipalClass</key>        <string>NSApplication</string>
 	<key>NSAppleEventsUsageDescription</key>
-	<string>Veyon controls system power and session state on your behalf.</string>
+	<string>AruniControl controls system power and session state on your behalf.</string>
 </dict>
 </plist>
 PLIST
@@ -181,15 +181,15 @@ echo "    remaining /opt/homebrew references: ${LEAKS}"
 echo "==> Writing LaunchAgent template for the Veyon Server"
 # A LaunchAgent (not a LaunchDaemon) is required: the server must run inside the
 # logged-in user's GUI session to capture the screen and inject input.
-cat > "${DIST_DIR}/io.veyon.server.plist" <<AGENT
+cat > "${DIST_DIR}/id.arunika.arunicontrol.plist" <<AGENT
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>Label</key>            <string>io.veyon.server</string>
+	<key>Label</key>            <string>id.arunika.arunicontrol</string>
 	<key>ProgramArguments</key>
 	<array>
-		<string>/Applications/Veyon.app/Contents/MacOS/veyon-server</string>
+		<string>/Applications/AruniControl.app/Contents/MacOS/veyon-server</string>
 	</array>
 	<key>RunAtLoad</key>        <true/>
 	<key>KeepAlive</key>        <true/>
@@ -205,6 +205,6 @@ echo "Install (optional):   cp -R '${APP}' /Applications/"
 echo "Launch the Master:    open '${APP}'"
 echo "Run the server:       '${MACOS_DIR}/veyon-server'"
 echo
-echo "Auto-start the server in your session (after copying Veyon.app to /Applications):"
-echo "  cp '${DIST_DIR}/io.veyon.server.plist' ~/Library/LaunchAgents/"
-echo "  launchctl load ~/Library/LaunchAgents/io.veyon.server.plist"
+echo "Auto-start the server in your session (after copying AruniControl.app to /Applications):"
+echo "  cp '${DIST_DIR}/id.arunika.arunicontrol.plist' ~/Library/LaunchAgents/"
+echo "  launchctl load ~/Library/LaunchAgents/id.arunika.arunicontrol.plist"

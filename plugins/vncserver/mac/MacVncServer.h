@@ -59,12 +59,12 @@ public:
 
 	QString vendor() const override
 	{
-		return QStringLiteral( "Veyon Community" );
+		return QStringLiteral( "AruniControl Community" );
 	}
 
 	QString copyright() const override
 	{
-		return QStringLiteral( "Veyon Community" );
+		return QStringLiteral( "AruniControl Community" );
 	}
 
 	Plugin::Flags flags() const override

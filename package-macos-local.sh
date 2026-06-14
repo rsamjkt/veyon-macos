@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# package-macos-local.sh - build a *thin* Veyon.app for THIS machine
+# package-macos-local.sh - build a *thin* AruniControl.app for THIS machine
 #
 # Unlike package-macos.sh (which bundles Qt for distribution to clean Macs),
 # this produces a double-clickable app that uses the Homebrew Qt/QCA already
@@ -18,7 +18,7 @@ if [ ! -f "${BUILD_DIR}/master/veyon-master" ]; then
 fi
 
 # remove the (self-contained) distribution bundle to avoid confusion on this host
-rm -rf "${DIST_DIR}/Veyon.app"
+rm -rf "${DIST_DIR}/AruniControl.app"
 
 # build one thin .app per GUI tool. They share the same Veyon binaries and
 # plugins, and rely on the Homebrew Qt/QCA already installed on this machine
@@ -47,7 +47,7 @@ make_app() { # <App display name> <primary executable> <bundle id suffix>
 <dict>
 	<key>CFBundleName</key>            <string>${appname}</string>
 	<key>CFBundleDisplayName</key>     <string>${appname}</string>
-	<key>CFBundleIdentifier</key>      <string>io.veyon.${idsuffix}</string>
+	<key>CFBundleIdentifier</key>      <string>id.arunika.${idsuffix}</string>
 	<key>CFBundleExecutable</key>      <string>${mainexe}</string>
 	<key>CFBundlePackageType</key>     <string>APPL</string>
 	<key>CFBundleVersion</key>         <string>4.10.4</string>
@@ -65,13 +65,13 @@ PLIST
 	codesign --force --sign - "${app}" 2>/dev/null || true
 }
 
-make_app "Veyon Master"       "veyon-master"       "veyon"
-make_app "Veyon Configurator" "veyon-configurator" "configurator"
+make_app "AruniControl Master"       "veyon-master"       "arunicontrol"
+make_app "AruniControl Configurator" "veyon-configurator" "configurator"
 
 echo
 echo "Done. Double-click:"
-echo "  ${DIST_DIR}/Veyon Master.app"
-echo "  ${DIST_DIR}/Veyon Configurator.app"
+echo "  ${DIST_DIR}/AruniControl Master.app"
+echo "  ${DIST_DIR}/AruniControl Configurator.app"
 echo
 echo "Note: these thin apps use the Homebrew Qt at /opt/homebrew and reference"
 echo "libveyon-core in ${BUILD_DIR}/core - keep the build/ directory in place."

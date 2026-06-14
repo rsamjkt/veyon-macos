@@ -146,21 +146,21 @@ void LinuxServiceCore::startServer( const QString& sessionPath )
 
 	if( sessionType == LinuxSessionFunctions::Type::Wayland )
 	{
-		vWarning() << "Wayland session detected but trying to start Veyon Server anyway, even though Veyon Server does "
+		vWarning() << "Wayland session detected but trying to start AruniControl Server anyway, even though AruniControl Server does "
 					  "not supported Wayland sessions. If you encounter problems, please switch to X11-based sessions!";
 	}
 
 	// do not start server for non-graphical sessions
 	if( sessionType == LinuxSessionFunctions::Type::TTY )
 	{
-		vDebug() << "Not starting Veyon Server in TTY session";
+		vDebug() << "Not starting AruniControl Server in TTY session";
 		return;
 	}
 
 	// do not start server for sessions with unspecified type
 	if (sessionType == LinuxSessionFunctions::Type::Unspecified)
 	{
-		vDebug() << "Not starting Veyon Server in a session with unspecified type";
+		vDebug() << "Not starting AruniControl Server in a session with unspecified type";
 		return;
 	}
 

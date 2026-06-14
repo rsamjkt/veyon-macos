@@ -197,8 +197,8 @@ void GeneralConfigurationPage::clearLogFiles()
 
 	if( serviceControl.isServiceRunning() )
 	{
-		if (QMessageBox::question(this, tr("Veyon service"),
-								   tr("The Veyon service needs to be stopped temporarily "
+		if (QMessageBox::question(this, tr("AruniControl service"),
+								   tr("The AruniControl service needs to be stopped temporarily "
 									  "in order to remove the log files. Continue?"),
 								  QMessageBox::Yes | QMessageBox::No,
 								  QMessageBox::Yes) == QMessageBox::Yes)
@@ -213,7 +213,7 @@ void GeneralConfigurationPage::clearLogFiles()
 	}
 
 	bool success = true;
-	const QStringList logFilesFilter( { QStringLiteral("Veyon*.log") } );
+	const QStringList logFilesFilter( { QStringLiteral("AruniControl*.log") } );
 
 	QDir d( VeyonCore::filesystem().expandPath( VeyonCore::config().logFileDirectory() ) );
 	const auto localLogFiles = d.entryList( logFilesFilter );

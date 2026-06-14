@@ -55,14 +55,14 @@ static QString windowsConfigPath( const KNOWNFOLDERID folderId )
 
 QString WindowsFilesystemFunctions::personalAppDataPath() const
 {
-	return windowsConfigPath( FOLDERID_RoamingAppData ) + QDir::separator() + QStringLiteral("Veyon");
+	return windowsConfigPath( FOLDERID_RoamingAppData ) + QDir::separator() + QStringLiteral("AruniControl");
 }
 
 
 
 QString WindowsFilesystemFunctions::globalAppDataPath() const
 {
-	return windowsConfigPath( FOLDERID_ProgramData ) + QDir::separator() + QStringLiteral("Veyon");
+	return windowsConfigPath( FOLDERID_ProgramData ) + QDir::separator() + QStringLiteral("AruniControl");
 }
 
 

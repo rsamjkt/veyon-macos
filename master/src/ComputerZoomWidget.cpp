@@ -139,11 +139,11 @@ void ComputerZoomWidget::updateComputerZoomWidgetTitle()
 
 	if (username.isEmpty())
 	{
-		setWindowTitle(QStringLiteral("%1 - Veyon").arg(m_vncView->computerControlInterface()->computerName()));
+		setWindowTitle(QStringLiteral("%1 - AruniControl").arg(m_vncView->computerControlInterface()->computerName()));
 	}
 	else
 	{
-		setWindowTitle(QStringLiteral( "%1 - %2 - Veyon").arg(username,
+		setWindowTitle(QStringLiteral( "%1 - %2 - AruniControl").arg(username,
 															  m_vncView->computerControlInterface()->computerName()));
 	}
 }

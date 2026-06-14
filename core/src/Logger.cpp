@@ -40,7 +40,7 @@ QMutex Logger::s_instanceMutex;
 Logger::Logger( const QString &appName ) :
 	m_logLevel( LogLevel::Default ),
 	m_logMutex(),
-	m_appName( QStringLiteral( "Veyon" ) + appName ),
+	m_appName( QStringLiteral( "AruniControl" ) + appName ),
 	m_logFile( nullptr ),
 	m_logFileSizeLimit( -1 ),
 	m_logFileRotationCount( -1 )

@@ -133,7 +133,7 @@ bool writeLaunchAgentPlist( const QString& name, const QString& serverBinary,
 
 QString MacServiceFunctions::veyonServiceName() const
 {
-	return QStringLiteral("io.veyon.server");
+	return QStringLiteral("id.arunika.arunicontrol");
 }
 
 
