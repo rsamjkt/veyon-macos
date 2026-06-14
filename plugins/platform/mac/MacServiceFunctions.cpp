@@ -22,6 +22,7 @@
  *
  */
 
+#include <QCoreApplication>
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
@@ -157,8 +158,17 @@ bool MacServiceFunctions::start( const QString& name )
 {
 	if( isRegistered( name ) == false )
 	{
-		vCritical() << "MacServiceFunctions: service" << name << "is not registered yet";
-		return false;
+		// auto-register so the Configurator's "Start" button works without a
+		// separate "Install" step. Resolve veyon-server next to the running app.
+		const auto serviceFilePath = QCoreApplication::applicationDirPath() + QStringLiteral("/veyon-service");
+		const auto serverBinary = resolveServerBinary( serviceFilePath );
+		if( QFileInfo::exists( serverBinary ) == false ||
+			writeLaunchAgentPlist( name, serverBinary, StartMode::Auto ) == false )
+		{
+			vCritical() << "MacServiceFunctions: could not auto-register service" << name
+						<< "- veyon-server not found near" << serviceFilePath;
+			return false;
+		}
 	}
 
 	// bootstrap the agent into the GUI domain (ignore failure if already loaded)
