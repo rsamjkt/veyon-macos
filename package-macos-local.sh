@@ -50,8 +50,8 @@ make_app() { # <App display name> <primary executable> <bundle id suffix>
 	<key>CFBundleIdentifier</key>      <string>id.arunika.${idsuffix}</string>
 	<key>CFBundleExecutable</key>      <string>${mainexe}</string>
 	<key>CFBundlePackageType</key>     <string>APPL</string>
-	<key>CFBundleVersion</key>         <string>4.10.4</string>
-	<key>CFBundleShortVersionString</key> <string>4.10.4</string>
+	<key>CFBundleVersion</key>         <string>1.0.0</string>
+	<key>CFBundleShortVersionString</key> <string>1.0.0</string>
 	<key>LSMinimumSystemVersion</key>  <string>14.0</string>
 	<key>NSHighResolutionCapable</key> <true/>
 	<key>NSPrincipalClass</key>        <string>NSApplication</string>
