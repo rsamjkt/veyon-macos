@@ -114,7 +114,9 @@ else()
 endif()
 
 if(VEYON_BUILD_WINDOWS)
-	target_compile_definitions(veyon-core PUBLIC _WIN32_WINNT=0x0602)
+	# 0x0A00 (Windows 10) matches the MSYS2/Qt6 win32-g++ mkspec to avoid a
+	# -Werror "_WIN32_WINNT redefined" conflict.
+	target_compile_definitions(veyon-core PUBLIC _WIN32_WINNT=0x0A00)
 endif()
 
 if(WITH_PCH)

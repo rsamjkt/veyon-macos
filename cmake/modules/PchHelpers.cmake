@@ -13,6 +13,8 @@ macro(add_pch_target TARGET_NAME HEADER)
 	target_link_libraries(${TARGET_NAME} PUBLIC Qt${QT_MAJOR_VERSION}::Core Qt${QT_MAJOR_VERSION}::Concurrent Qt${QT_MAJOR_VERSION}::Network Qt${QT_MAJOR_VERSION}::Widgets)
 	target_precompile_headers(${TARGET_NAME} PUBLIC ${HEADER})
 	if(VEYON_BUILD_WINDOWS)
-		target_compile_definitions(${TARGET_NAME} PUBLIC _WIN32_WINNT=0x0602)
+		# 0x0A00 (Windows 10) matches the value the MSYS2/Qt6 win32-g++ mkspec
+		# defines, avoiding a -Werror "_WIN32_WINNT redefined" conflict.
+		target_compile_definitions(${TARGET_NAME} PUBLIC _WIN32_WINNT=0x0A00)
 	endif()
 endmacro()
