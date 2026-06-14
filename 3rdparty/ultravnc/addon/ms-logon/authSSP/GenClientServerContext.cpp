@@ -22,6 +22,11 @@ extern Fn fn;
 #define fprintf(x, ...) qCritical(__VA_ARGS__)
 #endif
 
+// GCC (MSYS2) has no MSVC SEH __try keyword; the file already maps __leave/
+// __finally to goto/label, so reduce __try to a plain block.
+#ifndef _MSC_VER
+#define __try
+#endif
 #define __leave goto cleanup
 #define __finally cleanup:
 

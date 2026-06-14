@@ -96,7 +96,10 @@ endif()
 # set up basic platform variables
 if(WIN32)
 	set(VEYON_BUILD_WINDOWS 1)
-	if(CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64")
+	# Detect 64-bit by pointer size, not the processor string: MSYS2 reports
+	# CMAKE_SYSTEM_PROCESSOR as "AMD64" (not "x86_64"), which previously fell
+	# through to the 32-bit branch and left _X64 undefined for a 64-bit build.
+	if(CMAKE_SIZEOF_VOID_P EQUAL 8)
 		set(VEYON_BUILD_WIN64 1)
 		set(VEYON_WINDOWS_ARCH "win64")
 		# The vendored UltraVNC sources switch 32/64-bit code paths on _X64
