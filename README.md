@@ -93,7 +93,12 @@ Konsep dasarnya: **1 Master** mengendalikan **banyak Client**. Pasang aplikasi s
 
 ### 🪟 B. Client di Windows
 
-Pakai paket **`AruniControl-Server-...-Windows-x64.zip`** (mandiri — sudah termasuk semua dependency).
+#### Cara termudah: installer sekali-klik (disarankan)
+Unduh **`AruniControl-Setup-...-Windows-x64.exe`**, lalu **dobel-klik**. Installer otomatis: menyalin file, **mendaftarkan + menjalankan service**, menambah **aturan firewall** (port 11100), dan membuat shortcut Start Menu. Setelah itu cukup lakukan langkah **#2 (pasang kunci publik Master)** di bawah.
+> Untuk deploy massal tanpa interaksi: `AruniControl-Setup-...exe /S` (mode senyap).
+
+#### Cara manual (paket zip)
+Atau pakai paket **`AruniControl-Server-...-Windows-x64.zip`** (mandiri — sudah termasuk semua dependency).
 
 1. **Ekstrak** ke folder tetap, mis. `C:\Program Files\AruniControl\`.
 2. **Pasang kunci publik Master** agar Master dipercaya client:
