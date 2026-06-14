@@ -27,6 +27,10 @@
 #include "AruniMediaFeaturePlugin.h"
 #include "VeyonServerInterface.h"
 
+#if defined(Q_OS_WIN)
+#include "WinAudioMute.h"
+#endif
+
 
 AruniMediaFeaturePlugin::AruniMediaFeaturePlugin( QObject* parent ) :
 	QObject( parent ),
@@ -92,8 +96,12 @@ void AruniMediaFeaturePlugin::setAudioMuted( bool muted )
 {
 	// runs in the logged-in user's session (the server is a per-user agent), so
 	// this affects the user's audio output; no administrator rights are needed.
+#if defined(Q_OS_WIN)
+	setSystemAudioMutedWin( muted );
+#else
 	const auto script = muted ? QStringLiteral("set volume output muted true")
 							  : QStringLiteral("set volume output muted false");
 	QProcess::startDetached( QStringLiteral("/usr/bin/osascript"),
 							 { QStringLiteral("-e"), script } );
+#endif
 }

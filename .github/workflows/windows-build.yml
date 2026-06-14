@@ -1,0 +1,141 @@
+name: Windows build (AruniControl)
+
+# Builds the Windows AruniControl Server + tools + add-ons (Application
+# Monitoring, AruniMedia, Internet Access Control, Chat, Network Discovery)
+# natively with the MSYS2 mingw-w64 toolchain — the same compiler family Veyon
+# uses upstream (MXE). Produces a self-contained folder, uploaded as an artifact.
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'plugins/**'
+      - 'core/**'
+      - 'server/**'
+      - 'service/**'
+      - 'worker/**'
+      - 'cli/**'
+      - 'CMakeLists.txt'
+      - 'cmake/**'
+      - '.github/workflows/windows-build.yml'
+  workflow_dispatch:
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: msys2 {0}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up MSYS2 (mingw64)
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: MINGW64
+          update: true
+          install: >-
+            base-devel
+            git
+            unzip
+            zip
+            mingw-w64-x86_64-toolchain
+            mingw-w64-x86_64-cmake
+            mingw-w64-x86_64-ninja
+            mingw-w64-x86_64-pkgconf
+            mingw-w64-x86_64-qt6-base
+            mingw-w64-x86_64-qt6-tools
+            mingw-w64-x86_64-qt6-svg
+            mingw-w64-x86_64-qt6-5compat
+            mingw-w64-x86_64-qca-qt6
+            mingw-w64-x86_64-openssl
+            mingw-w64-x86_64-libjpeg-turbo
+            mingw-w64-x86_64-lzo2
+            mingw-w64-x86_64-libpng
+
+      - name: Vendor the Interception SDK (needed by windows-platform)
+        run: |
+          set -e
+          curl -L -o /tmp/interception.zip \
+            https://github.com/oblitum/Interception/releases/download/v1.0.1/Interception.zip
+          mkdir -p /tmp/interception && cd /tmp/interception
+          unzip -o /tmp/interception.zip
+          HDR=$(find . -name 'interception.h' | head -1)
+          DLL=$(find . -ipath '*x64*' -name 'interception.dll' | head -1)
+          echo "header=$HDR  dll=$DLL"
+          cp "$HDR" /mingw64/include/
+          cd "$(dirname "$DLL")"
+          gendef interception.dll
+          dlltool -d interception.def -D interception.dll -l /mingw64/lib/libinterception.a
+          cp interception.dll "$GITHUB_WORKSPACE/interception.dll"
+
+      - name: Configure
+        run: |
+          cmake -S "$GITHUB_WORKSPACE" -B "$GITHUB_WORKSPACE/build" -G Ninja \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_PREFIX_PATH=/mingw64 \
+            -DWITH_BUILTIN_LIBVNC=ON \
+            -DWITH_WEBAPI=OFF \
+            -DWITH_TRANSLATIONS=OFF \
+            -DWITH_TESTS=OFF \
+            -DWITH_LTO=OFF \
+            -DWITH_PCH=OFF \
+            -DWITH_UNITY_BUILD=OFF \
+            -DVEYON_ARUNICONTROL_SKIP_LDAP=ON
+
+      - name: Build
+        run: cmake --build "$GITHUB_WORKSPACE/build" --parallel
+
+      - name: Package (windeployqt + dependency walk)
+        run: |
+          set -e
+          STAGE="$GITHUB_WORKSPACE/AruniControl-Server-win64"
+          rm -rf "$STAGE"; mkdir -p "$STAGE/plugins"
+
+          # executables + core library
+          find build -maxdepth 2 -name 'veyon-*.exe' -exec cp {} "$STAGE/" \;
+          cp build/core/veyon-core.dll "$STAGE/"
+
+          # plugins: real plugin modules into plugins/, helper libs to the root
+          find build/plugins -name '*.dll' -exec cp {} "$STAGE/plugins/" \;
+          ( cd "$STAGE/plugins" && for f in lib*.dll; do [ -e "$f" ] && mv "$f" "$STAGE/"; done; true )
+
+          # vendored interception runtime
+          cp "$GITHUB_WORKSPACE/interception.dll" "$STAGE/" || true
+
+          # QCA crypto provider
+          cp /mingw64/bin/libqca-qt6.dll "$STAGE/" 2>/dev/null || cp /mingw64/bin/qca-qt6.dll "$STAGE/" 2>/dev/null || true
+          mkdir -p "$STAGE/crypto"
+          cp /mingw64/lib/qca-qt6/crypto/*.dll "$STAGE/crypto/" 2>/dev/null || true
+
+          # Qt runtime + Qt plugins (platforms/tls/imageformats/styles)
+          cd "$STAGE"
+          for exe in veyon-master.exe veyon-server.exe veyon-configurator.exe veyon-cli.exe veyon-worker.exe veyon-service.exe; do
+            [ -e "$exe" ] && windeployqt6 --release --no-translations --no-opengl-sw --compiler-runtime "$exe" || true
+          done
+
+          # copy every remaining /mingw64 DLL dependency (openssl, lzo, jpeg, png,
+          # zlib, gcc/pthread runtime, …); fixpoint over several passes
+          for pass in 1 2 3 4 5; do
+            for f in "$STAGE"/*.exe "$STAGE"/*.dll "$STAGE"/plugins/*.dll "$STAGE"/crypto/*.dll; do
+              [ -e "$f" ] || continue
+              ldd "$f" 2>/dev/null | awk '{for(i=1;i<=NF;i++) if($i ~ /^\/mingw64\//) print $i}' | while read -r dep; do
+                base=$(basename "$dep")
+                [ -e "$STAGE/$base" ] || cp "$dep" "$STAGE/"
+              done
+            done
+          done
+
+          cp "$GITHUB_WORKSPACE/COPYING" "$STAGE/LICENSE.txt" 2>/dev/null || true
+          cp "$GITHUB_WORKSPACE/README.macos.md" "$STAGE/README.txt" 2>/dev/null || true
+          echo "--- staged file count ---"; find "$STAGE" -type f | wc -l
+          ls -la "$STAGE"
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: AruniControl-Server-win64
+          path: AruniControl-Server-win64
+          if-no-files-found: error

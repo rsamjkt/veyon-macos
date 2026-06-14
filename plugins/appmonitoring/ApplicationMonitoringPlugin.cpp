@@ -25,7 +25,7 @@
 #include "ApplicationMonitoringPlugin.h"
 #include "ApplicationListDialog.h"
 #include "ComputerControlInterface.h"
-#include "MacApplicationList.h"
+#include "ApplicationList.h"
 #include "VeyonServerInterface.h"
 
 
@@ -158,6 +158,6 @@ bool ApplicationMonitoringPlugin::handleFeatureMessage( VeyonServerInterface& se
 	return server.sendFeatureMessageReply(
 				messageContext,
 				FeatureMessage{ m_applicationMonitoringFeature.uid(), ApplicationsReply }
-					.addArgument( Argument::Applications, macRunningApplications().join( QLatin1Char('\n') ) )
-					.addArgument( Argument::Frontmost, macFrontmostApplication() ) );
+					.addArgument( Argument::Applications, runningApplications().join( QLatin1Char('\n') ) )
+					.addArgument( Argument::Frontmost, frontmostApplication() ) );
 }

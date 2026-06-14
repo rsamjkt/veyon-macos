@@ -24,10 +24,10 @@
 
 #import <AppKit/AppKit.h>
 
-#include "MacApplicationList.h"
+#include "ApplicationList.h"
 
 
-QStringList macRunningApplications()
+QStringList runningApplications()
 {
 	QStringList applications;
 
@@ -48,7 +48,7 @@ QStringList macRunningApplications()
 
 
 
-QString macFrontmostApplication()
+QString frontmostApplication()
 {
 	QString name;
 

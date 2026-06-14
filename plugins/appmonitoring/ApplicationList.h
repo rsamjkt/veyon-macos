@@ -1,5 +1,5 @@
 /*
- * MacApplicationList.h - list running GUI applications via NSWorkspace
+ * ApplicationList.h - list running GUI applications (platform-neutral interface)
  *
  * Copyright (c) 2026 Arunika / AruniControl
  *
@@ -27,7 +27,8 @@
 #include <QStringList>
 
 // Names of the running regular (GUI) applications in the current user session.
-QStringList macRunningApplications();
+// Implemented per platform (NSWorkspace on macOS, EnumWindows/psapi on Windows).
+QStringList runningApplications();
 
-// Name of the currently focused (frontmost) application.
-QString macFrontmostApplication();
+// Name of the currently focused (frontmost / foreground) application.
+QString frontmostApplication();

@@ -1,7 +1,15 @@
-# uses NSWorkspace (AppKit) - macOS only
-if(VEYON_BUILD_APPLE)
+# Application monitoring: lists running GUI apps on the client.
+# Implemented on macOS (NSWorkspace) and Windows (Win32 EnumWindows).
+if(VEYON_BUILD_APPLE OR VEYON_BUILD_WINDOWS)
 
 include(BuildVeyonPlugin)
+
+set(appmonitoring_platform_sources)
+if(VEYON_BUILD_APPLE)
+	set(appmonitoring_platform_sources MacApplicationList.mm)
+elseif(VEYON_BUILD_WINDOWS)
+	set(appmonitoring_platform_sources WinApplicationList.cpp)
+endif()
 
 build_veyon_plugin(appmonitoring
 	NAME ApplicationMonitoring
@@ -10,12 +18,17 @@ build_veyon_plugin(appmonitoring
 	ApplicationMonitoringPlugin.h
 	ApplicationListDialog.cpp
 	ApplicationListDialog.h
-	MacApplicationList.mm
-	MacApplicationList.h
+	ApplicationList.h
+	${appmonitoring_platform_sources}
 	appmonitoring.qrc
 	)
 
-target_link_libraries(appmonitoring PRIVATE "-framework AppKit" "-framework Foundation")
-set_source_files_properties(MacApplicationList.mm PROPERTIES SKIP_UNITY_BUILD_INCLUSION ON)
+if(VEYON_BUILD_APPLE)
+	target_link_libraries(appmonitoring PRIVATE "-framework AppKit" "-framework Foundation")
+	set_source_files_properties(MacApplicationList.mm PROPERTIES SKIP_UNITY_BUILD_INCLUSION ON)
+elseif(VEYON_BUILD_WINDOWS)
+	target_link_libraries(appmonitoring PRIVATE -lversion -luser32)
+	set_source_files_properties(WinApplicationList.cpp PROPERTIES SKIP_UNITY_BUILD_INCLUSION ON)
+endif()
 
 endif()

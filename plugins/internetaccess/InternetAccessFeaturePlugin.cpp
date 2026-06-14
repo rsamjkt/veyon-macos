@@ -23,6 +23,7 @@
  */
 
 #include <QFile>
+#include <QProcess>
 
 #include "InternetAccessFeaturePlugin.h"
 #include "PlatformCoreFunctions.h"
@@ -30,6 +31,7 @@
 #include "VeyonServerInterface.h"
 
 
+#if defined(Q_OS_MACOS)
 // pf ruleset that blocks outbound traffic to the public internet while keeping
 // loopback and private/LAN ranges reachable (so AruniControl itself keeps working).
 static const char* const blockRuleset =
@@ -39,6 +41,22 @@ static const char* const blockRuleset =
 	"block drop out all\n"
 	"pass out quick to <aruni_allowed>\n"
 	"pass out quick proto udp from any to any port { 67, 68 }\n";
+#endif
+
+
+#if defined(Q_OS_WIN)
+// Windows Firewall is driven through netsh advfirewall. While blocked, the
+// default outbound action is set to "block" and a set of allow rules (grouped
+// under a known name prefix for easy removal) keeps loopback, the LAN and DHCP
+// reachable so AruniControl itself keeps working.
+static const QLatin1String netshRuleLan( "AruniControl-NoInternet-LAN" );
+static const QLatin1String netshRuleDhcp( "AruniControl-NoInternet-DHCP" );
+
+static bool runNetsh( const QStringList& arguments )
+{
+	return QProcess::execute( QStringLiteral( "netsh" ), arguments ) == 0;
+}
+#endif
 
 
 InternetAccessFeaturePlugin::InternetAccessFeaturePlugin( QObject* parent ) :
@@ -103,6 +121,41 @@ bool InternetAccessFeaturePlugin::handleFeatureMessage( VeyonServerInterface& se
 
 bool InternetAccessFeaturePlugin::applyInternetBlock( bool blocked )
 {
+#if defined(Q_OS_WIN)
+	// The AruniControl service runs as LocalSystem, so netsh executes without a
+	// UAC prompt. LAN ranges (incl. LocalSubnet) stay reachable so the Master
+	// keeps controlling the client; only public-internet egress is blocked.
+	if( blocked )
+	{
+		runNetsh( { QStringLiteral("advfirewall"), QStringLiteral("firewall"), QStringLiteral("add"),
+					QStringLiteral("rule"), QStringLiteral("name=") + netshRuleLan,
+					QStringLiteral("dir=out"), QStringLiteral("action=allow"),
+					QStringLiteral("remoteip=LocalSubnet,127.0.0.0/8,10.0.0.0/8,172.16.0.0/12,"
+								   "192.168.0.0/16,169.254.0.0/16,224.0.0.0/4"),
+					QStringLiteral("enable=yes") } );
+
+		runNetsh( { QStringLiteral("advfirewall"), QStringLiteral("firewall"), QStringLiteral("add"),
+					QStringLiteral("rule"), QStringLiteral("name=") + netshRuleDhcp,
+					QStringLiteral("dir=out"), QStringLiteral("action=allow"),
+					QStringLiteral("protocol=UDP"), QStringLiteral("remoteport=67,68"),
+					QStringLiteral("enable=yes") } );
+
+		// default-deny outbound; the allow rules above are the exceptions
+		return runNetsh( { QStringLiteral("advfirewall"), QStringLiteral("set"),
+						   QStringLiteral("allprofiles"), QStringLiteral("firewallpolicy"),
+						   QStringLiteral("blockinbound,blockoutbound") } );
+	}
+
+	// restore the Windows default policy and drop our exception rules
+	const bool restored = runNetsh( { QStringLiteral("advfirewall"), QStringLiteral("set"),
+									  QStringLiteral("allprofiles"), QStringLiteral("firewallpolicy"),
+									  QStringLiteral("blockinbound,allowoutbound") } );
+	runNetsh( { QStringLiteral("advfirewall"), QStringLiteral("firewall"), QStringLiteral("delete"),
+				QStringLiteral("rule"), QStringLiteral("name=") + netshRuleLan } );
+	runNetsh( { QStringLiteral("advfirewall"), QStringLiteral("firewall"), QStringLiteral("delete"),
+				QStringLiteral("rule"), QStringLiteral("name=") + netshRuleDhcp } );
+	return restored;
+#else
 	auto& core = VeyonCore::platform().coreFunctions();
 
 	if( blocked )
@@ -128,4 +181,5 @@ bool InternetAccessFeaturePlugin::applyInternetBlock( bool blocked )
 	// restore the default macOS packet filter ruleset
 	return core.runProgramAsAdmin( QStringLiteral("/sbin/pfctl"),
 								   { QStringLiteral("-f"), QStringLiteral("/etc/pf.conf") } );
+#endif
 }
