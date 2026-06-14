@@ -81,6 +81,47 @@ Veyon's commercial add-ons):
   applications and the active (frontmost) app on each selected computer (polled
   live via NSWorkspace). Useful for spotting disallowed apps during exams.
 
+## Windows clients (Mac Master → Windows Server)
+
+A Mac running AruniControl Master can monitor and control Windows clients. The
+core features (screen view/control, lock, message, power, demo, Screen Recorder,
+Network Discovery) work against a **stock Veyon 4.x** Windows client out of the
+box. To make the *new* add-ons work on Windows too, the add-on server side was
+ported to the Win32 API and a Windows build is produced by CI:
+
+| Add-on | Windows server backend |
+|--------|------------------------|
+| Application Monitoring | `EnumWindows` + version-info `FileDescription`, `GetForegroundWindow` |
+| AruniMedia (mute) | WASAPI `IAudioEndpointVolume` |
+| Internet Access Control | Windows Firewall (`netsh advfirewall`, runs as the LocalSystem service) |
+| Chat / Network Discovery | pure Qt — unchanged |
+
+The Windows package is built natively with the **MSYS2 mingw-w64** toolchain via
+`.github/workflows/windows-build.yml` (the same compiler family Veyon uses
+upstream through MXE) and published as `AruniControl-Server-1.0.0-Aurora-Windows-x64.zip`
+on the GitHub release. It is a self-contained folder (Qt6, QCA + the `crypto/`
+providers for RSA auth, OpenSSL, the Interception runtime, the UltraVNC screen
+server, the Windows platform plugin and all add-ons).
+
+### Deploy to a Windows client
+
+1. Unzip onto the client (e.g. `C:\Program Files\AruniControl`).
+2. Create matching authentication keys: export the Master's public key from the
+   Mac (`veyon-cli authkeys export master/public <file>`) and import it on the
+   client (`veyon-cli.exe authkeys import master/public <file>`), or set up logon
+   authentication in the Configurator.
+3. Register the background service (elevated *cmd*): `veyon-server.exe` can be run
+   directly for a quick test, or install the service with
+   `veyon-wcli.exe service register` then `veyon-wcli.exe service start`.
+4. Allow `veyon-server.exe` through Windows Firewall (inbound TCP 11100) — the
+   installer/service normally adds this automatically.
+
+> Build notes (MSYS2 vs MXE): 64-bit is detected by `CMAKE_SIZEOF_VOID_P` (MSYS2
+> reports `CMAKE_SYSTEM_PROCESSOR=AMD64`); `_WIN32_WINNT` is pinned to `0x0A00`;
+> several Windows SDK headers need `<windows.h>` included first; and the MS-Logon
+> SSP's `__try` is mapped to a plain block under GCC. `-Werror` is relaxed on the
+> mingw port (newer GCC than upstream CI).
+
 ## Packaging a distributable app bundle
 
 ```bash
