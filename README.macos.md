@@ -70,6 +70,12 @@ Veyon's commercial add-ons):
   rights on the client** (pf firewall) — for unattended deployment grant `pfctl`
   passwordless sudo or run the service as a privileged LaunchDaemon.
 
+- **AruniMedia** (`plugins/arunimedia`) — media-device control (an open
+  replacement for the commercial *Auvidus* add-on). Toggle *Mute audio* from the
+  Master to mute/unmute the audio output of selected computers (no admin needed).
+  Webcam and USB device control are **not** implemented: on macOS those require
+  an MDM profile or kernel extension, which is out of scope for a user-space app.
+
 ## Packaging a distributable app bundle
 
 ```bash
