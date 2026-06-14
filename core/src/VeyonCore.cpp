@@ -612,13 +612,23 @@ void VeyonCore::initUi()
 			app->setStyle(QStyleFactory::create(QStringLiteral("Fusion")));
 		}
 
+		// AruniControl theme - warm "sunrise" accent (#F2812F), light-touch so it
+		// still feels native on macOS. Accent is used for hover/selection states.
 		app->setStyleSheet(QStringLiteral(
-							   "QToolButton:checked {background-color:#88ddff;}"
-							   "QToolTip {padding:5px; border:0px;}"
+							   "QToolBar { border:0px; spacing:4px; padding:3px; }"
+							   "QToolButton { border-radius:7px; padding:5px; }"
+							   "QToolButton:hover { background-color:rgba(242,129,47,0.16); }"
+							   "QToolButton:checked, QToolButton:pressed { background-color:rgba(242,129,47,0.30); }"
+							   "QTabBar::tab { padding:6px 12px; }"
+							   "QTreeView, QListView, QTableView, QListWidget, QTreeWidget {"
+							   "  selection-background-color:#F2812F; selection-color:#ffffff; }"
+							   "QMenu::item:selected { background-color:#F2812F; color:#ffffff; }"
+							   "QHeaderView::section { padding:4px 8px; }"
+							   "QToolTip { padding:5px; border:0px; color:#ffffff; background-color:#2b2b2b; }"
 							   ));
 
 		auto toolTipPalette = QToolTip::palette();
-		static const char* toolTipBackgroundColor = "#198cb3";
+		static const char* toolTipBackgroundColor = "#2b2b2b";
 		toolTipPalette.setColor(QPalette::Window, toolTipBackgroundColor);
 		toolTipPalette.setColor(QPalette::ToolTipBase, toolTipBackgroundColor);
 		toolTipPalette.setColor(QPalette::ToolTipText, Qt::white);
