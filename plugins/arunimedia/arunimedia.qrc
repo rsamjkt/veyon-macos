@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/arunimedia">
+        <file>mute.png</file>
+    </qresource>
+</RCC>
