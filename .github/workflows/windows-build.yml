@@ -106,10 +106,21 @@ jobs:
           # vendored interception runtime
           cp "$GITHUB_WORKSPACE/interception.dll" "$STAGE/" || true
 
-          # QCA crypto provider
-          cp /mingw64/bin/libqca-qt6.dll "$STAGE/" 2>/dev/null || cp /mingw64/bin/qca-qt6.dll "$STAGE/" 2>/dev/null || true
+          # QCA library + crypto provider (the ossl provider is REQUIRED for RSA
+          # key authentication). Locate both robustly — MSYS2 paths differ from MXE.
+          find /mingw64 -iname 'libqca-qt6*.dll' -exec cp {} "$STAGE/" \; 2>/dev/null || true
           mkdir -p "$STAGE/crypto"
-          cp /mingw64/lib/qca-qt6/crypto/*.dll "$STAGE/crypto/" 2>/dev/null || true
+          echo "--- searching for QCA crypto providers under /mingw64 ---"
+          find /mingw64 -iname 'libqca-ossl*.dll' -print -exec cp {} "$STAGE/crypto/" \; 2>/dev/null || true
+          find /mingw64 -ipath '*qca-qt6/crypto*' -iname '*.dll' -print -exec cp {} "$STAGE/crypto/" \; 2>/dev/null || true
+          find /mingw64 -ipath '*plugins/crypto*' -iname '*.dll' -print -exec cp {} "$STAGE/crypto/" \; 2>/dev/null || true
+          if [ -z "$(ls -A "$STAGE/crypto" 2>/dev/null)" ]; then
+            echo "::error::QCA crypto provider (libqca-ossl) not found — RSA auth would fail"
+            echo "--- full QCA file listing for diagnosis ---"
+            find /mingw64 -iname '*qca*' -o -iname '*ossl*' | grep -i qca || true
+            exit 1
+          fi
+          echo "--- bundled crypto providers ---"; ls -la "$STAGE/crypto"
 
           # Qt runtime + Qt plugins (platforms/tls/imageformats/styles)
           cd "$STAGE"
