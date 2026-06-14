@@ -13,9 +13,10 @@ macro(set_default_target_properties TARGET_NAME)
 		-DQT_USE_QSTRINGBUILDER
 		-DQT_STRICT_ITERATORS
 	)
-	if(APPLE)
-		# -Werror is too aggressive for the in-progress macOS port (clang emits
-		# different/stricter warnings than the GCC-based upstream CI)
+	if(APPLE OR WIN32)
+		# -Werror is too aggressive for the in-progress macOS and MSYS2/mingw
+		# Windows ports (clang and the newer MSYS2 GCC emit different/stricter
+		# warnings than the GCC-based upstream Linux/MXE CI)
 		target_compile_options(${TARGET_NAME} PRIVATE "-Wall")
 	else()
 		target_compile_options(${TARGET_NAME} PRIVATE "-Wall;-Werror")

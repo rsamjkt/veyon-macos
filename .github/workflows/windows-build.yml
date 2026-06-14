@@ -86,7 +86,8 @@ jobs:
             -DVEYON_ARUNICONTROL_SKIP_LDAP=ON
 
       - name: Build
-        run: cmake --build "$GITHUB_WORKSPACE/build" --parallel
+        # -k 0: keep going after errors so a single run surfaces every failure
+        run: cmake --build "$GITHUB_WORKSPACE/build" --parallel -- -k 0
 
       - name: Package (windeployqt + dependency walk)
         run: |
