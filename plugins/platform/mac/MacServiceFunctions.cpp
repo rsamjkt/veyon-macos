@@ -214,7 +214,10 @@ bool MacServiceFunctions::setStartMode( const QString& name, StartMode startMode
 {
 	if( isRegistered( name ) == false )
 	{
-		return false;
+		// nothing to configure yet - the start mode is applied when the service
+		// is installed (install() writes RunAtLoad from the StartMode). Treat as
+		// success so saving the configuration does not fail.
+		return true;
 	}
 
 	// rewrite the plist keeping the existing program arguments

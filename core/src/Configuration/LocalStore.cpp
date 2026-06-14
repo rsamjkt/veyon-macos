@@ -193,23 +193,26 @@ void LocalStore::clear()
 
 QSettings *LocalStore::createSettingsObject() const
 {
-#ifdef Q_OS_MACOS
-	// On macOS the system scope maps to /Library/Preferences which requires
-	// administrator privileges. Use the per-user scope so the Configurator can
-	// store the configuration without elevation (personal-Mac friendly).
-	const auto settingsScope = QSettings::UserScope;
+#if defined(Q_OS_MACOS)
+	// Use a plain INI file in user scope on macOS. The native plist backend
+	// would (a) require admin rights for the system scope and (b) inherit/merge
+	// the global macOS preferences domain (NSGlobalDomain) into our settings,
+	// which corrupted the configuration. A user-scope INI file is writable
+	// without elevation and stays self-contained.
+	return new QSettings(QSettings::IniFormat, QSettings::UserScope,
+						 QCoreApplication::organizationName(),
+						 QCoreApplication::applicationName());
+#elif defined(Q_OS_WIN)
+	return new QSettings(QSettings::Registry64Format,
+						 scope() == Scope::System ? QSettings::SystemScope : QSettings::UserScope,
+						 QCoreApplication::organizationName(),
+						 QCoreApplication::applicationName());
 #else
-	const auto settingsScope = scope() == Scope::System ? QSettings::SystemScope : QSettings::UserScope;
+	return new QSettings(QSettings::NativeFormat,
+						 scope() == Scope::System ? QSettings::SystemScope : QSettings::UserScope,
+						 QCoreApplication::organizationName(),
+						 QCoreApplication::applicationName());
 #endif
-	return new QSettings(
-#ifdef Q_OS_WIN
-				QSettings::Registry64Format,
-#else
-				QSettings::NativeFormat,
-#endif
-				settingsScope,
-				QCoreApplication::organizationName(),
-				QCoreApplication::applicationName());
 }
 
 
