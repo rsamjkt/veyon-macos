@@ -139,7 +139,7 @@ jobs:
           # copy every remaining /mingw64 DLL dependency (openssl, lzo, jpeg, png,
           # zlib, gcc/pthread runtime, …); fixpoint over several passes
           for pass in 1 2 3 4 5; do
-            for f in "$STAGE"/*.exe "$STAGE"/*.dll "$STAGE"/plugins/*.dll "$STAGE"/crypto/*.dll; do
+            for f in "$STAGE"/*.exe "$STAGE"/*.dll "$STAGE"/plugins/*.dll "$STAGE"/crypto/*.dll "$STAGE"/multimedia/*.dll; do
               [ -e "$f" ] || continue
               ldd "$f" 2>/dev/null | awk '{for(i=1;i<=NF;i++) if($i ~ /^\/mingw64\//) print $i}' | while read -r dep; do
                 base=$(basename "$dep")
