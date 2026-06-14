@@ -29,6 +29,29 @@ Verified on: macOS 26.4 (Apple Silicon / arm64), Qt 6.11, libvncserver 0.9.15.
 | Blocking local input during remote control / screen lock | ❌ not implemented |
 | Signed/notarized distribution build | ❌ ad-hoc signature only (per-build TCC identity) |
 
+## First-run setup (important)
+
+AruniControl Master needs **authentication keys** to start (otherwise it shows
+"Authentication impossible" and exits). Create a key pair once:
+
+```bash
+./build/cli/veyon-cli authkeys create master
+```
+
+(or set up logon authentication in the Configurator). The keys are stored under
+`~/Library/Application Support/AruniControl/keys/`.
+
+## Add-ons
+
+Open-source add-ons built for AruniControl (inspired by, not derived from,
+Veyon's commercial add-ons):
+
+- **Network Discovery** (`plugins/networkdiscovery`) — a NetworkObjectDirectory
+  that scans the local subnet(s) for hosts running an AruniControl Server
+  (port 11100) and lists them automatically. Enable it in the Configurator under
+  the *network object directory* plugin setting, or via:
+  `veyon-cli config set NetworkObjectDirectory/Plugin "{3c5e9a14-2b7d-4e6f-8a1c-9d0f2e4b6c81}"`.
+
 ## Packaging a distributable app bundle
 
 ```bash
