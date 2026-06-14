@@ -75,6 +75,13 @@ ApplicationListDialog* ApplicationMonitoringPlugin::dialogFor( const ComputerCon
 			sendFeatureMessage( FeatureMessage{ m_applicationMonitoringFeature.uid(), RequestApplications },
 								{ controlInterfaceCopy } );
 		} );
+
+		connect( dialog, &ApplicationListDialog::terminateRequested, this,
+				 [this, controlInterfaceCopy]( const QString& application ) {
+			sendFeatureMessage( FeatureMessage{ m_applicationMonitoringFeature.uid(), TerminateApplication }
+									.addArgument( Argument::TargetApplication, application ),
+								{ controlInterfaceCopy } );
+		} );
 	}
 	return dialog;
 }
@@ -149,8 +156,19 @@ bool ApplicationMonitoringPlugin::handleFeatureMessage( VeyonServerInterface& se
 														const MessageContext& messageContext,
 														const FeatureMessage& message )
 {
-	if( message.featureUid() != m_applicationMonitoringFeature.uid() ||
-		static_cast<int>( message.command() ) != RequestApplications )
+	if( message.featureUid() != m_applicationMonitoringFeature.uid() )
+	{
+		return false;
+	}
+
+	const auto command = static_cast<int>( message.command() );
+
+	if( command == TerminateApplication )
+	{
+		terminateApplication( message.argument( Argument::TargetApplication ).toString() );
+		// fall through and reply with a fresh list so the master UI updates at once
+	}
+	else if( command != RequestApplications )
 	{
 		return false;
 	}

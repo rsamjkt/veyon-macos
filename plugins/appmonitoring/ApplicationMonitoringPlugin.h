@@ -45,12 +45,14 @@ public:
 	{
 		Applications,
 		Frontmost,
+		TargetApplication,
 	};
 
 	enum Command
 	{
 		RequestApplications,
 		ApplicationsReply,
+		TerminateApplication,
 	};
 
 	Plugin::Uid uid() const override

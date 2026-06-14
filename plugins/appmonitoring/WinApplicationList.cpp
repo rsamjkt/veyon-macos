@@ -27,6 +27,7 @@
 #include "ApplicationList.h"
 
 #include <windows.h>
+#include <tlhelp32.h>
 #include <cwchar>
 
 
@@ -181,4 +182,36 @@ QString frontmostApplication()
 	}
 
 	return friendlyNameForProcess( processId );
+}
+
+
+
+void terminateApplication( const QString& name )
+{
+	HANDLE snapshot = CreateToolhelp32Snapshot( TH32CS_SNAPPROCESS, 0 );
+	if( snapshot == INVALID_HANDLE_VALUE )
+	{
+		return;
+	}
+
+	PROCESSENTRY32W entry;
+	entry.dwSize = sizeof( entry );
+	if( Process32FirstW( snapshot, &entry ) )
+	{
+		do
+		{
+			if( friendlyNameForProcess( entry.th32ProcessID ) == name )
+			{
+				HANDLE process = OpenProcess( PROCESS_TERMINATE, FALSE, entry.th32ProcessID );
+				if( process != nullptr )
+				{
+					TerminateProcess( process, 1 );
+					CloseHandle( process );
+				}
+			}
+		}
+		while( Process32NextW( snapshot, &entry ) );
+	}
+
+	CloseHandle( snapshot );
 }

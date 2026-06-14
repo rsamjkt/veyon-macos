@@ -39,8 +39,10 @@ public:
 
 Q_SIGNALS:
 	void refreshRequested();
+	void terminateRequested( const QString& application );
 
 private:
+	QString m_computerName;
 	QLabel* m_frontmost;
 	QListWidget* m_list;
 

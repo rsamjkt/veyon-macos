@@ -62,3 +62,21 @@ QString frontmostApplication()
 
 	return name;
 }
+
+
+
+void terminateApplication( const QString& name )
+{
+	@autoreleasepool {
+		for( NSRunningApplication* app in [[NSWorkspace sharedWorkspace] runningApplications] )
+		{
+			if( app.localizedName != nil && QString::fromNSString( app.localizedName ) == name )
+			{
+				if( [app terminate] == NO )
+				{
+					[app forceTerminate];
+				}
+			}
+		}
+	}
+}

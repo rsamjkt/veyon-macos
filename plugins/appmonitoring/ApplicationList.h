@@ -32,3 +32,6 @@ QStringList runningApplications();
 
 // Name of the currently focused (frontmost / foreground) application.
 QString frontmostApplication();
+
+// Terminate every running process whose display name matches `name`.
+void terminateApplication( const QString& name );
