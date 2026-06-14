@@ -99,6 +99,10 @@ if(WIN32)
 	if(CMAKE_SYSTEM_PROCESSOR STREQUAL "x86_64")
 		set(VEYON_BUILD_WIN64 1)
 		set(VEYON_WINDOWS_ARCH "win64")
+		# The vendored UltraVNC sources switch 32/64-bit code paths on _X64
+		# (GWLP_USERDATA vs GWL_USERDATA, DWLP_MSGRESULT, SIZE_T vs DWORD, …).
+		# MXE predefines it; the MSYS2 toolchain does not, so define it here.
+		add_definitions(-D_X64)
 	else()
 		set(VEYON_BUILD_WIN32 1)
 		set(VEYON_WINDOWS_ARCH "win32")

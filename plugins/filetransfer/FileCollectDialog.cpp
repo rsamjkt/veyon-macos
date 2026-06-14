@@ -23,7 +23,9 @@
  */
 
 #include <QDesktopServices>
+#include <QDir>
 #include <QInputDialog>
+#include <QMessageBox>
 #include <QPushButton>
 #include <QScreen>
 

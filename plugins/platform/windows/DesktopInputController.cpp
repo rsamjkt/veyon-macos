@@ -26,6 +26,8 @@
 
 #include <windows.h>
 
+#include <QThread>
+
 #include "DesktopInputController.h"
 #include "VeyonCore.h"
 

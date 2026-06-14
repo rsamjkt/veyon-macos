@@ -70,3 +70,10 @@ target_link_libraries(windows-platform PRIVATE Qt6::GuiPrivate)
 target_compile_definitions(windows-platform PRIVATE ULTRAVNC_VEYON_SUPPORT)
 target_compile_options(windows-platform PRIVATE "-Wno-unknown-pragmas")
 set_source_files_properties(WindowsNetworkFunctions.cpp PROPERTIES SKIP_UNITY_BUILD_INCLUSION TRUE SKIP_PRECOMPILE_HEADERS TRUE)
+
+# The MS-Logon SSP sources use SEH (__try/__except), which GCC only accepts with
+# exceptions enabled; the project otherwise builds with -fno-exceptions.
+set_source_files_properties(
+	${ultravnc_DIR}/addon/ms-logon/authSSP/authSSP.cpp
+	${ultravnc_DIR}/addon/ms-logon/authSSP/GenClientServerContext.cpp
+	PROPERTIES COMPILE_OPTIONS "-fexceptions" SKIP_UNITY_BUILD_INCLUSION TRUE)

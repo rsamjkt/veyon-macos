@@ -24,6 +24,7 @@
 
 #include <QDir>
 
+#include <windows.h>
 #include <shlobj.h>
 #include <accctrl.h>
 #include <aclapi.h>
