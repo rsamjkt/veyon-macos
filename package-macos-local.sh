@@ -40,6 +40,8 @@ make_app() { # <App display name> <primary executable> <bundle id suffix>
 	done
 	find "${BUILD_DIR}/plugins" -name '*.so' -exec cp {} "${plugins}/" \;
 
+	cp "${SCRIPT_DIR}/master/data/AruniControl.icns" "${contents}/Resources/AruniControl.icns"
+
 	cat > "${contents}/Info.plist" <<PLIST
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -49,6 +51,7 @@ make_app() { # <App display name> <primary executable> <bundle id suffix>
 	<key>CFBundleDisplayName</key>     <string>${appname}</string>
 	<key>CFBundleIdentifier</key>      <string>id.arunika.${idsuffix}</string>
 	<key>CFBundleExecutable</key>      <string>${mainexe}</string>
+	<key>CFBundleIconFile</key>        <string>AruniControl</string>
 	<key>CFBundlePackageType</key>     <string>APPL</string>
 	<key>CFBundleVersion</key>         <string>1.0.0</string>
 	<key>CFBundleShortVersionString</key> <string>1.0.0</string>

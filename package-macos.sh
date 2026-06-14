@@ -53,6 +53,7 @@ cat > "${CONTENTS}/Info.plist" <<PLIST
 	<key>CFBundleDisplayName</key>     <string>AruniControl Master</string>
 	<key>CFBundleIdentifier</key>      <string>${BUNDLE_ID}</string>
 	<key>CFBundleExecutable</key>      <string>veyon-master</string>
+	<key>CFBundleIconFile</key>        <string>AruniControl</string>
 	<key>CFBundlePackageType</key>     <string>APPL</string>
 	<key>CFBundleVersion</key>         <string>${VERSION}</string>
 	<key>CFBundleShortVersionString</key> <string>${VERSION}</string>
@@ -73,6 +74,9 @@ cat > "${RES_DIR}/qt.conf" <<'QTCONF'
 [Paths]
 Plugins = PlugIns
 QTCONF
+
+echo "==> Installing app icon"
+cp "${SCRIPT_DIR}/master/data/AruniControl.icns" "${RES_DIR}/AruniControl.icns"
 
 echo "==> Normalising install names / rpaths"
 install_name_tool -id "@rpath/libveyon-core.dylib" "${FRAMEWORKS_DIR}/libveyon-core.dylib" 2>/dev/null || true
