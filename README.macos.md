@@ -58,6 +58,11 @@ Veyon's commercial add-ons):
   *Record screen* button in the Master toolbar; click again to stop. Videos are
   saved to `~/Movies/AruniControl/`.
 
+- **Chat** (`plugins/chat`) — two-way text chat between the Master and the users
+  of selected computers. Click *Chat* in the Master toolbar to open a chat window
+  per computer; messages are shown in the user's session and they can reply.
+  (The client side relies on the worker running in the user's GUI session.)
+
 ## Packaging a distributable app bundle
 
 ```bash
