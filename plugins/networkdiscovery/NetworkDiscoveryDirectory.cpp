@@ -64,6 +64,7 @@ void NetworkDiscoveryDirectory::startScan()
 	m_foundHosts.clear();
 
 	const auto targets = scanTargets();
+	vDebug() << "NetworkDiscovery: scanning" << targets.size() << "hosts on port" << m_serverPort;
 	if( targets.isEmpty() )
 	{
 		finishScan();

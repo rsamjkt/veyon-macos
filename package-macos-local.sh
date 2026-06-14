@@ -55,6 +55,8 @@ make_app() { # <App display name> <primary executable> <bundle id suffix>
 	<key>LSMinimumSystemVersion</key>  <string>14.0</string>
 	<key>NSHighResolutionCapable</key> <true/>
 	<key>NSPrincipalClass</key>        <string>NSApplication</string>
+	<key>NSLocalNetworkUsageDescription</key>
+	<string>AruniControl discovers and connects to computers running AruniControl Server on your local network.</string>
 </dict>
 </plist>
 PLIST

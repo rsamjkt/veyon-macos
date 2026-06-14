@@ -61,6 +61,8 @@ cat > "${CONTENTS}/Info.plist" <<PLIST
 	<key>NSPrincipalClass</key>        <string>NSApplication</string>
 	<key>NSAppleEventsUsageDescription</key>
 	<string>AruniControl controls system power and session state on your behalf.</string>
+	<key>NSLocalNetworkUsageDescription</key>
+	<string>AruniControl discovers and connects to computers running AruniControl Server on your local network.</string>
 </dict>
 </plist>
 PLIST
