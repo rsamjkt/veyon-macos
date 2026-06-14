@@ -44,10 +44,11 @@ AruniControl adalah bagian dari keluarga produk **Arunika** (AruniHealth, Arunik
 |--------|------------|-----------------|
 | 🎥 **Screen Recorder** | Rekam layar client ke video H.264 | dijalankan di Master |
 | 🔎 **Network Discovery** | Deteksi otomatis client di jaringan lokal | macOS & Windows |
-| 📊 **Application Monitoring** | Daftar aplikasi yang berjalan + aplikasi aktif tiap client (live) | macOS & Windows |
+| 📊 **Application Monitoring** | Daftar aplikasi berjalan + aplikasi aktif, **plus tutup aplikasi dari jauh** | macOS & Windows |
 | 🔇 **AruniMedia** | Mute / unmute audio client | macOS & Windows |
 | 🚫 **Internet Access Control** | Blokir / izinkan internet (mis. saat ujian) | macOS & Windows |
 | 💬 **Chat** | Obrolan dua arah Master ↔ pengguna | macOS & Windows |
+| 🎙️ **AruniVoice** | Suara **dua arah** (push-to-talk / intercom) 1:1 dengan satu client | macOS & Windows |
 
 ---
 
@@ -141,7 +142,8 @@ Jika client Windows **sudah** menjalankan AruniControl edisi 4.10.4 (x64) yang s
 
 - **🎥 Screen Recorder** — klik *Record screen* di toolbar Master untuk merekam layar client terpilih; klik lagi untuk stop. Rekaman tersimpan di Master (H.264). Bekerja terhadap client Windows maupun macOS.
 - **🔎 Network Discovery** — memindai subnet jaringan mencari komputer yang menjalankan AruniControl Server (port `11100`) dan menampilkannya otomatis. Aktifkan di Configurator pada setelan *network object directory*.
-- **📊 Application Monitoring** — klik *Application monitoring* → jendela per-komputer menampilkan daftar aplikasi GUI yang berjalan + aplikasi yang sedang aktif (di-update tiap 3 detik). Berguna mendeteksi aplikasi terlarang saat ujian.
+- **📊 Application Monitoring** — klik *Application monitoring* → jendela per-komputer menampilkan daftar aplikasi GUI yang berjalan + aplikasi yang sedang aktif (di-update tiap 3 detik). Pilih sebuah aplikasi lalu **Close selected application** untuk **menutupnya dari jauh** (dengan konfirmasi). Berguna mendeteksi & menutup aplikasi terlarang saat ujian.
+- **🎙️ AruniVoice** — bicara **dua arah** dengan satu client terpilih. Default **push-to-talk** (tahan tombol untuk bicara), atau aktifkan **intercom nonstop** (mic nyala terus — pakai headset agar tak echo). Audio lewat koneksi yang sama (tanpa port baru). Butuh izin **Mikrofon** (macOS: muncul saat pertama dipakai).
 - **🔇 AruniMedia** — tombol *Mute audio* untuk membisukan/mengaktifkan audio client (tanpa hak admin).
 - **🚫 Internet Access Control** — tombol *Block internet* untuk memblokir akses internet client (LAN tetap jalan agar Master tetap terhubung). Di Windows memakai Windows Firewall via service `LocalSystem`; di macOS memakai `pf` (butuh hak admin di client).
 - **💬 Chat** — obrolan dua arah; pesan muncul di sesi pengguna dan mereka bisa membalas.
