@@ -20,6 +20,9 @@ on:
       - '.github/workflows/windows-build.yml'
   workflow_dispatch:
 
+permissions:
+  contents: write   # allow uploading assets to the release
+
 jobs:
   build-windows:
     runs-on: windows-latest
@@ -179,3 +182,19 @@ jobs:
           name: AruniControl-Setup-win64
           path: AruniControl-Setup-1.0.0-Aurora-Windows-x64.exe
           if-no-files-found: error
+
+      # Publish the Windows assets to the release directly from the runner
+      # (fast GitHub-internal network) so large files don't have to be moved
+      # through a slow local connection.
+      - name: Publish Windows assets to the release
+        if: github.ref == 'refs/heads/main'
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          Compress-Archive -Path AruniControl-Server-win64\* `
+            -DestinationPath AruniControl-Server-1.0.0-Aurora-Windows-x64.zip -Force
+          gh release upload v1.0.0 `
+            AruniControl-Setup-1.0.0-Aurora-Windows-x64.exe `
+            AruniControl-Server-1.0.0-Aurora-Windows-x64.zip `
+            --clobber --repo $env:GITHUB_REPOSITORY
