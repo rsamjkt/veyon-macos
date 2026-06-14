@@ -76,6 +76,11 @@ Veyon's commercial add-ons):
   Webcam and USB device control are **not** implemented: on macOS those require
   an MDM profile or kernel extension, which is out of scope for a user-space app.
 
+- **Application Monitoring** (`plugins/appmonitoring`) — from the Master, click
+  *Application monitoring* to open a per-computer window listing the running GUI
+  applications and the active (frontmost) app on each selected computer (polled
+  live via NSWorkspace). Useful for spotting disallowed apps during exams.
+
 ## Packaging a distributable app bundle
 
 ```bash
