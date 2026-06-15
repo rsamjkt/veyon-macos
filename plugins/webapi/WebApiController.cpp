@@ -30,6 +30,7 @@
 #include "ComputerControlInterface.h"
 #include "FeatureManager.h"
 #include "PlatformNetworkFunctions.h"
+#include "VncConnection.h"
 #include "WebApiAuthenticationProxy.h"
 #include "WebApiConfiguration.h"
 #include "WebApiController.h"
@@ -320,6 +321,68 @@ WebApiController::Response WebApiController::getFramebuffer( const Request& requ
 	}
 
 	return imageData;
+}
+
+
+
+WebApiController::Response WebApiController::sendPointerEvent( const Request& request )
+{
+	m_apiTotalRequestsCounter++;
+
+	Response checkResponse{};
+	if( ( checkResponse = checkConnection( request ) ).error != Error::NoError )
+	{
+		return checkResponse;
+	}
+
+	const auto connection = lookupConnection( request );
+	auto* vncConnection = connection->controlInterface()->vncConnection();
+	if( vncConnection == nullptr )
+	{
+		return Error::InvalidConnection;
+	}
+
+	// pointer coordinates arrive normalised (0..1) and are scaled to the real
+	// framebuffer size; buttons is an RFB button mask (1=left, 2=middle, 4=right,
+	// 8=wheel-up, 16=wheel-down).
+	const auto framebufferSize = vncConnection->image().size();
+	const int x = qBound( 0, static_cast<int>( request.data[QStringLiteral( "x" )].toDouble() * framebufferSize.width() ),
+						  qMax( 0, framebufferSize.width() - 1 ) );
+	const int y = qBound( 0, static_cast<int>( request.data[QStringLiteral( "y" )].toDouble() * framebufferSize.height() ),
+						  qMax( 0, framebufferSize.height() - 1 ) );
+	const int buttons = request.data[QStringLiteral( "buttons" )].toInt();
+
+	runInWorkerThread( [&] { vncConnection->mouseEvent( x, y, buttons ); } );
+
+	return {};
+}
+
+
+
+WebApiController::Response WebApiController::sendKeyEvent( const Request& request )
+{
+	m_apiTotalRequestsCounter++;
+
+	Response checkResponse{};
+	if( ( checkResponse = checkConnection( request ) ).error != Error::NoError )
+	{
+		return checkResponse;
+	}
+
+	const auto connection = lookupConnection( request );
+	auto* vncConnection = connection->controlInterface()->vncConnection();
+	if( vncConnection == nullptr )
+	{
+		return Error::InvalidConnection;
+	}
+
+	// key is an X11 keysym; down=true for press, false for release
+	const auto keysym = static_cast<VncConnection::KeyCode>( request.data[QStringLiteral( "key" )].toUInt() );
+	const bool down = request.data[QStringLiteral( "down" )].toBool();
+
+	runInWorkerThread( [&] { vncConnection->keyEvent( keysym, down ); } );
+
+	return {};
 }
 
 

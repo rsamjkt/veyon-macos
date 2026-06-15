@@ -121,6 +121,9 @@ public:
 
 	Response getFramebuffer( const Request& request );
 
+	Response sendPointerEvent( const Request& request );
+	Response sendKeyEvent( const Request& request );
+
 	Response listFeatures( const Request& request );
 	Response setFeatureStatus( const Request& request, const QString& feature );
 	Response getFeatureStatus( const Request& request, const QString& feature );
