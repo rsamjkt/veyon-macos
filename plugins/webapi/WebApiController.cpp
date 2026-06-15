@@ -29,6 +29,7 @@
 
 #include "ComputerControlInterface.h"
 #include "FeatureManager.h"
+#include "FeatureMessage.h"
 #include "PlatformNetworkFunctions.h"
 #include "VncConnection.h"
 #include "WebApiAuthenticationProxy.h"
@@ -381,6 +382,37 @@ WebApiController::Response WebApiController::sendKeyEvent( const Request& reques
 	const bool down = request.data[QStringLiteral( "down" )].toBool();
 
 	runInWorkerThread( [&] { vncConnection->keyEvent( keysym, down ); } );
+
+	return {};
+}
+
+
+
+WebApiController::Response WebApiController::postFeatureMessage( const Request& request )
+{
+	m_apiTotalRequestsCounter++;
+
+	Response checkResponse{};
+	if( ( checkResponse = checkConnection( request ) ).error != Error::NoError )
+	{
+		return checkResponse;
+	}
+
+	const auto featureUid = request.data[QStringLiteral( "feature" )].toString();
+	if( featureUid.isEmpty() )
+	{
+		return Error::InvalidData;
+	}
+
+	const auto command = request.data[QStringLiteral( "command" )].toInt();
+	const auto key = request.data[QStringLiteral( "key" )].toInt();
+	const auto data = QByteArray::fromBase64( request.data[QStringLiteral( "data" )].toString().toUtf8() );
+
+	FeatureMessage message{ Feature::Uid{ featureUid } };
+	message.setCommand( FeatureMessage::Command( command ) );
+	message.addArgument( key, data );
+
+	lookupConnection( request )->controlInterface()->sendFeatureMessage( message );
 
 	return {};
 }

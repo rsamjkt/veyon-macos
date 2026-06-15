@@ -123,6 +123,7 @@ public:
 
 	Response sendPointerEvent( const Request& request );
 	Response sendKeyEvent( const Request& request );
+	Response postFeatureMessage( const Request& request );
 
 	Response listFeatures( const Request& request );
 	Response setFeatureStatus( const Request& request, const QString& feature );

@@ -331,6 +331,7 @@ bool WebApiHttpServer::start()
 	success &= addRoute<Method::Get>( QStringLiteral("framebuffer"), &WebApiController::getFramebuffer );
 	success &= addRoute<Method::Post>( QStringLiteral("input/pointer"), &WebApiController::sendPointerEvent );
 	success &= addRoute<Method::Post>( QStringLiteral("input/key"), &WebApiController::sendKeyEvent );
+	success &= addRoute<Method::Post>( QStringLiteral("message"), &WebApiController::postFeatureMessage );
 	success &= addRoute<Method::Get>( QStringLiteral("feature"), &WebApiController::listFeatures );
 	success &= addRoute<Method::Get>( QStringLiteral("feature/<arg>"), &WebApiController::getFeatureStatus );
 	success &= addRoute<Method::Put>( QStringLiteral("feature/<arg>"), &WebApiController::setFeatureStatus );
