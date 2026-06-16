@@ -156,9 +156,22 @@ WebApiController::Response WebApiController::performAuthentication( const Reques
 	auto proxy = new WebApiAuthenticationProxy( m_configuration );
 
 	// create connection (including timer resources) in main thread
-	auto connection = runInWorkerThread<WebApiConnectionPointer>([this, host, proxy]() {
+	auto connection = runInWorkerThread<WebApiConnectionPointer>([this, host, proxy, uuid]() {
 		auto connection = new WebApiConnection{host.isEmpty() ? QStringLiteral("localhost") : host};
 		connection->controlInterface()->start({}, ComputerControlInterface::UpdateMode::Basic, proxy);
+
+		// buffer feature-message replies from the client (e.g. Application
+		// Monitoring app lists) so they can be drained via GET /messages
+		if( auto* vncConnection = connection->controlInterface()->connection() )
+		{
+			QObject::connect( vncConnection, &VeyonConnection::featureMessageReceived, vncConnection,
+							  [this, uuid]( const FeatureMessage& message ) {
+				QWriteLocker locker( &m_messagesLock );
+				auto& list = m_receivedMessages[uuid];
+				list.append( message );
+				while( list.size() > 128 ) { list.removeFirst(); }
+			} );
+		}
 
 		// make shared pointer destroy the connection in management thread again
 		return WebApiConnectionPointer{connection,
@@ -419,6 +432,40 @@ WebApiController::Response WebApiController::postFeatureMessage( const Request& 
 
 
 
+WebApiController::Response WebApiController::getMessages( const Request& request )
+{
+	m_apiTotalRequestsCounter++;
+
+	Response checkResponse{};
+	if( ( checkResponse = checkConnection( request ) ).error != Error::NoError )
+	{
+		return checkResponse;
+	}
+
+	const QUuid connectionUuid{ lookupHeaderField( request, connectionUidHeaderFieldName() ) };
+
+	QList<FeatureMessage> messages;
+	{
+		QWriteLocker messagesWriteLocker{ &m_messagesLock };
+		messages = m_receivedMessages.take( connectionUuid ); // drain
+	}
+
+	QVariantList result;
+	result.reserve( messages.size() );
+	for( const auto& message : messages )
+	{
+		result.append( QVariantMap{
+			{ QStringLiteral("feature"), message.featureUid().toString( QUuid::WithoutBraces ) },
+			{ QStringLiteral("command"), static_cast<int>( message.command() ) },
+			{ QStringLiteral("arguments"), message.arguments() },
+		} );
+	}
+
+	return result;
+}
+
+
+
 WebApiController::Response WebApiController::listFeatures( const Request& request )
 {
 	m_apiTotalRequestsCounter++;
@@ -670,6 +717,11 @@ T WebApiController::runInWorkerThread(const std::function<T()>& functor) const
 
 void WebApiController::removeConnection( QUuid connectionUuid )
 {
+	{
+		QWriteLocker messagesWriteLocker{ &m_messagesLock };
+		m_receivedMessages.remove( connectionUuid );
+	}
+
 	QWriteLocker connectionsWriteLocker{ &m_connectionsLock };
 
 	// deleter functor automatically performs actual deletion in worker thread

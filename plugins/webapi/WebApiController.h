@@ -24,10 +24,12 @@
 
 #pragma once
 
+#include <QHash>
 #include <QReadWriteLock>
 #include <QThread>
 
 #include "EnumHelper.h"
+#include "FeatureMessage.h"
 #include "LockingPointer.h"
 #include "WebApiConnection.h"
 
@@ -124,6 +126,7 @@ public:
 	Response sendPointerEvent( const Request& request );
 	Response sendKeyEvent( const Request& request );
 	Response postFeatureMessage( const Request& request );
+	Response getMessages( const Request& request );
 
 	Response listFeatures( const Request& request );
 	Response setFeatureStatus( const Request& request, const QString& feature );
@@ -179,6 +182,11 @@ private:
 	const WebApiConfiguration& m_configuration;
 	QMap<QUuid, WebApiConnectionPointer> m_connections{};
 	QReadWriteLock m_connectionsLock;
+
+	// feature-message replies received from clients, buffered per connection
+	// (e.g. Application Monitoring app lists), drained via GET /messages.
+	QHash<QUuid, QList<FeatureMessage>> m_receivedMessages{};
+	QReadWriteLock m_messagesLock;
 
 	QThread* m_workerThread = nullptr;
 	QObject* m_workerObject = nullptr;
