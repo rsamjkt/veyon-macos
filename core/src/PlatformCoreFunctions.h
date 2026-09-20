@@ -39,6 +39,8 @@ public:
 	using ProcessId = qint64;
 	static constexpr ProcessId InvalidProcessId = -1;
 
+	using NotifierCallback = std::function<void(QObject* )>;
+
 	virtual ~PlatformCoreFunctions() = default;
 
 	virtual bool applyConfiguration() = 0;
@@ -47,6 +49,8 @@ public:
 
 	virtual void initNativeLoggingSystem( const QString& appName ) = 0;
 	virtual void writeToNativeLoggingSystem( const QString& message, Logger::LogLevel loglevel ) = 0;
+
+	virtual QObject* notifyOnStandardInputReadyRead(const NotifierCallback& callback) = 0;
 
 	virtual void reboot() = 0;
 	virtual void powerDown( bool installUpdates ) = 0;
@@ -63,10 +67,11 @@ public:
 	virtual bool isRunningAsAdmin() const = 0;
 	virtual bool runProgramAsAdmin( const QString& program, const QStringList& parameters ) = 0;
 
-	virtual bool runProgramAsUser( const QString& program,
-								   const QStringList& parameters,
-								   const QString& username,
-								   const QString& desktop ) = 0;
+	virtual bool runProgramAsUser(const QString& program,
+								  const QStringList& parameters,
+								  const QString& username,
+								  const QString& desktop,
+								  const QByteArray& stdInData = {}) = 0;
 
 	virtual QString genericUrlHandler() const = 0;
 

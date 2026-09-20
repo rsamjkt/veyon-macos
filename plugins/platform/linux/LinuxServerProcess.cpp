@@ -22,27 +22,37 @@
  *
  */
 
+#include <QDBusConnection>
+#include <QDBusConnectionInterface>
+#include <QDir>
 #include <QFileInfo>
 
 #include <csignal>
+#include <grp.h>
+#include <pwd.h>
 #ifdef HAVE_LIBPROCPS
 #include <proc/readproc.h>
 #endif
 #include <sys/errno.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <unistd.h>
 
 #include "Filesystem.h"
 #include "LinuxCoreFunctions.h"
 #include "LinuxServerProcess.h"
+#include "LinuxUserFunctions.h"
 #include "VeyonConfiguration.h"
 
 
-LinuxServerProcess::LinuxServerProcess( const QProcessEnvironment& processEnvironment,
-										const QString& sessionPath, int sessionId, QObject* parent ) :
-	QProcess( parent ),
-	m_sessionPath( sessionPath ),
-	m_sessionId( sessionId )
+LinuxServerProcess::LinuxServerProcess(const QProcessEnvironment& processEnvironment,
+									   const QString& sessionPath, int sessionId,
+									   LinuxSessionFunctions::Type sessionType,
+									   QObject* parent) :
+	QProcess(parent),
+	m_sessionPath(sessionPath),
+	m_sessionId(sessionId),
+	m_sessionType(sessionType)
 {
 	setProcessEnvironment( processEnvironment );
 }
@@ -74,6 +84,105 @@ void LinuxServerProcess::start()
 	else if( VeyonCore::isDebugging() && QFileInfo::exists( catchsegv ) )
 	{
 		QProcess::start( catchsegv, { VeyonCore::filesystem().serverFilePath() } );
+	}
+	else if (m_sessionType == LinuxSessionFunctions::Type::Wayland)
+	{
+		const auto sessionUserPath = LinuxSessionFunctions::getSessionUser(m_sessionPath);
+		const auto sessionUserName = LinuxUserFunctions::getUserProperty(sessionUserPath, QStringLiteral("Name")).toString();
+		if (sessionUserName.isEmpty())
+		{
+			vCritical() << "failed to determine user name of session user" << sessionUserPath;
+		}
+
+		m_sessionUserId = LinuxUserFunctions::userIdFromName(sessionUserName);
+
+		if (m_sessionUserId == LinuxUserFunctions::InvalidUserId)
+		{
+			vCritical() << "failed to determine user ID of user" << sessionUserName;
+		}
+
+#if QT_VERSION >= QT_VERSION_CHECK(6, 0, 0)
+		setChildProcessModifier([this] { setProcessUserId(); });
+#endif
+
+		const auto desktopPortalHasRegistry = [this]()
+		{
+			const auto originalUserId = getuid();
+			if (seteuid(m_sessionUserId) != 0)
+			{
+				vWarning() << "failed to impersonate session user - xdg-desktop-portal version detection likely will fail";
+			}
+			const auto revertUserIdGuard = qScopeGuard([=]() {
+				if (seteuid(originalUserId) != 0)
+				{
+					vWarning() << "failed to revert session user impersonation";
+				}
+			});
+
+			// Connect to the user's session D-Bus via the known socket path to
+			// check for xdg-desktop-portal >= 1.20 (presence of the
+			// org.freedesktop.host.portal.Registry service). The system service
+			// runs as root and cannot rely on DBUS_SESSION_BUS_ADDRESS in its
+			// own environment, so we connect directly.
+			const auto busAddress = QStringLiteral("unix:path=/run/user/%1/bus").arg(m_sessionUserId);
+			const auto portalBusName = QStringLiteral("portal-check");
+
+			auto portalBus = QDBusConnection::connectToBus(busAddress, portalBusName);
+			if (portalBus.isConnected() == false)
+			{
+				vCritical() << "could not connect to session bus";
+				return false;
+			}
+
+			auto portalConnectionGuard = qScopeGuard([=]() { QDBusConnection::disconnectFromBus(portalBusName); });
+
+			QDBusInterface introspectIface(
+						QStringLiteral("org.freedesktop.portal.Desktop"),
+						QStringLiteral("/org/freedesktop/portal/desktop"),
+						QStringLiteral("org.freedesktop.DBus.Introspectable"),
+						portalBus);
+
+
+			if (!introspectIface.isValid())
+			{
+				return false;
+			}
+
+			QDBusReply<QString> reply = introspectIface.call(QStringLiteral("Introspect"));
+			if (!reply.isValid())
+			{
+				return false;
+			}
+
+			return reply.value().contains(QStringLiteral("org.freedesktop.host.portal.Registry"));
+		};
+
+		if (desktopPortalHasRegistry())
+		{
+			vDebug() << "xdg-desktop-portal >= 1.20 detected, launching server directly";
+			QProcess::start(VeyonCore::filesystem().serverFilePath(), QStringList{});
+		}
+		else
+		{
+			vDebug() << "xdg-desktop-portal < 1.20, falling back to D-Bus activation";
+
+			const auto desktopEnvironment = LinuxSessionFunctions::getSessionDesktopEnvironment(m_sessionPath);
+			const auto desktopFile = VeyonCore::applicationsDirectory() + QDir::separator()
+									 + QStringLiteral("io.veyon.veyon-server.desktop");
+			switch (desktopEnvironment)
+			{
+			case LinuxSessionFunctions::DesktopEnvironment::KDE:
+				QProcess::start(QStringLiteral("kioclient"), {QStringLiteral("exec"), desktopFile});
+				break;
+			case LinuxSessionFunctions::DesktopEnvironment::GNOME:
+				QProcess::start(QStringLiteral("gio"), {QStringLiteral("launch"), desktopFile});
+				break;
+			default:
+				vWarning() << "Unsupported desktop environment with Wayland session, launching server directly";
+				QProcess::start(VeyonCore::filesystem().serverFilePath(), QStringList{});
+				break;
+			}
+		}
 	}
 	else
 	{
@@ -125,20 +234,46 @@ void LinuxServerProcess::stop()
 	const auto pid = pid_t(processId());
 
 	// manually set process state since we're managing the process termination on our own
-	setProcessState( QProcess::NotRunning );
+	setProcessState(QProcess::NotRunning);
 
 	// tell x11vnc and child processes (in case spawned via catchsegv) to shutdown
-	sendSignalRecursively( pid, SIGINT );
+	sendSignalRecursively(pid, SIGINT);
 
-	if( LinuxCoreFunctions::waitForProcess( pid, ServerShutdownTimeout, ServerWaitSleepInterval ) == false )
+	if(LinuxCoreFunctions::waitForProcess(pid, ServerShutdownTimeout, ServerWaitSleepInterval) == false)
 	{
-		sendSignalRecursively( pid, SIGTERM );
+		sendSignalRecursively(pid, SIGTERM);
 
-		if( LinuxCoreFunctions::waitForProcess( pid, ServerTerminateTimeout, ServerWaitSleepInterval ) == false )
+		if( LinuxCoreFunctions::waitForProcess(pid, ServerTerminateTimeout, ServerWaitSleepInterval) == false)
 		{
 			vWarning() << "server for session" << m_sessionPath << "still running - killing now";
-			sendSignalRecursively( pid, SIGKILL );
-			LinuxCoreFunctions::waitForProcess( pid, ServerKillTimeout, ServerWaitSleepInterval );
+			sendSignalRecursively(pid, SIGKILL);
+			LinuxCoreFunctions::waitForProcess(pid, ServerKillTimeout, ServerWaitSleepInterval);
+		}
+	}
+}
+
+
+
+void LinuxServerProcess::setProcessUserId()
+{
+	if (m_sessionUserId != LinuxUserFunctions::InvalidUserId)
+	{
+		// Look up the user's full credential data before dropping privileges
+		const auto pw_entry = getpwuid(m_sessionUserId);
+		if(pw_entry != nullptr)
+		{
+			// Set supplementary groups first (needs EUID=root)
+			initgroups(pw_entry->pw_name, pw_entry->pw_gid);
+			// Set primary group GID
+			if (setgid(pw_entry->pw_gid) != 0)
+			{
+				vCritical() << "failed to set GID";
+			}
+		}
+		// Set UID last — after this the process has no more root privileges
+		if (setuid(m_sessionUserId) != 0)
+		{
+			vCritical() << "failed to set UID";
 		}
 	}
 }

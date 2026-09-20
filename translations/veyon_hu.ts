@@ -1,6 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE TS>
-<TS version="2.1" language="hu">
+<?xml version="1.0" ?><!DOCTYPE TS><TS version="2.1" language="hu">
 <context>
     <name>AboutDialog</name>
     <message>
@@ -45,7 +43,7 @@ Ha érdekel a Veyon fordítása (saját vagy egyéb nyelvre), esetleg meglévő 
     </message>
     <message>
         <source>About Veyon %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Veyon %1 névjegye</translation>
     </message>
 </context>
 <context>
@@ -139,7 +137,7 @@ Ha érdekel a Veyon fordítása (saját vagy egyéb nyelvre), esetleg meglévő 
     <name>AccessControlProvider</name>
     <message>
         <source>Provider for access control features</source>
-        <translation type="unfinished"></translation>
+        <translation>Hozzáférés-vezérlési funkciók szolgáltatója</translation>
     </message>
 </context>
 <context>
@@ -254,7 +252,7 @@ Ha érdekel a Veyon fordítása (saját vagy egyéb nyelvre), esetleg meglévő 
     </message>
     <message>
         <source>Local computer is already being accessed</source>
-        <translation type="unfinished"></translation>
+        <translation>A helyi számítógép már elérhető</translation>
     </message>
 </context>
 <context>
@@ -305,7 +303,7 @@ Ha érdekel a Veyon fordítása (saját vagy egyéb nyelvre), esetleg meglévő 
     </message>
     <message>
         <source>There is no matching rule with a valid action. The access is therefore denied.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nincs érvényes művelettel egyező szabály. A hozzáférés ezért megtagadva.</translation>
     </message>
 </context>
 <context>
@@ -420,7 +418,9 @@ A nyilvános kulcsrészt a kliens számítógépen használjuk a bejövő kapcso
         <source>Please enter the name of the user group or role for which to import the authentication key.
 
 Make sure that the names of the keys belonging to each other are identical on all computers.</source>
-        <translation type="unfinished"></translation>
+        <translation>Kérjük, add meg annak a felhasználói csoportnak vagy szerepkörnek a nevét, amelyhez importálod a hitelesítési kulcsot.
+
+Győződj meg arról, hogy az egymáshoz tartozó kulcsok nevei minden számítógépen azonosak.</translation>
     </message>
 </context>
 <context>
@@ -708,11 +708,11 @@ Make sure that the names of the keys belonging to each other are identical on al
     </message>
     <message>
         <source>Move selected computer up</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Move selected computer down</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Name</source>
@@ -736,11 +736,11 @@ Make sure that the names of the keys belonging to each other are identical on al
     </message>
     <message>
         <source>Move selected location up</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Move selected location down</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>The import of CSV files is possible through the command line interface. For more information, see the &lt;a href=&quot;https://docs.veyon.io/en/latest/admin/cli.html#network-object-directory&quot;&gt;online documentation&lt;/a&gt;.</source>
@@ -1072,7 +1072,7 @@ Make sure that the names of the keys belonging to each other are identical on al
     </message>
     <message>
         <source>Hostname: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>Kiszolgálónév: %1</translation>
     </message>
     <message>
         <source>unknown</source>
@@ -1080,15 +1080,15 @@ Make sure that the names of the keys belonging to each other are identical on al
     </message>
     <message>
         <source>IP address: %1</source>
-        <translation type="unfinished"></translation>
+        <translation>IP-cím: %1</translation>
     </message>
     <message>
         <source>Hostname could not be resolved</source>
-        <translation type="unfinished"></translation>
+        <translation>A kiszolgálónév nem oldható fel</translation>
     </message>
     <message>
         <source>No features active</source>
-        <translation type="unfinished"></translation>
+        <translation>Nincsenek aktív funkciók</translation>
     </message>
 </context>
 <context>
@@ -1119,7 +1119,7 @@ Make sure that the names of the keys belonging to each other are identical on al
     </message>
     <message>
         <source>Veyon Service %1 at %2:%3</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 Veyon szolgáltatás: 2%:%3</translation>
     </message>
     <message>
         <source>Active connections:</source>
@@ -1142,7 +1142,7 @@ Make sure that the names of the keys belonging to each other are identical on al
     </message>
     <message>
         <source>No default network object directory plugin was found. Please check your installation or configure a different network object directory backend via Veyon Configurator.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nem található alapértelmezett hálózati objektumkönyvtár bővítmény. Kérjük, ellenőrizd a telepítést, vagy konfigurálj egy másik hálózati objektumkönyvtár-háttérprogramot a Veyon Konfigurátor segítségével.</translation>
     </message>
     <message>
         <source>Computer name;Hostname;User</source>
@@ -1162,7 +1162,7 @@ Make sure that the names of the keys belonging to each other are identical on al
     </message>
     <message>
         <source>The location of this computer could not be determined. This indicates a problem with the system configuration. No locations and computers will be displayed in the &quot;Locations &amp; computers&quot; panel.</source>
-        <translation type="unfinished"></translation>
+        <translation>A számítógép helyét nem sikerült meghatározni. Ez a rendszerkonfiguráció problémájára utal. A &quot;Helyek és számítógépek&quot; panelen nem jelennek meg helyek és számítógépek.</translation>
     </message>
     <message>
         <source>Unknown location</source>
@@ -1279,15 +1279,15 @@ Make sure that the names of the keys belonging to each other are identical on al
     <name>ConfigurationManager</name>
     <message>
         <source>Could not modify the autostart property for the Veyon Service.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nem sikerült módosítani a Veyon szolgáltatás autostart tulajdonságát.</translation>
     </message>
     <message>
         <source>Could not configure the firewall configuration for the Veyon Server.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nem sikerült konfigurálni a Veyon szerver tűzfalkonfigurációját.</translation>
     </message>
     <message>
         <source>Could not configure the firewall configuration for the Veyon Worker.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nem sikerült konfigurálni a Veyon worker tűzfalkonfigurációját.</translation>
     </message>
     <message>
         <source>Could not apply platform-specific configuration settings.</source>
@@ -1302,7 +1302,7 @@ Make sure that the names of the keys belonging to each other are identical on al
     <name>DemoClient</name>
     <message>
         <source>Veyon Demo</source>
-        <translation type="unfinished"></translation>
+        <translation>Veyon Demó</translation>
     </message>
 </context>
 <context>
@@ -1743,43 +1743,87 @@ Make sure that the names of the keys belonging to each other are identical on al
         <translation>Fájlátvitel</translation>
     </message>
     <message>
+        <source>Settings</source>
+        <translation>Beállítások</translation>
+    </message>
+    <message>
+        <source>Subfolder handling</source>
+        <translation type="unfinished"/>
+    </message>
+    <message>
+        <source>*.* or *.docx;*.pdf (leave empty for all files)</source>
+        <translation type="unfinished"/>
+    </message>
+    <message>
+        <source>File pattern</source>
+        <translation type="unfinished"/>
+    </message>
+    <message>
+        <source>Local destination directory</source>
+        <translation type="unfinished"/>
+    </message>
+    <message>
+        <source>Relative (Documents/) or absolute (/tmp/ or C:\TMP) or empty for configured directory</source>
+        <translation type="unfinished"/>
+    </message>
+    <message>
+        <source>Source directory on remote computers</source>
+        <translation type="unfinished"/>
+    </message>
+    <message>
+        <source>Default</source>
+        <translation>Alap</translation>
+    </message>
+    <message>
+        <source>Files in source directory only</source>
+        <translation type="unfinished"/>
+    </message>
+    <message>
+        <source>Files in source directory and subdirectories</source>
+        <translation type="unfinished"/>
+    </message>
+    <message>
         <source>Collected files</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Overall progress</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Output directory</source>
-        <translation>Kimeneti mappa</translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Start</source>
         <translation>Indítás</translation>
     </message>
     <message>
+        <source>Select destination directory</source>
+        <translation>Válassz célkönyvtárat</translation>
+    </message>
+    <message>
+        <source>Open output directory</source>
+        <translation type="unfinished"/>
+    </message>
+    <message>
         <source>Enter collection name</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Please enter a name for this file collection:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Output directory creation failed</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>The output directory &quot;%1&quot; does not exist and could not be created. Please check the configuration and the file permissions for the configured destination directory.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
 </context>
 <context>
     <name>FileCollectTreeModel</name>
     <message>
         <source>Progress</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Name</source>
@@ -1787,7 +1831,7 @@ Make sure that the names of the keys belonging to each other are identical on al
     </message>
     <message>
         <source>Number of files</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
 </context>
 <context>
@@ -1798,23 +1842,23 @@ Make sure that the names of the keys belonging to each other are identical on al
     </message>
     <message>
         <source>Settings for distributing files</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Settings for collecting files</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>No</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Prefix filenames with grouping attribute</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Store files in subdirectories based on the grouping attribute</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>None</source>
@@ -1822,87 +1866,87 @@ Make sure that the names of the keys belonging to each other are identical on al
     </message>
     <message>
         <source>First part of user name</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Last part of user name</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Collect all files from configured source directory</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Prompt user for folder to collect</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Prompt user for files to collect</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Grouping attribute 3:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Destination directory:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Store collected files in:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Group collected files:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Grouping attribute 1:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Grouping attribute 2:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Directly in the destination directory</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Subdirectory based on date &amp; time</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Subdirectory with name entered by the collecting user</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Files to collect:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Files to exclude:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>e.g. *.lnk or *.desktop</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Collect files recursively</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Destination directory (remote):</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Default source directory:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Source directory (remote):</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>User login name</source>
@@ -1914,7 +1958,7 @@ Make sure that the names of the keys belonging to each other are identical on al
     </message>
     <message>
         <source>Device name</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Remember last source directory</source>
@@ -1928,8 +1972,8 @@ Make sure that the names of the keys belonging to each other are identical on al
 <context>
     <name>FileTransferController</name>
     <message>
-        <source>Could not open file %1 for reading! Please check your permissions!</source>
-        <translation type="unfinished"></translation>
+        <source>Could not open file %1 for reading. Please check your permissions. The file will be skipped, remaining files will still be transferred.</source>
+        <translation type="unfinished"/>
     </message>
 </context>
 <context>
@@ -1941,6 +1985,14 @@ Make sure that the names of the keys belonging to each other are identical on al
     <message>
         <source>Options</source>
         <translation>Lehetőség</translation>
+    </message>
+    <message>
+        <source>Destination directory on remote computers:</source>
+        <translation type="unfinished"/>
+    </message>
+    <message>
+        <source>Relative (Desktop/) or absolute (/tmp/ or C:\TMP) or empty for configured directory</source>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Overwrite existing files</source>
@@ -1966,24 +2018,28 @@ Make sure that the names of the keys belonging to each other are identical on al
         <source>Start</source>
         <translation>Indítás</translation>
     </message>
+    <message>
+        <source>File transfer error</source>
+        <translation type="unfinished"/>
+    </message>
 </context>
 <context>
     <name>FileTransferPlugin</name>
     <message>
         <source>Distribute</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Click this button to distribute files from your computer to all computers.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Collect</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Click this button to collect files from all computers to your computer.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Select one or more files to transfer</source>
@@ -1995,35 +2051,35 @@ Make sure that the names of the keys belonging to each other are identical on al
     </message>
     <message>
         <source>Received file %1.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>The file %1 is to be collected, but is still open in an application.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>The file %1 is to be collected, but is still open in the application &lt;b&gt;%2&lt;/b&gt;.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Please save your changes and close the program so that the transfer can be completed.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Are you sure you want to skip transferring the file %1?</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Could not receive file %1 as it already exists.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Could not receive file %1 as it could not be opened for writing!</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Transfer files between computers</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
 </context>
 <context>
@@ -2158,11 +2214,11 @@ Make sure that the names of the keys belonging to each other are identical on al
     </message>
     <message>
         <source>Veyon service</source>
-        <translation type="unfinished"></translation>
+        <translation>Veyon szolgáltatás</translation>
     </message>
     <message>
         <source>The Veyon service needs to be stopped temporarily in order to remove the log files. Continue?</source>
-        <translation type="unfinished"></translation>
+        <translation>A Veyon szolgáltatást ideiglenesen le kell állítani a naplófájlok eltávolításához. Biztos, hogy folytatod?</translation>
     </message>
     <message>
         <source>Log files cleared</source>
@@ -2190,7 +2246,7 @@ Make sure that the names of the keys belonging to each other are identical on al
     </message>
     <message>
         <source>Include user groups from domain</source>
-        <translation type="unfinished"></translation>
+        <translation>Tartalmazza a domain felhasználói csoportjait</translation>
     </message>
     <message>
         <source>Missing user groups backend</source>
@@ -2198,19 +2254,19 @@ Make sure that the names of the keys belonging to each other are identical on al
     </message>
     <message>
         <source>No user groups plugin was found. Please check your installation!</source>
-        <translation type="unfinished"></translation>
+        <translation>Nincs felhasználói csoport bővítmény. Kérem, ellenőrizd telepítésed!</translation>
     </message>
     <message>
         <source>Color scheme:</source>
-        <translation type="unfinished"></translation>
+        <translation>Színséma:</translation>
     </message>
     <message>
         <source>Light</source>
-        <translation type="unfinished"></translation>
+        <translation>Világos</translation>
     </message>
     <message>
         <source>Dark</source>
-        <translation type="unfinished"></translation>
+        <translation>Sötét</translation>
     </message>
 </context>
 <context>
@@ -2377,8 +2433,8 @@ Make sure that the names of the keys belonging to each other are identical on al
         <translation>Objektum attribútumok</translation>
     </message>
     <message>
-        <source>e.g. name or description</source>
-        <translation>például név vagy leírás</translation>
+        <source>e.g. name, ou or description</source>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Hostnames stored as fully qualified domain names (FQDN, e.g. myhost.example.org)</source>
@@ -2498,7 +2554,7 @@ Make sure that the names of the keys belonging to each other are identical on al
     </message>
     <message>
         <source>Distinguished name (Samba/AD/FreeIPA)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Configured attribute for user login name or computer hostname (OpenLDAP)</source>
@@ -2896,7 +2952,7 @@ Make sure that the names of the keys belonging to each other are identical on al
     </message>
     <message>
         <source>Map container/OU structure 1:1 to locations</source>
-        <translation type="unfinished"></translation>
+        <translation>Konténer/OU struktúra 1:1-es leképezése helyszínekre</translation>
     </message>
 </context>
 <context>
@@ -2943,7 +2999,7 @@ Make sure that the names of the keys belonging to each other are identical on al
     </message>
     <message>
         <source>LDAP/AD support for Veyon</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
 </context>
 <context>
@@ -2982,11 +3038,11 @@ Make sure that the names of the keys belonging to each other are identical on al
     </message>
     <message>
         <source>Key press interval for text input</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Key press interval to control input fields</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
 </context>
 <context>
@@ -3150,7 +3206,7 @@ Make sure that the names of the keys belonging to each other are identical on al
     </message>
     <message>
         <source>Veyon Configurator %1</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 Veyon Konfigurátor</translation>
     </message>
     <message>
         <source>Load settings from file</source>
@@ -3186,7 +3242,7 @@ Make sure that the names of the keys belonging to each other are identical on al
     </message>
     <message>
         <source>The local configuration backend reported that the configuration is not writable! Please run Veyon Configurator with higher privileges.</source>
-        <translation type="unfinished"></translation>
+        <translation>A helyi konfigurációs háttérrendszer azt jelezte, hogy a konfiguráció nem írható! Kérjük, futtasd a Veyon Konfigurátort magasabb jogosultságokkal.</translation>
     </message>
     <message>
         <source>Authentication impossible</source>
@@ -3194,7 +3250,7 @@ Make sure that the names of the keys belonging to each other are identical on al
     </message>
     <message>
         <source>No authentication key files were found or your current ones are outdated. Please create new key files using Veyon Configurator. Alternatively set up logon authentication using Veyon Configurator. Otherwise you won&apos;t be able to access computers using Veyon.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Access denied</source>
@@ -3206,25 +3262,27 @@ Make sure that the names of the keys belonging to each other are identical on al
     </message>
     <message>
         <source>Feature active</source>
-        <translation>Aktív szolgáltatás</translation>
+        <translation>Aktív funkció</translation>
     </message>
     <message>
         <source>The feature &quot;%1&quot; is still active. Please stop it before closing Veyon.</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;%1&quot; funkció továbbra is aktív. Kérjük, állítsd le a Veyon bezárása előtt.</translation>
     </message>
     <message>
         <source>Use custom computer arrangement.
 
 Press and hold to load arrangement from a file or save current arrangement to a file.</source>
-        <translation type="unfinished"></translation>
+        <translation>Egyéni számítógépes elrendezés használata.
+
+Nyomd meg és tartsd lenyomva az elrendezés betöltéséhez egy fájlból vagy az aktuális elrendezés fájlba mentéséhez.</translation>
     </message>
     <message>
         <source>Load computer positions</source>
-        <translation type="unfinished"></translation>
+        <translation>Számítógép-pozíciók betöltése</translation>
     </message>
     <message>
         <source>Save computer positions</source>
-        <translation type="unfinished"></translation>
+        <translation>Számítógép-pozíciók mentése</translation>
     </message>
 </context>
 <context>
@@ -3287,7 +3345,7 @@ Press and hold to load arrangement from a file or save current arrangement to a 
     </message>
     <message>
         <source>Only last part of user name</source>
-        <translation type="unfinished"></translation>
+        <translation>Csak a felhasználónév utolsó része</translation>
     </message>
     <message>
         <source>Only computer name</source>
@@ -3339,27 +3397,27 @@ Press and hold to load arrangement from a file or save current arrangement to a 
     </message>
     <message>
         <source>Identify users in guest sessions</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Never</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>If login name matches</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>If full name matches</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Guest</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Guest user identity extension</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>None</source>
@@ -3367,11 +3425,11 @@ Press and hold to load arrangement from a file or save current arrangement to a 
     </message>
     <message>
         <source>Prefix</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Suffix</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Behaviour</source>
@@ -3467,19 +3525,19 @@ Press and hold to load arrangement from a file or save current arrangement to a 
     </message>
     <message>
         <source>Always expand all locations</source>
-        <translation type="unfinished"></translation>
+        <translation>Mindig bontsd ki az összes helyszínt</translation>
     </message>
     <message>
         <source>Configuration templates</source>
-        <translation type="unfinished"></translation>
+        <translation>Konfigurációs sablonok</translation>
     </message>
     <message>
         <source>Advanced</source>
-        <translation type="unfinished"></translation>
+        <translation>Haladó</translation>
     </message>
     <message>
         <source>Computer name source</source>
-        <translation type="unfinished"></translation>
+        <translation>Számítógépnév forrása</translation>
     </message>
     <message>
         <source>Default</source>
@@ -3499,11 +3557,11 @@ Press and hold to load arrangement from a file or save current arrangement to a 
     </message>
     <message>
         <source>Session host name</source>
-        <translation type="unfinished"></translation>
+        <translation>Munkamenet kiszolgáló neve</translation>
     </message>
     <message>
         <source>Session metadata</source>
-        <translation type="unfinished"></translation>
+        <translation>Munkamenet metaadat</translation>
     </message>
     <message>
         <source>Full name of user</source>
@@ -3515,11 +3573,11 @@ Press and hold to load arrangement from a file or save current arrangement to a 
     </message>
     <message>
         <source>Computer UID role</source>
-        <translation type="unfinished"></translation>
+        <translation>Számítógép UID szerepkör</translation>
     </message>
     <message>
         <source>Session meta data hash</source>
-        <translation type="unfinished"></translation>
+        <translation>Munkamenet metaadat-hash</translation>
     </message>
 </context>
 <context>
@@ -3546,19 +3604,19 @@ Press and hold to load arrangement from a file or save current arrangement to a 
     </message>
     <message>
         <source>Identify users in guest sessions</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Identification request</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Please enter your name:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>First name + last name</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Builtin monitoring mode</source>
@@ -3624,6 +3682,13 @@ Press and hold to load arrangement from a file or save current arrangement to a 
     <message>
         <source>Logon failed with given username and password. Please try again!</source>
         <translation>A megadott felhasználónévvel és jelszóval a bejelentkezés sikertelen. Próbáld újra!</translation>
+    </message>
+</context>
+<context>
+    <name>PipeWireVncServer</name>
+    <message>
+        <source>Wayland VNC server (PipeWire/XDG Desktop Portal)</source>
+        <translation type="unfinished"/>
     </message>
 </context>
 <context>
@@ -3714,10 +3779,6 @@ Press and hold to load arrangement from a file or save current arrangement to a 
     <message>
         <source>This command broadcasts a Wake-on-LAN (WOL) packet to the network in order to power on the computer with the given MAC address.</source>
         <translation>Ez a parancs egy hálózati ébresztő jelcsomagot (WOL) szór a hálózaton, hogy a megadott fizikai című számítógépeket bekapcsolja.</translation>
-    </message>
-    <message>
-        <source>Please specify the command to display help for!</source>
-        <translation>Kérem, válaszd ki az a parancsot, melynek súgóját megjelenítsük!</translation>
     </message>
     <message>
         <source>Confirm reboot</source>
@@ -3828,11 +3889,11 @@ Please save your work and close all programs.</source>
     <name>RemoteAccessWidget</name>
     <message>
         <source>%1 - Veyon Remote Access</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 - Veyon Távoli Hozzáférés</translation>
     </message>
     <message>
         <source>%1 - %2 - Veyon Remote Access</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 - %2 Veyon Távoli Hozzáférés</translation>
     </message>
 </context>
 <context>
@@ -4030,31 +4091,31 @@ Please save your work and close all programs.</source>
     <name>ServerAccessControlManager</name>
     <message>
         <source>Requested authentication method not available</source>
-        <translation type="unfinished"></translation>
+        <translation>A kért hitelesítési módszer nem érhető el</translation>
     </message>
     <message>
         <source>Access allowed by rule &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;%1&quot; szabály engedélyez hozzáférést</translation>
     </message>
     <message>
         <source>Access denied by rule &quot;%1&quot;</source>
-        <translation type="unfinished"></translation>
+        <translation>&quot;%1&quot; szabály tiltja a hozzáférést</translation>
     </message>
     <message>
         <source>No rule allowed access</source>
-        <translation type="unfinished"></translation>
+        <translation>Nincs hozzáférést engedélyező szabály</translation>
     </message>
     <message>
         <source>Accessing user not member of an authorized user group</source>
-        <translation type="unfinished"></translation>
+        <translation>A hozzáférést biztosító felhasználó nem tagja egy hitelesített felhasználói csoportnak</translation>
     </message>
     <message>
         <source>User has denied access</source>
-        <translation type="unfinished"></translation>
+        <translation>A felhasználó megtagadta a hozzáférést</translation>
     </message>
     <message>
         <source>User confirmed access</source>
-        <translation type="unfinished"></translation>
+        <translation>A felhasználó megerősítette a hozzáférést</translation>
     </message>
 </context>
 <context>
@@ -4070,6 +4131,14 @@ Please save your work and close all programs.</source>
     <message>
         <source>Show notification on remote connection</source>
         <translation>Távoli csatlakozás esetén értesítés megjelenítése</translation>
+    </message>
+    <message>
+        <source>Maximum simultaneous server connections</source>
+        <translation type="unfinished"/>
+    </message>
+    <message>
+        <source>Limits simultaneous remote connections to protect the server against resource exhaustion.</source>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Hide tray icon</source>
@@ -4170,7 +4239,7 @@ Typically this is required to support terminal servers.</source>
     </message>
     <message>
         <source>All settings were saved successfully. In order to take effect the Veyon service needs to be restarted. Restart it now?</source>
-        <translation type="unfinished"></translation>
+        <translation>Minden beállítást sikeresen mentél. A beállítások érvénybe léptetéséhez újra kell indítani a Veyon szolgáltatást. Újraindítod most?</translation>
     </message>
     <message>
         <source>Running</source>
@@ -4178,11 +4247,11 @@ Typically this is required to support terminal servers.</source>
     </message>
     <message>
         <source>Session metadata</source>
-        <translation type="unfinished"></translation>
+        <translation>Munkamenet metaadat</translation>
     </message>
     <message>
         <source>Content</source>
-        <translation type="unfinished"></translation>
+        <translation>Tartalom</translation>
     </message>
     <message>
         <source>None</source>
@@ -4190,11 +4259,11 @@ Typically this is required to support terminal servers.</source>
     </message>
     <message>
         <source>Value of an environment variable</source>
-        <translation type="unfinished"></translation>
+        <translation>Egy környezeti változó értéke</translation>
     </message>
     <message>
         <source>Value of a registry key</source>
-        <translation type="unfinished"></translation>
+        <translation>Egy beállításkulcs értéke</translation>
     </message>
     <message>
         <source>Optionally enter a regular expression with a capture to extract a part of the computer name and use it as the display name for the computer.
@@ -4206,15 +4275,15 @@ Példa: [^-]*-(PC[0-9]*)</translation>
     </message>
     <message>
         <source>Enable if a single Veyon Server instance should be launched for the currently active session, no matter if local or remote.</source>
-        <translation type="unfinished"></translation>
+        <translation>Engedélyezd, ha egyetlen Veyon szerver példányt kell elindítani az jelenleg aktív munkamenethez, függetlenül attól, hogy helyi vagy távoli.</translation>
     </message>
     <message>
         <source>Environment variable name</source>
-        <translation type="unfinished"></translation>
+        <translation>Környezeti változó neve</translation>
     </message>
     <message>
         <source>Registry key name</source>
-        <translation type="unfinished"></translation>
+        <translation>Rendszerleíró kulcs neve</translation>
     </message>
 </context>
 <context>
@@ -4225,23 +4294,23 @@ Példa: [^-]*-(PC[0-9]*)</translation>
     </message>
     <message>
         <source>Starting %1</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 indítása</translation>
     </message>
     <message>
         <source>Stopping %1</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 leállítása</translation>
     </message>
     <message>
         <source>Restarting %1</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 újraindítása</translation>
     </message>
     <message>
         <source>Registering %1</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 regisztrálása</translation>
     </message>
     <message>
         <source>Unregistering %1</source>
-        <translation type="unfinished"></translation>
+        <translation>%1 törlése a nyilvántartásból</translation>
     </message>
 </context>
 <context>
@@ -4326,11 +4395,11 @@ Példa: [^-]*-(PC[0-9]*)</translation>
     </message>
     <message>
         <source>View in separate window</source>
-        <translation type="unfinished"></translation>
+        <translation>Megtekintés külön ablakban</translation>
     </message>
     <message>
         <source>Veyon Master – Slideshow</source>
-        <translation type="unfinished"></translation>
+        <translation>Veyon Master – Diavetítés</translation>
     </message>
 </context>
 <context>
@@ -4429,6 +4498,22 @@ Példa: [^-]*-(PC[0-9]*)</translation>
     <message>
         <source>Use the field below to type your message which will be sent to all selected users.</source>
         <translation>Az alábbi mezőbe gépeld az összes kiválasztott felhasználóknak küldendő üzenetedet.</translation>
+    </message>
+    <message>
+        <source>Title:</source>
+        <translation type="unfinished"/>
+    </message>
+    <message>
+        <source>Optional custom title for the message window</source>
+        <translation type="unfinished"/>
+    </message>
+    <message>
+        <source>Message from teacher</source>
+        <translation>Üzenet a tanártól</translation>
+    </message>
+    <message>
+        <source>Message from %1</source>
+        <translation type="unfinished"/>
     </message>
 </context>
 <context>
@@ -4546,10 +4631,6 @@ Példa: [^-]*-(PC[0-9]*)</translation>
         <translation>[SIKERTELEN]</translation>
     </message>
     <message>
-        <source>Invalid command!</source>
-        <translation>Érvénytelen parancs!</translation>
-    </message>
-    <message>
         <source>Invalid arguments given</source>
         <translation>Érvénytelen az argumentum</translation>
     </message>
@@ -4558,16 +4639,24 @@ Példa: [^-]*-(PC[0-9]*)</translation>
         <translation>Nincs elegendő argumentum - további információért használja a &quot;%1 súgót&quot;</translation>
     </message>
     <message>
+        <source>No command given</source>
+        <translation type="unfinished"/>
+    </message>
+    <message>
+        <source>Invalid command given</source>
+        <translation type="unfinished"/>
+    </message>
+    <message>
         <source>Plugin not licensed</source>
         <translation>A bővítmény nem licencelt</translation>
     </message>
     <message>
-        <source>Unknown result!</source>
-        <translation>Ismeretlen végeredmény!</translation>
-    </message>
-    <message>
         <source>Available commands:</source>
         <translation>Elérhető műveletek:</translation>
+    </message>
+    <message>
+        <source>Unknown command result</source>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Available modules:</source>
@@ -4607,7 +4696,7 @@ Példa: [^-]*-(PC[0-9]*)</translation>
     </message>
     <message>
         <source>Guest</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
 </context>
 <context>
@@ -4618,7 +4707,7 @@ Példa: [^-]*-(PC[0-9]*)</translation>
     </message>
     <message>
         <source>Could not save your personal settings! Please check the user configuration file path using Veyon Configurator.</source>
-        <translation type="unfinished"></translation>
+        <translation>Nem sikerült menteni a személyes beállításaidat! Kérjük, ellenőrizd a felhasználói konfigurációs fájl elérési útját a Veyon Konfigurátor segítségével.</translation>
     </message>
 </context>
 <context>
@@ -4781,7 +4870,7 @@ Példa: [^-]*-(PC[0-9]*)</translation>
     </message>
     <message>
         <source>Use custom power scheme with disabled power and sleep buttons</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Use input device interception driver</source>
@@ -4789,19 +4878,19 @@ Példa: [^-]*-(PC[0-9]*)</translation>
     </message>
     <message>
         <source>Disable touchpads and touchscreens</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Disable keyboard devices</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Disable mouse devices</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Handling of interfering windows</source>
-        <translation type="unfinished"></translation>
+        <translation>Interferáló ablakok kezelése</translation>
     </message>
     <message>
         <source>None</source>
@@ -4809,15 +4898,15 @@ Példa: [^-]*-(PC[0-9]*)</translation>
     </message>
     <message>
         <source>Fix window attributes</source>
-        <translation type="unfinished"></translation>
+        <translation>Ablak attribútumok fixálása</translation>
     </message>
     <message>
         <source>Terminate related process</source>
-        <translation type="unfinished"></translation>
+        <translation>Kapcsolódó folyamat leállítása</translation>
     </message>
     <message>
         <source>Close session</source>
-        <translation type="unfinished"></translation>
+        <translation>Munkamenet zárása</translation>
     </message>
 </context>
 <context>

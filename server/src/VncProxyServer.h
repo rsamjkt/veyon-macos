@@ -55,7 +55,7 @@ public:
 	}
 
 Q_SIGNALS:
-	void serverMessageProcessed(VncProxyConnection* connection);
+	void connectionSynchronized(VncProxyConnection* connection);
 	void connectionClosed( VncProxyConnection* connection );
 
 private:
@@ -67,6 +67,7 @@ private:
 	Password m_vncServerPassword;
 	QHostAddress m_listenAddress;
 	int m_listenPort;
+	int m_connectionLimit;
 	QTcpServer* m_server;
 	VncProxyConnectionFactory* m_connectionFactory;
 	VncProxyConnectionList m_connections;

@@ -24,7 +24,10 @@
 
 #pragma once
 
+#include <QDBusConnection>
 #include <QDBusInterface>
+#include <QDBusMessage>
+#include <QDBusPendingCall>
 #include <QSharedPointer>
 
 #include "PlatformCoreFunctions.h"
@@ -44,7 +47,7 @@ struct proc_t;
 class LinuxCoreFunctions : public PlatformCoreFunctions
 {
 public:
-	LinuxCoreFunctions() = default;
+	LinuxCoreFunctions();
 
 	bool applyConfiguration() override;
 
@@ -52,6 +55,8 @@ public:
 
 	void initNativeLoggingSystem( const QString& appName ) override;
 	void writeToNativeLoggingSystem( const QString& message, Logger::LogLevel loglevel ) override;
+
+	QObject* notifyOnStandardInputReadyRead(const NotifierCallback& callback) override;
 
 	void reboot() override;
 	void powerDown( bool installUpdates ) override;
@@ -68,9 +73,10 @@ public:
 	bool isRunningAsAdmin() const override;
 	bool runProgramAsAdmin( const QString& program, const QStringList& parameters ) override;
 
-	bool runProgramAsUser( const QString& program, const QStringList& parameters,
-						   const QString& username,
-						   const QString& desktop = {} ) override;
+	bool runProgramAsUser(const QString& program, const QStringList& parameters,
+						  const QString& username,
+						  const QString& desktop,
+						  const QByteArray& stdInData) override;
 
 	QString genericUrlHandler() const override;
 
@@ -109,5 +115,13 @@ private:
 	unsigned short m_dpmsStandbyTimeout{0};
 	unsigned short m_dpmsSuspendTimeout{0};
 	unsigned short m_dpmsOffTimeout{0};
+
+	// Wayland screen saver inhibition via DBus
+	const bool m_isWaylandSession;
+	static constexpr auto WaylandScreenSaverInhibitCookie = 0;
+	unsigned m_waylandInhibitCookie{0};
+
+	void disableScreenSaverWayland();
+	void restoreScreenSaverSettingsWayland();
 
 };

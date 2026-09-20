@@ -81,7 +81,7 @@ jobs:
           cmake -S "$GITHUB_WORKSPACE" -B "$GITHUB_WORKSPACE/build" -G Ninja \
             -DCMAKE_BUILD_TYPE=Release \
             -DCMAKE_PREFIX_PATH=/mingw64 \
-            -DWITH_BUILTIN_LIBVNC=ON \
+            -DWITH_BUNDLED_LIBVNC=ON \
             -DWITH_WEBAPI=OFF \
             -DWITH_TRANSLATIONS=OFF \
             -DWITH_TESTS=OFF \

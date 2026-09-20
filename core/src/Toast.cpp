@@ -1796,7 +1796,7 @@ QPoint Toast::calculatePosition()
 	}
 	else
 	{
-		QList<QScreen*> screens = QGuiApplication::screens();
+		const QList<QScreen*> screens = QGuiApplication::screens();
 
 		for (QScreen* screen : screens)
 		{
@@ -1812,6 +1812,11 @@ QPoint Toast::calculatePosition()
 					break;
 				}
 			}
+		}
+
+		if (!currentScreen)
+		{
+			currentScreen = primaryScreen;
 		}
 	}
 
@@ -1889,7 +1894,7 @@ void Toast::updatePositionX()
 	QPropertyAnimation* posAnimation = new QPropertyAnimation(this, "pos");
 	posAnimation->setEndValue(QPoint(position.x(), y()));
 	posAnimation->setDuration(sc_updatePositionDuration);
-	posAnimation->start();
+	posAnimation->start(QPropertyAnimation::DeleteWhenStopped);
 }
 
 void Toast::updatePositionY()

@@ -1,6 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE TS>
-<TS version="2.1" language="de">
+<?xml version="1.0" ?><!DOCTYPE TS><TS version="2.1" language="de">
 <context>
     <name>AboutDialog</name>
     <message>
@@ -1742,6 +1740,46 @@ Achten Sie darauf, dass die Namen der zueinander gehörenden Schlüssel auf alle
         <translation>Dateiübertragung</translation>
     </message>
     <message>
+        <source>Settings</source>
+        <translation>Einstellungen</translation>
+    </message>
+    <message>
+        <source>Subfolder handling</source>
+        <translation>Umgang mit Unterordnern</translation>
+    </message>
+    <message>
+        <source>*.* or *.docx;*.pdf (leave empty for all files)</source>
+        <translation>*.* oder *.docx;*.pdf (leer lassen für alle Dateien)</translation>
+    </message>
+    <message>
+        <source>File pattern</source>
+        <translation>Dateimuster</translation>
+    </message>
+    <message>
+        <source>Local destination directory</source>
+        <translation>Lokales Zielverzeichnis</translation>
+    </message>
+    <message>
+        <source>Relative (Documents/) or absolute (/tmp/ or C:\TMP) or empty for configured directory</source>
+        <translation>Relativ (Dokumente/) oder absolut (/tmp oder C:\TMP) oder leer lassen für konfiguriertes Verzeichnis</translation>
+    </message>
+    <message>
+        <source>Source directory on remote computers</source>
+        <translation>Quellverzeichnis auf Zielcomputern</translation>
+    </message>
+    <message>
+        <source>Default</source>
+        <translation>Standard</translation>
+    </message>
+    <message>
+        <source>Files in source directory only</source>
+        <translation>Nur Dateien im Quellverzeichnis</translation>
+    </message>
+    <message>
+        <source>Files in source directory and subdirectories</source>
+        <translation>Dateien im Quellverzeichnis und in den Unterverzeichnissen</translation>
+    </message>
+    <message>
         <source>Collected files</source>
         <translation>Eingesammelte Dateien</translation>
     </message>
@@ -1750,12 +1788,16 @@ Achten Sie darauf, dass die Namen der zueinander gehörenden Schlüssel auf alle
         <translation>Gesamtfortschritt</translation>
     </message>
     <message>
-        <source>Output directory</source>
-        <translation>Ausgabeverzeichnis</translation>
-    </message>
-    <message>
         <source>Start</source>
         <translation>Start</translation>
+    </message>
+    <message>
+        <source>Select destination directory</source>
+        <translation>Zielverzeichnis wählen</translation>
+    </message>
+    <message>
+        <source>Open output directory</source>
+        <translation>Ausgabeverzeichnis öffnen</translation>
     </message>
     <message>
         <source>Enter collection name</source>
@@ -1927,8 +1969,8 @@ Achten Sie darauf, dass die Namen der zueinander gehörenden Schlüssel auf alle
 <context>
     <name>FileTransferController</name>
     <message>
-        <source>Could not open file %1 for reading! Please check your permissions!</source>
-        <translation>Datei %1 konnte nicht zum Lesen geöffnet werden! Bitte Berechtigungen überprüfen!</translation>
+        <source>Could not open file %1 for reading. Please check your permissions. The file will be skipped, remaining files will still be transferred.</source>
+        <translation>Die Datei %1 konnte nicht zum Lesen geöffnet werden. Bitte überprüfen Sie Ihre Zugriffsrechte. Die Datei wird übersprungen, die übrigen Dateien werden weiterhin übertragen.</translation>
     </message>
 </context>
 <context>
@@ -1940,6 +1982,14 @@ Achten Sie darauf, dass die Namen der zueinander gehörenden Schlüssel auf alle
     <message>
         <source>Options</source>
         <translation>Optionen</translation>
+    </message>
+    <message>
+        <source>Destination directory on remote computers:</source>
+        <translation>Zielverzeichnis auf Zielcomputern:</translation>
+    </message>
+    <message>
+        <source>Relative (Desktop/) or absolute (/tmp/ or C:\TMP) or empty for configured directory</source>
+        <translation>Relativ (Desktop/) oder absolut (/tmp oder C:\TMP) oder leer lassen für konfiguriertes Verzeichnis</translation>
     </message>
     <message>
         <source>Overwrite existing files</source>
@@ -1964,6 +2014,10 @@ Achten Sie darauf, dass die Namen der zueinander gehörenden Schlüssel auf alle
     <message>
         <source>Start</source>
         <translation>Start</translation>
+    </message>
+    <message>
+        <source>File transfer error</source>
+        <translation>Fehler bei der Dateiübertragung</translation>
     </message>
 </context>
 <context>
@@ -2376,8 +2430,8 @@ Achten Sie darauf, dass die Namen der zueinander gehörenden Schlüssel auf alle
         <translation>Objektattribute</translation>
     </message>
     <message>
-        <source>e.g. name or description</source>
-        <translation>z.B. name oder description</translation>
+        <source>e.g. name, ou or description</source>
+        <translation>z.B. name, ou oder description</translation>
     </message>
     <message>
         <source>Hostnames stored as fully qualified domain names (FQDN, e.g. myhost.example.org)</source>
@@ -3628,6 +3682,13 @@ Gedrückt halten, um die Anordnung aus einer Datei zu laden oder die aktuelle An
     </message>
 </context>
 <context>
+    <name>PipeWireVncServer</name>
+    <message>
+        <source>Wayland VNC server (PipeWire/XDG Desktop Portal)</source>
+        <translation>Wayland-VNC-Server (Pipewire/XDG Desktop Portal)</translation>
+    </message>
+</context>
+<context>
     <name>PluginCommands</name>
     <message>
         <source>List names of all installed plugins</source>
@@ -3715,10 +3776,6 @@ Gedrückt halten, um die Anordnung aus einer Datei zu laden oder die aktuelle An
     <message>
         <source>This command broadcasts a Wake-on-LAN (WOL) packet to the network in order to power on the computer with the given MAC address.</source>
         <translation>Dieser Befehl sendet ein Wake-on-LAN (WOL) Paket an das Netzwerk, um den Computer mit der angegebenen MAC-Adresse einzuschalten</translation>
-    </message>
-    <message>
-        <source>Please specify the command to display help for!</source>
-        <translation>Bitte geben Sie den Befehl an, für den Hilfe angezeigt werden soll!</translation>
     </message>
     <message>
         <source>Confirm reboot</source>
@@ -4073,6 +4130,14 @@ Bitte speichern Sie Ihre Arbeiten und schließen alle Programme.</translation>
     <message>
         <source>Show notification on remote connection</source>
         <translation>Benachrichtigung bei Fernzugriff anzeigen</translation>
+    </message>
+    <message>
+        <source>Maximum simultaneous server connections</source>
+        <translation>Maximale Anzahl gleichzeitiger Serververbindungen</translation>
+    </message>
+    <message>
+        <source>Limits simultaneous remote connections to protect the server against resource exhaustion.</source>
+        <translation>Begrenzt die Anzahl gleichzeitiger Fernverbindungen, um den Server vor einer Ressourcenerschöpfung zu schützen.</translation>
     </message>
     <message>
         <source>Hide tray icon</source>
@@ -4434,6 +4499,22 @@ Beispiel: [^-]*-(PC[0-9]*)</translation>
         <source>Use the field below to type your message which will be sent to all selected users.</source>
         <translation>Nutzen Sie das Feld unterhalb, um Ihre Nachricht zu tippen, die an alle Benutzer übermittelt wird.</translation>
     </message>
+    <message>
+        <source>Title:</source>
+        <translation>Titel:</translation>
+    </message>
+    <message>
+        <source>Optional custom title for the message window</source>
+        <translation>Optionaler benutzerdefinierter Titel für das Nachrichtenfenster</translation>
+    </message>
+    <message>
+        <source>Message from teacher</source>
+        <translation>Nachricht der Lehrkraft</translation>
+    </message>
+    <message>
+        <source>Message from %1</source>
+        <translation>Nachricht von %1</translation>
+    </message>
 </context>
 <context>
     <name>TextMessageFeaturePlugin</name>
@@ -4550,10 +4631,6 @@ Beispiel: [^-]*-(PC[0-9]*)</translation>
         <translation>[FEHLGESCHLAGEN]</translation>
     </message>
     <message>
-        <source>Invalid command!</source>
-        <translation>Ungültiger Befehl!</translation>
-    </message>
-    <message>
         <source>Invalid arguments given</source>
         <translation>Ungültige Argumente angegeben</translation>
     </message>
@@ -4562,16 +4639,24 @@ Beispiel: [^-]*-(PC[0-9]*)</translation>
         <translation>Nicht genügend Argumente angegeben - benutzen Sie &quot;%1 help&quot; für mehr Informationen</translation>
     </message>
     <message>
+        <source>No command given</source>
+        <translation>Kein Befehl angegeben</translation>
+    </message>
+    <message>
+        <source>Invalid command given</source>
+        <translation>Ungültiger Befehl angegeben</translation>
+    </message>
+    <message>
         <source>Plugin not licensed</source>
         <translation>Plugin nicht lizenziert</translation>
     </message>
     <message>
-        <source>Unknown result!</source>
-        <translation>Unbekanntes Ergebnis!</translation>
-    </message>
-    <message>
         <source>Available commands:</source>
         <translation>Verfügbare Befehle:</translation>
+    </message>
+    <message>
+        <source>Unknown command result</source>
+        <translation>Unbekanntes Befehlsergebnis</translation>
     </message>
     <message>
         <source>Available modules:</source>

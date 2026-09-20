@@ -187,9 +187,15 @@ void AccessControlPage::addAccessControlRule()
 
 void AccessControlPage::removeAccessControlRule()
 {
+	const auto row = ui->accessControlRulesView->currentIndex().row();
+	if (row < 0)
+	{
+		return;
+	}
+
 	QJsonArray accessControlRules = VeyonCore::config().accessControlRules();
 
-	accessControlRules.removeAt( ui->accessControlRulesView->currentIndex().row() );
+	accessControlRules.removeAt(row);
 
 	VeyonCore::config().setAccessControlRules( accessControlRules );
 
@@ -225,16 +231,19 @@ void AccessControlPage::moveAccessControlRuleDown()
 {
 	QJsonArray accessControlRules = VeyonCore::config().accessControlRules();
 
-	int row = ui->accessControlRulesView->currentIndex().row();
-	int newRow = row + 1;
-
-	if( newRow < accessControlRules.size() )
+	auto row = ui->accessControlRulesView->currentIndex().row();
+	if (row >= 0)
 	{
-		const QJsonValue swapValue = accessControlRules[row];
-		accessControlRules[row] = accessControlRules[newRow];
-		accessControlRules[newRow] = swapValue;
+		auto newRow = row + 1;
 
-		modifyAccessControlRules( accessControlRules, newRow );
+		if (newRow < accessControlRules.size())
+		{
+			const QJsonValue swapValue = accessControlRules[row];
+			accessControlRules[row] = accessControlRules[newRow];
+			accessControlRules[newRow] = swapValue;
+
+			modifyAccessControlRules( accessControlRules, newRow );
+		}
 	}
 }
 
@@ -244,10 +253,10 @@ void AccessControlPage::moveAccessControlRuleUp()
 {
 	QJsonArray accessControlRules = VeyonCore::config().accessControlRules();
 
-	int row = ui->accessControlRulesView->currentIndex().row();
-	int newRow = row - 1;
+	auto row = ui->accessControlRulesView->currentIndex().row();
+	auto newRow = row - 1;
 
-	if( newRow >= 0 )
+	if (newRow >= 0)
 	{
 		const QJsonValue swapValue = accessControlRules[row];
 		accessControlRules[row] = accessControlRules[newRow];

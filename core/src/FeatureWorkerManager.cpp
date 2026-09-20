@@ -45,10 +45,12 @@ FeatureWorkerManager::FeatureWorkerManager( VeyonServerInterface& server, QObjec
 	connect( &m_tcpServer, &QTcpServer::newConnection,
 			 this, &FeatureWorkerManager::acceptConnection );
 
-	if( !m_tcpServer.listen( QHostAddress::LocalHost,
-							 static_cast<quint16>( VeyonCore::config().featureWorkerManagerPort() + VeyonCore::sessionId() ) ) )
+	const auto port = VeyonCore::config().featureWorkerManagerPort() + VeyonCore::sessionId();
+
+	if (!m_tcpServer.listen( QHostAddress::LocalHost, static_cast<quint16>(port)))
 	{
-		vCritical() << "can't listen on localhost!";
+		vCritical() << "can't listen at port" << port;
+		qFatal("listen error");
 	}
 
 	auto pendingMessagesTimer = new QTimer( this );
@@ -105,6 +107,8 @@ bool FeatureWorkerManager::startManagedSystemWorker( Feature::Uid featureUid )
 		worker.process->start( VeyonCore::filesystem().workerFilePath(), { featureUid.toString() } );
 	}
 
+	worker.process->write(worker.token + '\n');
+
 	m_workersMutex.lock();
 	m_workers[featureUid] = worker;
 	m_workersMutex.unlock();
@@ -124,7 +128,7 @@ bool FeatureWorkerManager::startUnmanagedSessionWorker( Feature::Uid featureUid 
 
 	stopWorker( featureUid );
 
-	Worker worker;
+	Worker worker{};
 
 	vDebug() << "Starting worker (unmanaged session process) for feature" << featureUid;
 
@@ -136,9 +140,10 @@ bool FeatureWorkerManager::startUnmanagedSessionWorker( Feature::Uid featureUid 
 	}
 
 	const auto ret = VeyonCore::platform().coreFunctions().
-					 runProgramAsUser( VeyonCore::filesystem().workerFilePath(), { featureUid.toString() },
-									   currentUser,
-									   VeyonCore::platform().coreFunctions().activeDesktopName() );
+					 runProgramAsUser(VeyonCore::filesystem().workerFilePath(), { featureUid.toString() },
+									  currentUser,
+									  VeyonCore::platform().coreFunctions().activeDesktopName(),
+									  worker.token + '\n');
 	if( ret == false )
 	{
 		vWarning() << "failed to start worker for feature" << featureUid;
@@ -237,9 +242,8 @@ bool FeatureWorkerManager::isWorkerRunning( Feature::Uid featureUid )
 
 void FeatureWorkerManager::acceptConnection()
 {
-	vDebug() << "accepting connection";
-
-	QTcpSocket* socket = m_tcpServer.nextPendingConnection();
+	auto socket = m_tcpServer.nextPendingConnection();
+	vDebug() << "new connection from worker at" << socket->peerPort();
 
 	// connect to readyRead() signal of new connection
 	connect(socket, &QTcpSocket::readyRead,
@@ -260,16 +264,45 @@ void FeatureWorkerManager::processConnection( QTcpSocket* socket )
 
 		m_workersMutex.lock();
 
-		// set socket information
 		if (m_workers.contains(message.featureUid()))
 		{
-			if (m_workers[message.featureUid()].socket.isNull())
+			Worker& worker = m_workers[message.featureUid()];
+
+			bool authorized = false;
+
+			// authenticate and set socket information
+			if (worker.socket.isNull())
 			{
-				m_workers[message.featureUid()].socket = socket;
-				sendPendingMessages();
+				if (message.command() == FeatureMessage::Command::Init &&
+					message.argument(MessageArgument::AuthToken).toByteArray() == worker.token)
+				{
+					vDebug() << "worker at" << socket->peerPort() << "authenticated successfully";
+					worker.socket = socket;
+					worker.authenticated = true;
+					authorized = true;
+					sendPendingMessages();
+				}
+				else
+				{
+					vCritical() << "worker at" << socket->peerPort() << "failed to authenticate - closing connection";
+					closeConnection(socket);
+					m_workersMutex.unlock();
+					return;
+				}
+			}
+			else
+			{
+				authorized = worker.authenticated && worker.socket == socket;
 			}
 
 			m_workersMutex.unlock();
+
+			if (authorized == false)
+			{
+				vCritical() << "rejecting message from unauthenticated socket for" << message.featureUid();
+				closeConnection(socket);
+				return;
+			}
 
 			if (message.command<FeatureMessage::CommandType>() >= 0)
 			{

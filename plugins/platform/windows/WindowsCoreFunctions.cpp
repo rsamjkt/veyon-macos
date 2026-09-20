@@ -25,6 +25,7 @@
 #include <QGuiApplication>
 #include <QScreen>
 #include <QWidget>
+#include <QWinEventNotifier>
 #include <qpa/qplatformnativeinterface.h>
 
 #include <shlobj.h>
@@ -123,6 +124,17 @@ void WindowsCoreFunctions::writeToNativeLoggingSystem( const QString& message, L
 	{
 		m_eventLog->Write( static_cast<WORD>( messageType ), toConstWCharArray( message ) );
 	}
+}
+
+
+
+QObject* WindowsCoreFunctions::notifyOnStandardInputReadyRead(const NotifierCallback& callback)
+{
+	auto notifier = new QWinEventNotifier(GetStdHandle(STD_INPUT_HANDLE));
+	QObject::connect(notifier, &QWinEventNotifier::activated,
+					 QCoreApplication::instance(),
+					 [notifier, callback]() { callback(notifier); });
+	return notifier;
 }
 
 
@@ -235,7 +247,7 @@ QString WindowsCoreFunctions::activeDesktopName()
 	auto desktopHandle = GetThreadDesktop( GetCurrentThreadId() );
 
 	std::array<wchar_t, MAX_PATH> inputDesktopName{};
-	if( GetUserObjectInformation( desktopHandle, UOI_NAME, inputDesktopName.data(), inputDesktopName.size(), nullptr ) )
+	if (GetUserObjectInformation(desktopHandle, UOI_NAME, inputDesktopName.data(), inputDesktopName.size() * sizeof(wchar_t), nullptr))
 	{
 		desktopName = QString( QStringLiteral( "winsta0\\%1" ) ).arg( QString::fromWCharArray( inputDesktopName.data() ) );
 	}
@@ -248,26 +260,21 @@ QString WindowsCoreFunctions::activeDesktopName()
 bool WindowsCoreFunctions::isRunningAsAdmin() const
 {
 	BOOL runningAsAdmin = false;
-	PSID adminGroupSid = nullptr;
+	SmartSID adminGroupSid;
 
 	// allocate and initialize a SID of the administrators group.
 	SID_IDENTIFIER_AUTHORITY NtAuthority = { SECURITY_NT_AUTHORITY };
-	if( AllocateAndInitializeSid(
+	if (AllocateAndInitializeSid(
 			&NtAuthority,
 			2,
 			SECURITY_BUILTIN_DOMAIN_RID,
 			DOMAIN_ALIAS_RID_ADMINS,
 			0, 0, 0, 0, 0, 0,
-			&adminGroupSid ) )
+			adminGroupSid.put()))
 	{
 		// determine whether the SID of administrators group is enabled in
 		// the primary access token of the process.
-		CheckTokenMembership( nullptr, adminGroupSid, &runningAsAdmin );
-	}
-
-	if( adminGroupSid )
-	{
-		FreeSid( adminGroupSid );
+		CheckTokenMembership(nullptr, adminGroupSid.get(), &runningAsAdmin);
 	}
 
 	return runningAsAdmin;
@@ -297,10 +304,11 @@ bool WindowsCoreFunctions::runProgramAsAdmin( const QString& program, const QStr
 
 
 
-bool WindowsCoreFunctions::runProgramAsUser( const QString& program,
-											 const QStringList& parameters,
-											 const QString& username,
-											 const QString& desktop )
+bool WindowsCoreFunctions::runProgramAsUser(const QString& program,
+											const QStringList& parameters,
+											const QString& username,
+											const QString& desktop,
+											const QByteArray& stdInData)
 {
 	vDebug() << program << parameters << username << desktop;
 
@@ -311,14 +319,7 @@ bool WindowsCoreFunctions::runProgramAsUser( const QString& program,
 		return false;
 	}
 
-	auto processHandle = runProgramInSession( program, parameters, {}, baseProcessId, desktop );
-	if( processHandle )
-	{
-		CloseHandle( processHandle );
-		return true;
-	}
-
-	return false;
+	return runProgramInSession(program, parameters, {}, baseProcessId, desktop, stdInData).isValid();
 }
 
 
@@ -410,8 +411,8 @@ QString WindowsCoreFunctions::queryDisplayDeviceName(const QScreen& screen) cons
 					return QStringLiteral("S-Video-%1").arg(name.connectorInstance);
 				case DISPLAYCONFIG_OUTPUT_TECHNOLOGY_INTERNAL:
 					return WindowsPlatformPlugin::tr("Internal display") +
-						   ( name.connectorInstance > 1 ?
-								 QStringLiteral(" %2").arg(name.connectorInstance) : QString{} );
+							( name.connectorInstance > 1 ?
+								  QStringLiteral(" %2").arg(name.connectorInstance) : QString{} );
 				default:
 					break;
 				}
@@ -428,7 +429,7 @@ QString WindowsCoreFunctions::queryDisplayDeviceName(const QScreen& screen) cons
 			else
 			{
 				return monitorFriendlyDeviceName +
-					   ( outputName.isEmpty() ? QString {} : QStringLiteral(" [%1]").arg(outputName) );
+						( outputName.isEmpty() ? QString {} : QStringLiteral(" [%1]").arg(outputName) );
 			}
 		}
 	}
@@ -453,22 +454,22 @@ QString WindowsCoreFunctions::getApplicationName(ProcessId processId) const
 	WindowSearchData data = {DWORD(processId), {}};
 
 	EnumWindows([](HWND window, LPARAM instance) -> WINBOOL CALLBACK {
-					WindowSearchData* data = reinterpret_cast<WindowSearchData*>(instance);
-					DWORD winPid;
-					GetWindowThreadProcessId(window, &winPid);
-					if (winPid == data->pid && IsWindowVisible(window))
-					{
-						const auto len = GetWindowTextLengthW(window);
-						if (len > 0)
-						{
-							std::wstring winTitle(len, L'\0');
-							GetWindowTextW(window, &winTitle[0], len + 1);
-							data->title = QString::fromStdWString(winTitle);
-							return FALSE;
-						}
-					}
-					return TRUE;
-				}, reinterpret_cast<LPARAM>(&data));
+		WindowSearchData* data = reinterpret_cast<WindowSearchData*>(instance);
+		DWORD winPid;
+		GetWindowThreadProcessId(window, &winPid);
+		if (winPid == data->pid && IsWindowVisible(window))
+		{
+			const auto len = GetWindowTextLengthW(window);
+			if (len > 0)
+			{
+				std::wstring winTitle(len, L'\0');
+				GetWindowTextW(window, &winTitle[0], len + 1);
+				data->title = QString::fromStdWString(winTitle);
+				return FALSE;
+			}
+		}
+		return TRUE;
+	}, reinterpret_cast<LPARAM>(&data));
 
 	if (data.title.isEmpty())
 	{
@@ -501,44 +502,45 @@ QString WindowsCoreFunctions::getApplicationName(ProcessId processId) const
 
 bool WindowsCoreFunctions::enablePrivilege( LPCWSTR privilegeName, bool enable )
 {
-	HANDLE token;
-	TOKEN_PRIVILEGES tokenPrivileges;
-	LUID luid;
-
-	if( !OpenProcessToken( GetCurrentProcess(),
-						   TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY | TOKEN_READ, &token ) )
+	SmartToken processToken;
+	if (!OpenProcessToken(GetCurrentProcess(),
+						  TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY | TOKEN_READ, processToken.put()))
 	{
 		vCritical() << "could not open process token";
 		return false;
 	}
 
-	if( !LookupPrivilegeValue( nullptr, privilegeName, &luid ) )
+	LUID luid{};
+	if (!LookupPrivilegeValue(nullptr, privilegeName, &luid))
 	{
-		CloseHandle(token);
-		vCritical() << "could not lookup privilege value";
+		vCritical() << "could not lookup privilege value" << privilegeName;
 		return false;
 	}
 
+	TOKEN_PRIVILEGES tokenPrivileges{};
 	tokenPrivileges.PrivilegeCount = 1;
 	tokenPrivileges.Privileges[0].Luid = luid;
 	tokenPrivileges.Privileges[0].Attributes = enable ? SE_PRIVILEGE_ENABLED : 0;
 
-	const auto ret = AdjustTokenPrivileges( token, false, &tokenPrivileges, 0, nullptr, nullptr );
+	const auto ret = AdjustTokenPrivileges(processToken.get(), false, &tokenPrivileges, 0, nullptr, nullptr );
+	if (ret == false || GetLastError() != ERROR_SUCCESS)
+	{
+		vCritical() << "could not enable or disable privilege" << privilegeName;
+		return false;
+	}
 
-	CloseHandle( token );
-
-	return ret;
+	return true;
 }
 
 
 
-QSharedPointer<wchar_t> WindowsCoreFunctions::toWCharArray( const QString& qstring )
+SmartWCharPtr WindowsCoreFunctions::toWCharArray(const QString& qstring)
 {
 	auto wcharArray = new wchar_t[qstring.size()+1];
 	qstring.toWCharArray( wcharArray );
 	wcharArray[qstring.size()] = 0;
 
-	return { wcharArray, []( const wchar_t* buffer ) { delete[] buffer; } };
+	return SmartWCharPtr{wcharArray};
 }
 
 
@@ -552,12 +554,10 @@ const wchar_t* WindowsCoreFunctions::toConstWCharArray( const QString& qstring )
 
 QString WindowsCoreFunctions::securityIdentifierToString(const SecurityIdentifierBuffer& sidBuffer)
 {
-	LPWSTR stringSid = nullptr;
-
-	if (ConvertSidToStringSidW(reinterpret_cast<PSID>(const_cast<std::byte *>(sidBuffer.data())), &stringSid))
+	SmartStringSID stringSid;
+	if (ConvertSidToStringSidW(reinterpret_cast<PSID>(const_cast<std::byte *>(sidBuffer.data())), stringSid.put()))
 	{
-		const auto sidString = QString::fromWCharArray(stringSid);
-		LocalFree(stringSid);
+		const auto sidString = QString::fromWCharArray(stringSid.get());
 		return sidString;
 	}
 
@@ -572,15 +572,14 @@ bool WindowsCoreFunctions::stringToSecurityIdentifier(const QString& sidString, 
 {
 	memset(sidBuffer.data(), 0, sidBuffer.size());
 
-	PSID sid = nullptr;
-	if (ConvertStringSidToSid(toConstWCharArray(sidString), &sid) && sid)
+	SmartSID sid;
+	if (ConvertStringSidToSid(toConstWCharArray(sidString), sid.put()) && sid)
 	{
-		const auto sidLength = GetLengthSid(sid);
+		const auto sidLength = GetLengthSid(sid.get());
 		if (sidLength <= sidBuffer.size())
 		{
-			memcpy(sidBuffer.data(), sid, GetLengthSid(sid));
+			memcpy(sidBuffer.data(), sid.get(), sidLength);
 		}
-		LocalFree(sid);
 		return true;
 	}
 
@@ -591,11 +590,12 @@ bool WindowsCoreFunctions::stringToSecurityIdentifier(const QString& sidString, 
 
 
 
-HANDLE WindowsCoreFunctions::runProgramInSession( const QString& program,
-												  const QStringList& parameters,
-												  const QStringList& extraEnvironment,
-												  DWORD baseProcessId,
-												  const QString& desktop )
+SmartHandle WindowsCoreFunctions::runProgramInSession(const QString& program,
+													  const QStringList& parameters,
+													  const QStringList& extraEnvironment,
+													  DWORD baseProcessId,
+													  const QString& desktop,
+													  const QByteArray& stdInData)
 {
 	vDebug() << program << parameters << extraEnvironment << baseProcessId;
 
@@ -603,140 +603,156 @@ HANDLE WindowsCoreFunctions::runProgramInSession( const QString& program,
 	enablePrivilege( SE_INCREASE_QUOTA_NAME, true );
 	enablePrivilege( SE_TCB_NAME, true );
 
-	const auto userProcessHandle = OpenProcess( PROCESS_ALL_ACCESS, false, baseProcessId );
-	if( userProcessHandle == nullptr )
+	SmartHandle userProcessHandle{OpenProcess(PROCESS_ALL_ACCESS, false, baseProcessId)};
+	if (userProcessHandle.isInvalid())
 	{
 		vCritical() << "OpenProcess()" << GetLastError();
-		return nullptr;
+		return {};
 	}
 
-	HANDLE userProcessToken = nullptr;
-	if( OpenProcessToken( userProcessHandle, MAXIMUM_ALLOWED, &userProcessToken ) == false )
+	SmartToken userProcessToken;
+	if (OpenProcessToken(userProcessHandle.get(), MAXIMUM_ALLOWED, userProcessToken.put()) == false)
 	{
 		vCritical() << "OpenProcessToken()" << GetLastError();
-		CloseHandle( userProcessHandle );
-		return nullptr;
+		return {};
 	}
 
-	LPVOID userEnvironment = nullptr;
-	if( CreateEnvironmentBlock( &userEnvironment, userProcessToken, false ) == false )
+	SmartEnvBlockPtr userEnvironment;
+	if (CreateEnvironmentBlock(userEnvironment.put(), userProcessToken.get(), false) == false)
 	{
 		vCritical() << "CreateEnvironmentBlock()" << GetLastError();
-		CloseHandle( userProcessHandle );
-		CloseHandle( userProcessToken );
-		return nullptr;
+		return {};
 	}
 
-	PWSTR profileDir = nullptr;
-	if( SHGetKnownFolderPath( FOLDERID_Profile, 0, userProcessToken, &profileDir ) != S_OK )
+	SmartCoTaskMemPtr<wchar_t> profileDir;
+	if (SHGetKnownFolderPath(FOLDERID_Profile, 0, userProcessToken.get(), profileDir.put()) != S_OK)
 	{
 		vCritical() << "SHGetKnownFolderPath()" << GetLastError();
-		DestroyEnvironmentBlock( userEnvironment );
-		CloseHandle( userProcessHandle );
-		CloseHandle( userProcessToken );
-		return nullptr;
+		return {};
 	}
 
-	if (ImpersonateLoggedOnUser(userProcessToken) == false) // Flawfinder: ignore
+	if (ImpersonateLoggedOnUser(userProcessToken.get()) == false) // Flawfinder: ignore
 	{
 		vCritical() << "ImpersonateLoggedOnUser()" << GetLastError();
-		CoTaskMemFree( profileDir );
-		DestroyEnvironmentBlock( userEnvironment );
-		CloseHandle( userProcessHandle );
-		CloseHandle( userProcessToken );
-		return nullptr;
+		return {};
 	}
 
-	auto desktopWide = toWCharArray( desktop );
+	const auto revertToSelfGuard = qScopeGuard(RevertToSelf);
 
-	if( desktop.isEmpty() )
+	auto desktopWide = toWCharArray(desktop);
+
+	if (desktop.isEmpty())
 	{
 		desktopWide = toWCharArray( QStringLiteral("Winsta0\\Default") );
 	}
 
-	STARTUPINFO si;
-	PROCESS_INFORMATION pi;
-	ZeroMemory( &si, sizeof( STARTUPINFO ) );
-	si.cb = sizeof( STARTUPINFO );
-	si.lpDesktop = desktopWide.data();
+	STARTUPINFO si{};
+	si.cb = sizeof(STARTUPINFO);
+	si.lpDesktop = desktopWide.get();
 
-	auto fullEnvironment = appendToEnvironmentBlock( reinterpret_cast<const wchar_t *>( userEnvironment ), extraEnvironment );
+	const SmartWCharPtr fullEnvironment{appendToEnvironmentBlock(reinterpret_cast<const wchar_t *>(userEnvironment.get()), extraEnvironment)};
 
-	HANDLE newToken = nullptr;
+	SmartToken newToken;
+	if (DuplicateTokenEx(userProcessToken.get(), TOKEN_ASSIGN_PRIMARY|TOKEN_ALL_ACCESS, nullptr,
+						 SecurityImpersonation, TokenPrimary, newToken.put()) == false ||
+		newToken.isInvalid())
+	{
+		vCritical() << "DuplicateTokenEx()" << GetLastError();
+		return {};
+	}
 
-	DuplicateTokenEx( userProcessToken, TOKEN_ASSIGN_PRIMARY|TOKEN_ALL_ACCESS, nullptr,
-					  SecurityImpersonation, TokenPrimary, &newToken );
+	SmartFileHandle stdinRead;
+	SmartFileHandle stdinWrite;
 
-	auto commandLine = toWCharArray( QStringLiteral("\"%1\" %2").arg( program, parameters.join( QLatin1Char(' ') ) ) );
+	if (stdInData.isEmpty() == false)
+	{
+		SECURITY_ATTRIBUTES sa{};
+		sa.nLength = sizeof(sa);
+		sa.lpSecurityDescriptor = nullptr;
+		sa.bInheritHandle = true;
 
-	auto createProcessResult = CreateProcessAsUser( // Flawfinder: ignore
-				newToken,			// client's access token
-				nullptr,			  // file to execute
-				commandLine.data(),	 // command line
-				nullptr,			  // pointer to process SECURITY_ATTRIBUTES
-				nullptr,			  // pointer to thread SECURITY_ATTRIBUTES
-				false,			 // handles are not inheritable
-				CREATE_UNICODE_ENVIRONMENT | NORMAL_PRIORITY_CLASS,   // creation flags
-				fullEnvironment ? fullEnvironment : userEnvironment,			  // pointer to new environment block
-				profileDir,			  // name of current directory
-				&si,			   // pointer to STARTUPINFO structure
-				&pi				// receives information about new process
-				);
+		if (CreatePipe(stdinRead.put(), stdinWrite.put(), &sa, 0) == false)
+		{
+			vCritical() << "could not create stdin pipe";
+			return {};
+		}
 
-	if( createProcessResult == false )
+		if (SetHandleInformation(stdinWrite.get(), HANDLE_FLAG_INHERIT, 0) == false)
+		{
+			return {};
+		}
+
+		si.dwFlags |= STARTF_USESTDHANDLES;
+		si.hStdInput = stdinRead.get();
+		si.hStdOutput = GetStdHandle(STD_OUTPUT_HANDLE);
+		si.hStdError = GetStdHandle(STD_ERROR_HANDLE);
+	}
+
+	const auto commandLine = toWCharArray(QStringLiteral("\"%1\" %2").arg(program, parameters.join(QLatin1Char(' '))));
+
+	PROCESS_INFORMATION pi{};
+	if (CreateProcessAsUser(
+			newToken.get(),			// client's access token
+			nullptr,			  // file to execute
+			commandLine.get(),	 // command line
+			nullptr,			  // pointer to process SECURITY_ATTRIBUTES
+			nullptr,			  // pointer to thread SECURITY_ATTRIBUTES
+			stdInData.isEmpty() == false, // handles are inheritable when we need to pass data via stdin
+			CREATE_UNICODE_ENVIRONMENT | NORMAL_PRIORITY_CLASS,   // creation flags
+			fullEnvironment ? fullEnvironment.get() : userEnvironment.get(),			  // pointer to new environment block
+			profileDir.get(),			  // name of current directory
+			&si,			   // pointer to STARTUPINFO structure
+			&pi				// receives information about new process
+			) == false)
 	{
 		vCritical() << "CreateProcessAsUser()" << GetLastError();
+		return {};
 	}
 
-	delete[] fullEnvironment;
+	SmartHandle threadHandle{pi.hThread};
+	SmartHandle processHandle{pi.hProcess};
 
-	CoTaskMemFree( profileDir );
-	DestroyEnvironmentBlock( userEnvironment );
-
-	CloseHandle( newToken );
-	RevertToSelf();
-
-	CloseHandle( userProcessToken );
-	CloseHandle( userProcessHandle );
-
-	if( createProcessResult )
+	if (stdInData.isEmpty() == false)
 	{
-		return pi.hProcess;
+		DWORD written = 0;
+		const auto stdInDataSize = DWORD(stdInData.size());
+		if (WriteFile(stdinWrite.get(), stdInData.constData(), stdInDataSize, &written, nullptr) == false ||
+			written != stdInDataSize)
+		{
+			vCritical() << "failed to write stdin data";
+		}
 	}
 
-	return nullptr;
+	return processHandle;
 }
 
 
 
 QStringList WindowsCoreFunctions::queryProcessEnvironmentVariables(DWORD processId)
 {
-	const auto processHandle = OpenProcess(PROCESS_QUERY_INFORMATION, false, processId);
-	if (processHandle == nullptr)
+	SmartHandle processHandle{OpenProcess(PROCESS_QUERY_INFORMATION, false, processId)};
+	if (processHandle.isInvalid())
 	{
 		vCritical() << "OpenProcess()" << GetLastError();
 		return {};
 	}
 
-	HANDLE processToken = nullptr;
-	if (OpenProcessToken(processHandle, MAXIMUM_ALLOWED, &processToken ) == false)
+	SmartToken processToken;
+	if (OpenProcessToken(processHandle.get(), MAXIMUM_ALLOWED, processToken.put()) == false)
 	{
 		vCritical() << "OpenProcessToken()" << GetLastError();
-		CloseHandle(processHandle);
 		return {};
 	}
 
-	LPVOID envBlock = nullptr;
-	if (CreateEnvironmentBlock(&envBlock, processToken, false) == false ||
-		envBlock == nullptr)
+	SmartEnvBlockPtr envBlock;
+	if (CreateEnvironmentBlock(envBlock.put(), processToken.get(), false) == false ||
+		envBlock.isInvalid())
 	{
 		vCritical() << "CreateEnvironmentBlock()" << GetLastError();
-		CloseHandle(processHandle);
-		CloseHandle(processToken);
 		return {};
 	}
 
-	const auto env = reinterpret_cast<const wchar_t *>(envBlock);
+	const auto env = reinterpret_cast<const wchar_t *>(envBlock.get());
 	size_t envPos = 0;
 	size_t envCurVarStart = 0;
 
@@ -751,10 +767,6 @@ QStringList WindowsCoreFunctions::queryProcessEnvironmentVariables(DWORD process
 		++envPos;
 	}
 
-	DestroyEnvironmentBlock(envBlock);
-	CloseHandle(processHandle);
-	CloseHandle(processToken);
-
 	return envVars;
 }
 
@@ -764,12 +776,11 @@ bool WindowsCoreFunctions::terminateProcess( ProcessId processId, DWORD timeout 
 {
 	if( processId != WtsSessionManager::InvalidProcess )
 	{
-		const auto processHandle = OpenProcess( PROCESS_TERMINATE, false, processId );
+		SmartHandle processHandle{OpenProcess(PROCESS_TERMINATE, false, processId)};
 		if( processHandle )
 		{
-			const auto result = TerminateProcess( processHandle, 0 );
-			WaitForSingleObject( processHandle, timeout );
-			CloseHandle( processHandle );
+			const auto result = TerminateProcess(processHandle.get(), 0);
+			WaitForSingleObject(processHandle.get(), timeout);
 
 			return result;
 		}

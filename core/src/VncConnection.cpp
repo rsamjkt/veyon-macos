@@ -103,11 +103,20 @@ void VncConnection::hookCursorShape( rfbClient* client, int xh, int yh, int w, i
 		return;
 	}
 
-	QImage alpha( client->rcMask, w, h, QImage::Format_Indexed8 );
-	alpha.setColorTable( { qRgb(255,255,255), qRgb(0,0,0) } );
+	auto cursorShape = QImage(client->rcSource, w, h, w * 4, QImage::Format_RGB32).convertToFormat(QImage::Format_ARGB32);
 
-	QPixmap cursorShape( QPixmap::fromImage( QImage( client->rcSource, w, h, QImage::Format_RGB32 ) ) );
-	cursorShape.setMask( QBitmap::fromImage( alpha ) );
+	const auto* mask = client->rcMask;
+	for (int y = 0; y < h; ++y)
+	{
+		auto* line = reinterpret_cast<QRgb *>(cursorShape.scanLine(y));
+		for (int x = 0; x < w; ++x)
+		{
+			if (mask[y*w + x] == 0)
+			{
+				line[x] = qRgba(0, 0, 0, 0);
+			}
+		}
+	}
 
 	auto connection = static_cast<VncConnection *>( clientData( client, VncConnectionTag ) );
 	if( connection )
@@ -397,11 +406,6 @@ void VncConnection::setFramebufferUpdateInterval( int interval )
 
 	if (state() == State::Connected)
 	{
-		if (m_framebufferUpdateInterval <= 0)
-		{
-			setControlFlag(ControlFlag::TriggerFramebufferUpdate, true);
-		}
-
 		m_updateIntervalSleeper.wakeAll();
 	}
 }
@@ -649,16 +653,18 @@ void VncConnection::handleConnection()
 			requestFrameufferUpdate(FramebufferUpdateType::Full);
 			m_fullFramebufferUpdateTimer.restart();
 		}
-		else if (m_framebufferUpdateInterval > 0 &&
-				 m_incrementalFramebufferUpdateTimer.elapsed() > incrementalFramebufferUpdateTimeout())
+		else if (m_incrementalFramebufferUpdateTimer.elapsed() > incrementalFramebufferUpdateTimeout())
 		{
 			requestFrameufferUpdate(FramebufferUpdateType::Incremental);
 			m_incrementalFramebufferUpdateTimer.restart();
 		}
-		else if (isControlFlagSet(ControlFlag::TriggerFramebufferUpdate))
+
+		const auto throttlingDuration = MinimumFramebufferUpdateInterval - loopTimer.elapsed();
+		if (throttlingDuration > 0)
 		{
-			setControlFlag(ControlFlag::TriggerFramebufferUpdate, false);
-			requestFrameufferUpdate(FramebufferUpdateType::Incremental);
+			sleeperMutex.lock();
+			m_throttleSleeper.wait(&sleeperMutex, throttlingDuration);
+			sleeperMutex.unlock();
 		}
 
 		const auto remainingUpdateInterval = m_framebufferUpdateInterval - loopTimer.elapsed();
@@ -810,10 +816,11 @@ int VncConnection::fullFramebufferUpdateTimeout() const
 
 int VncConnection::incrementalFramebufferUpdateTimeout() const
 {
-	return m_framebufferState == FramebufferState::Valid ?
-				int(m_framebufferUpdateInterval)
-			  :
-				std::min(int(m_framebufferUpdateInterval), m_initialFramebufferUpdateTimeout);
+	return std::max(MinimumFramebufferUpdateInterval,
+					m_framebufferState == FramebufferState::Valid ?
+						int(m_framebufferUpdateInterval)
+					  :
+						std::min(int(m_framebufferUpdateInterval), m_initialFramebufferUpdateTimeout));
 }
 
 
@@ -824,7 +831,8 @@ void VncConnection::updateEncodingSettingsFromQuality()
 											"zrle ultra copyrect hextile zlib corre rre raw" :
 											"tight zywrle zrle ultra";
 
-	m_client->appData.compressLevel = 9;
+	m_client->appData.compressLevel =
+		m_quality == VncConnectionConfiguration::Quality::Highest ? 1 : 9;
 
 	m_client->appData.qualityLevel = [this] {
 		switch(m_quality)

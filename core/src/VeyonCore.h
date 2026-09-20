@@ -74,6 +74,7 @@ public:
 		Version_4_8,
 		Version_4_9,
 		Version_4_10,
+		Version_4_11,
 	};
 	Q_ENUM(ApplicationVersion)
 
@@ -83,7 +84,8 @@ public:
 		Worker,
 		Master,
 		CLI,
-		Configurator
+		Configurator,
+		AuthHelper,
 	};
 	Q_ENUM(Component)
 

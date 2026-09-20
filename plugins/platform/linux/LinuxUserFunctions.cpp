@@ -69,7 +69,7 @@ QStringList LinuxUserFunctions::userGroups( bool queryDomainGroups )
 	QStringList groupList;
 
 	QProcess getentProcess;
-	getentProcess.start( QStringLiteral("getent"), { QStringLiteral("group") } );
+	getentProcess.start(QStringLiteral("/usr/bin/getent"), {QStringLiteral("group")});
 	getentProcess.waitForFinished();
 
 	const auto groups = QString::fromUtf8( getentProcess.readAll() ).split( QLatin1Char('\n') );
@@ -176,7 +176,7 @@ QStringList LinuxUserFunctions::groupsOfUser( const QString& username, bool quer
 	QStringList groupList;
 
 	QProcess getentProcess;
-	getentProcess.start( QStringLiteral("getent"), { QStringLiteral("group") } );
+	getentProcess.start(QStringLiteral("/usr/bin/getent"), {QStringLiteral("group")});
 	getentProcess.waitForFinished();
 
 	const auto groups = QString::fromUtf8( getentProcess.readAll() ).split( QLatin1Char('\n') );
@@ -365,14 +365,17 @@ bool LinuxUserFunctions::authenticate( const QString& username, const Password& 
 		return false;
 	}
 
-	const auto pamService = LinuxPlatformConfiguration( &VeyonCore::config() ).pamServiceName();
-
 	QDataStream ds( &p );
 	ds << username.toUtf8();
 	ds << password.toByteArray();
-	ds << pamService.toUtf8();
 
-	p.waitForFinished( AuthHelperTimeout );
+	if (p.waitForFinished(AuthHelperTimeout) == false)
+	{
+		vCritical() << "VeyonAuthHelper timed out - terminating";
+		p.kill();
+		p.waitForFinished(AuthHelperTimeout);
+		return false;
+	}
 
 	if( p.state() != QProcess::NotRunning || p.exitCode() != 0 )
 	{

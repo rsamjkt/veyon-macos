@@ -22,11 +22,14 @@
  *
  */
 
+#include <QMessageBox>
 #include <QPushButton>
+#include <QScreen>
 
 #include "FileTransferController.h"
 #include "FileTransferDialog.h"
 #include "FileTransferListModel.h"
+#include "Filesystem.h"
 
 #include "ui_FileTransferDialog.h"
 
@@ -46,6 +49,13 @@ FileTransferDialog::FileTransferDialog( FileTransferController* controller, QWid
 
 	connect( m_controller, &FileTransferController::finished,
 			 this, &FileTransferDialog::finish );
+
+	connect(m_controller, &FileTransferController::errorOccurred,
+			 this, &FileTransferDialog::reportError);
+
+	const auto availableSize = screen()->availableSize();
+	move(availableSize.width() / 8, availableSize.height() / 8);
+	resize(availableSize * 3 / 4);
 }
 
 
@@ -81,6 +91,13 @@ void FileTransferDialog::accept()
 		flags |= FileTransferController::OverwriteExistingFiles;
 	}
 
+	// Set custom destination directory if provided
+	const auto destDir = ui->destinationDirectoryEdit->text().trimmed();
+	if( destDir.isEmpty() == false )
+	{
+		m_controller->setDestinationDirectory( destDir );
+	}
+
 	m_controller->setFlags( flags );
 	m_controller->start();
 }
@@ -111,4 +128,11 @@ void FileTransferDialog::finish()
 void FileTransferDialog::updateProgress( int progress )
 {
 	ui->progressBar->setValue( progress );
+}
+
+
+
+void FileTransferDialog::reportError(const QString& message)
+{
+	QMessageBox::critical(this, tr("File transfer error"), message);
 }

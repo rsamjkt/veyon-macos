@@ -1,6 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE TS>
-<TS version="2.1" language="uk">
+<?xml version="1.0" ?><!DOCTYPE TS><TS version="2.1" language="uk">
 <context>
     <name>AboutDialog</name>
     <message>
@@ -1742,6 +1740,46 @@ Make sure that the names of the keys belonging to each other are identical on al
         <translation>Передавання файлів</translation>
     </message>
     <message>
+        <source>Settings</source>
+        <translation>Параметри</translation>
+    </message>
+    <message>
+        <source>Subfolder handling</source>
+        <translation>Обробка підтек</translation>
+    </message>
+    <message>
+        <source>*.* or *.docx;*.pdf (leave empty for all files)</source>
+        <translation>*.* або *.docx;*.pdf (не заповнюйте, якщо слід обробити усі файли)</translation>
+    </message>
+    <message>
+        <source>File pattern</source>
+        <translation>Взірець назви файла</translation>
+    </message>
+    <message>
+        <source>Local destination directory</source>
+        <translation>Локальний каталог призначення</translation>
+    </message>
+    <message>
+        <source>Relative (Documents/) or absolute (/tmp/ or C:\TMP) or empty for configured directory</source>
+        <translation>Відносний (Documents/) або абсолютний (/tmp/ або C:\TMP) шлях чи порожнє значення для налаштованого каталогу</translation>
+    </message>
+    <message>
+        <source>Source directory on remote computers</source>
+        <translation>Початковий каталог на віддалених комп&apos;ютерах</translation>
+    </message>
+    <message>
+        <source>Default</source>
+        <translation>Типове</translation>
+    </message>
+    <message>
+        <source>Files in source directory only</source>
+        <translation>Лише файли у початковому каталозі</translation>
+    </message>
+    <message>
+        <source>Files in source directory and subdirectories</source>
+        <translation>Файли у початковому каталозі та його підкаталогах</translation>
+    </message>
+    <message>
         <source>Collected files</source>
         <translation>Зібрані файли</translation>
     </message>
@@ -1750,12 +1788,16 @@ Make sure that the names of the keys belonging to each other are identical on al
         <translation>Загальний поступ</translation>
     </message>
     <message>
-        <source>Output directory</source>
-        <translation>Каталог виведення</translation>
-    </message>
-    <message>
         <source>Start</source>
         <translation>Почати</translation>
+    </message>
+    <message>
+        <source>Select destination directory</source>
+        <translation>Виберіть каталог призначення</translation>
+    </message>
+    <message>
+        <source>Open output directory</source>
+        <translation>Відкрити катало виведених даних</translation>
     </message>
     <message>
         <source>Enter collection name</source>
@@ -1927,8 +1969,8 @@ Make sure that the names of the keys belonging to each other are identical on al
 <context>
     <name>FileTransferController</name>
     <message>
-        <source>Could not open file %1 for reading! Please check your permissions!</source>
-        <translation>Не вдалося відкрити файл %1 для читання! Будь ласка, перевірте, чи маєте ви достатні права доступу!</translation>
+        <source>Could not open file %1 for reading. Please check your permissions. The file will be skipped, remaining files will still be transferred.</source>
+        <translation>Не вдалося відкрити файл %1 для читання. Будь ласка, перевірте ваші права доступу. Файл буде пропущено. Решту файлів буде передано.</translation>
     </message>
 </context>
 <context>
@@ -1940,6 +1982,14 @@ Make sure that the names of the keys belonging to each other are identical on al
     <message>
         <source>Options</source>
         <translation>Параметри</translation>
+    </message>
+    <message>
+        <source>Destination directory on remote computers:</source>
+        <translation>Каталог призначення на віддалених комп&apos;ютерах:</translation>
+    </message>
+    <message>
+        <source>Relative (Desktop/) or absolute (/tmp/ or C:\TMP) or empty for configured directory</source>
+        <translation>Відносний (Desktop/) або абсолютний (/tmp/ або C:\TMP) шлях чи порожнє значення для налаштованого каталогу</translation>
     </message>
     <message>
         <source>Overwrite existing files</source>
@@ -1964,6 +2014,10 @@ Make sure that the names of the keys belonging to each other are identical on al
     <message>
         <source>Start</source>
         <translation>Почати</translation>
+    </message>
+    <message>
+        <source>File transfer error</source>
+        <translation>Помилка передавання файла</translation>
     </message>
 </context>
 <context>
@@ -2376,8 +2430,8 @@ Make sure that the names of the keys belonging to each other are identical on al
         <translation>Атрибути об’єкта</translation>
     </message>
     <message>
-        <source>e.g. name or description</source>
-        <translation>наприклад назва чи опис</translation>
+        <source>e.g. name, ou or description</source>
+        <translation>наприклад, назва, ou або опис</translation>
     </message>
     <message>
         <source>Hostnames stored as fully qualified domain names (FQDN, e.g. myhost.example.org)</source>
@@ -3362,7 +3416,7 @@ Press and hold to load arrangement from a file or save current arrangement to a 
     </message>
     <message>
         <source>Guest user identity extension</source>
-        <translation type="unfinished"></translation>
+        <translation>Розширення профілю гостьового користувача</translation>
     </message>
     <message>
         <source>None</source>
@@ -3370,11 +3424,11 @@ Press and hold to load arrangement from a file or save current arrangement to a 
     </message>
     <message>
         <source>Prefix</source>
-        <translation type="unfinished"></translation>
+        <translation>Префікс</translation>
     </message>
     <message>
         <source>Suffix</source>
-        <translation type="unfinished"></translation>
+        <translation>Суфікс</translation>
     </message>
     <message>
         <source>Behaviour</source>
@@ -3630,6 +3684,13 @@ Press and hold to load arrangement from a file or save current arrangement to a 
     </message>
 </context>
 <context>
+    <name>PipeWireVncServer</name>
+    <message>
+        <source>Wayland VNC server (PipeWire/XDG Desktop Portal)</source>
+        <translation>Сервер VNC Wayland (Портал PipeWire/стільниці XDG)</translation>
+    </message>
+</context>
+<context>
     <name>PluginCommands</name>
     <message>
         <source>List names of all installed plugins</source>
@@ -3717,10 +3778,6 @@ Press and hold to load arrangement from a file or save current arrangement to a 
     <message>
         <source>This command broadcasts a Wake-on-LAN (WOL) packet to the network in order to power on the computer with the given MAC address.</source>
         <translation>Ця команда транслює пакет Wake-on-LAN (WOL) до мережі з метою вмикання живлення на комп&apos;ютері із вказаною MAC-адресою.</translation>
-    </message>
-    <message>
-        <source>Please specify the command to display help for!</source>
-        <translation>Будь ласка, вкажіть команду, для якої слід показати довідку!</translation>
     </message>
     <message>
         <source>Confirm reboot</source>
@@ -4075,6 +4132,14 @@ Please save your work and close all programs.</source>
     <message>
         <source>Show notification on remote connection</source>
         <translation>Показувати сповіщення щодо віддаленого з&apos;єднання</translation>
+    </message>
+    <message>
+        <source>Maximum simultaneous server connections</source>
+        <translation>Максимальна кількість одночасних з&apos;єднань із сервером</translation>
+    </message>
+    <message>
+        <source>Limits simultaneous remote connections to protect the server against resource exhaustion.</source>
+        <translation>Обмежує кількість одночасних віддалених з&apos;єднань для захисту сервера від вичерпання ресурсів.</translation>
     </message>
     <message>
         <source>Hide tray icon</source>
@@ -4436,6 +4501,22 @@ Example: [^-]*-(PC[0-9]*)</source>
         <source>Use the field below to type your message which will be sent to all selected users.</source>
         <translation>Використовуйте це поле, щоб набрати текст повідомлення, яке буде надіслано всім позначеним користувачам.</translation>
     </message>
+    <message>
+        <source>Title:</source>
+        <translation>Заголовок:</translation>
+    </message>
+    <message>
+        <source>Optional custom title for the message window</source>
+        <translation>Необов&apos;язковий нетиповий заголовок для вікна повідомлень</translation>
+    </message>
+    <message>
+        <source>Message from teacher</source>
+        <translation>Повідомлення від вчителя</translation>
+    </message>
+    <message>
+        <source>Message from %1</source>
+        <translation>Повідомлення від %1</translation>
+    </message>
 </context>
 <context>
     <name>TextMessageFeaturePlugin</name>
@@ -4552,10 +4633,6 @@ Example: [^-]*-(PC[0-9]*)</source>
         <translation>[ПОМИЛКА]</translation>
     </message>
     <message>
-        <source>Invalid command!</source>
-        <translation>Некоректна команда!</translation>
-    </message>
-    <message>
         <source>Invalid arguments given</source>
         <translation>Вказано некоректні аргументи</translation>
     </message>
@@ -4564,16 +4641,24 @@ Example: [^-]*-(PC[0-9]*)</source>
         <translation>Вказано недостатньо аргументів — скористайтеся командою «%1 help», щоб дізнатися більше</translation>
     </message>
     <message>
+        <source>No command given</source>
+        <translation>Не вказано команди</translation>
+    </message>
+    <message>
+        <source>Invalid command given</source>
+        <translation>Вказано некоректну команду</translation>
+    </message>
+    <message>
         <source>Plugin not licensed</source>
         <translation>Додаток не ліцензовано</translation>
     </message>
     <message>
-        <source>Unknown result!</source>
-        <translation>Невідомий результат!</translation>
-    </message>
-    <message>
         <source>Available commands:</source>
         <translation>Доступні команди:</translation>
+    </message>
+    <message>
+        <source>Unknown command result</source>
+        <translation>Невідомий результат команди</translation>
     </message>
     <message>
         <source>Available modules:</source>

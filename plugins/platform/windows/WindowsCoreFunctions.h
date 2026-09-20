@@ -27,6 +27,7 @@
 #include <windows.h>
 
 #include "PlatformCoreFunctions.h"
+#include "WindowsSmartObjects.h"
 
 // clazy:excludeall=copyable-polymorphic
 
@@ -47,6 +48,8 @@ public:
 	void initNativeLoggingSystem( const QString& appName ) override;
 	void writeToNativeLoggingSystem( const QString& message, Logger::LogLevel loglevel ) override;
 
+	QObject* notifyOnStandardInputReadyRead(const NotifierCallback& callback) override;
+
 	void reboot() override;
 	void powerDown( bool installUpdates ) override;
 
@@ -62,10 +65,11 @@ public:
 	bool isRunningAsAdmin() const override;
 	bool runProgramAsAdmin( const QString& program, const QStringList& parameters ) override;
 
-	bool runProgramAsUser( const QString& program,
-						   const QStringList& parameters,
-						   const QString& username,
-						   const QString& desktop ) override;
+	bool runProgramAsUser(const QString& program,
+						  const QStringList& parameters,
+						  const QString& username,
+						  const QString& desktop,
+						  const QByteArray& stdInData) override;
 
 	QString genericUrlHandler() const override;
 
@@ -75,17 +79,18 @@ public:
 
 	static bool enablePrivilege( LPCWSTR privilegeName, bool enable );
 
-	static QSharedPointer<wchar_t> toWCharArray( const QString& qstring );
+	static SmartWCharPtr toWCharArray(const QString& qstring);
 	static const wchar_t* toConstWCharArray( const QString& qstring );
 
 	static QString securityIdentifierToString(const SecurityIdentifierBuffer& sidBuffer);
 	static bool stringToSecurityIdentifier(const QString& sidString, WindowsCoreFunctions::SecurityIdentifierBuffer& sidBuffer);
 
-	static HANDLE runProgramInSession( const QString& program,
-									   const QStringList& parameters,
-									   const QStringList& extraEnvironment,
-									   DWORD baseProcessId,
-									   const QString& desktop );
+	static SmartHandle runProgramInSession(const QString& program,
+										   const QStringList& parameters,
+										   const QStringList& extraEnvironment,
+										   DWORD baseProcessId,
+										   const QString& desktop,
+										   const QByteArray& stdInData);
 
 	static QStringList queryProcessEnvironmentVariables(DWORD processId);
 

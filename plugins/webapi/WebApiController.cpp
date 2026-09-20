@@ -302,6 +302,11 @@ WebApiController::Response WebApiController::getFramebuffer( const Request& requ
 
 	const auto connection = lookupConnection( request );
 
+	if( !connection )
+	{
+		return Error::InvalidConnection;
+	}
+
 	if( connection->controlInterface()->hasValidFramebuffer() == false )
 	{
 		return Error::FramebufferNotAvailable;
@@ -477,7 +482,14 @@ WebApiController::Response WebApiController::listFeatures( const Request& reques
 	}
 
 	const auto& features = VeyonCore::featureManager().features(); // clazy:exclude=inefficient-qlist
-	const auto activeFeatures = lookupConnection( request )->controlInterface()->activeFeatures();
+	const auto connection = lookupConnection( request );
+
+	if( !connection )
+	{
+		return Error::InvalidConnection;
+	}
+
+	const auto activeFeatures = connection->controlInterface()->activeFeatures();
 
 	QVariantList featureList; // clazy:exclude=inefficient-qlist
 	featureList.reserve( features.size() );
@@ -514,6 +526,11 @@ WebApiController::Response WebApiController::setFeatureStatus( const Request& re
 
 	const auto connection = lookupConnection( request );
 
+	if( !connection )
+	{
+		return Error::InvalidConnection;
+	}
+
 	const auto operation = request.data[k2s(Key::Active)].toBool() ? FeatureProviderInterface::Operation::Start
 																	 : FeatureProviderInterface::Operation::Stop;
 	const auto arguments = request.data[k2s(Key::Arguments)].toMap();
@@ -538,6 +555,11 @@ WebApiController::Response WebApiController::getFeatureStatus( const Request& re
 	}
 
 	const auto connection = lookupConnection( request );
+
+	if( !connection )
+	{
+		return Error::InvalidConnection;
+	}
 	const auto controlInterface = connection->controlInterface();
 
 	const auto result = controlInterface->activeFeatures().contains(Feature::Uid{feature});
@@ -558,6 +580,11 @@ WebApiController::Response WebApiController::getUserInformation( const Request& 
 	}
 
 	const auto connection = lookupConnection( request );
+
+	if( !connection )
+	{
+		return Error::InvalidConnection;
+	}
 	const auto controlInterface = connection->controlInterface();
 
 	const auto& userLoginName = controlInterface->userLoginName();
@@ -588,6 +615,12 @@ WebApiController::Response WebApiController::getSessionInformation(const Request
 	}
 
 	const auto connection = lookupConnection(request);
+
+	if( !connection )
+	{
+		return Error::InvalidConnection;
+	}
+
 	const auto controlInterface = connection->controlInterface();
 
 	return QVariantMap{

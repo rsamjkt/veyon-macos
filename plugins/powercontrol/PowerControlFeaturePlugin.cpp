@@ -187,20 +187,6 @@ bool PowerControlFeaturePlugin::startFeature( VeyonMasterInterface& master, cons
 		return controlFeature( feature.uid(), Operation::Start, {}, computerControlInterfaces );
 	}
 
-	if( feature == m_powerDownDelayedFeature )
-	{
-		PowerDownTimeInputDialog dialog( master.mainWindow() );
-
-		if( dialog.exec() )
-		{
-			return controlFeature( feature.uid(), Operation::Start,
-								   { { argToString(Argument::ShutdownTimeout), dialog.seconds() } },
-								   computerControlInterfaces );
-		}
-
-		return true;
-	}
-
 	const auto executeOnAllComputers =
 		computerControlInterfaces.size() >= master.filteredComputerControlInterfaces().size();
 
@@ -208,6 +194,21 @@ bool PowerControlFeaturePlugin::startFeature( VeyonMasterInterface& master, cons
 	{
 		return false;
 	}
+
+	if (feature == m_powerDownDelayedFeature)
+	{
+		PowerDownTimeInputDialog dialog(master.mainWindow());
+
+		if (dialog.exec())
+		{
+			return controlFeature(feature.uid(), Operation::Start,
+								  {{argToString(Argument::ShutdownTimeout), dialog.seconds()}},
+								  computerControlInterfaces);
+		}
+
+		return true;
+	}
+
 
 	return controlFeature( feature.uid(), Operation::Start, {}, computerControlInterfaces );
 }
@@ -296,9 +297,7 @@ CommandLinePluginInterface::RunResult PowerControlFeaturePlugin::handle_help( co
 		return NoResult;
 	}
 
-	print( tr("Please specify the command to display help for!") );
-
-	return Unknown;
+	return InvalidCommand;
 }
 
 
@@ -480,7 +479,9 @@ void PowerControlFeaturePlugin::displayShutdownTimeout( int shutdownTimeout )
 		updateDialog( &dialog, dialog.value()+1 );
 	} );
 
-	dialog.exec();
+	while (dialog.exec() != QDialog::Accepted)
+	{
+	}
 
 	VeyonCore::platform().coreFunctions().powerDown(false);
 }

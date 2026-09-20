@@ -83,20 +83,17 @@ static HANDLE openCurrentEffectiveToken()
 
 
 
-static bool isCurrentEffectiveUser(HANDLE sessionToken)
+static bool isCurrentEffectiveUser(const SmartToken& sessionToken)
 {
-	HANDLE currentToken = openCurrentEffectiveToken();
+	SmartToken currentToken{openCurrentEffectiveToken()};
 	if (!currentToken)
 	{
 		return false;
 	}
 
-	auto closeHandle = qScopeGuard([&]() {
-		CloseHandle(currentToken);
-	});
 
-	const auto currentUserBuffer = tokenUserSid(currentToken);
-	const auto sessionUserBuffer = tokenUserSid(sessionToken);
+	const auto currentUserBuffer = tokenUserSid(currentToken.get());
+	const auto sessionUserBuffer = tokenUserSid(sessionToken.get());
 	if (!currentUserBuffer || !sessionUserBuffer)
 	{
 		return false;
@@ -161,12 +158,15 @@ QString WindowsUserFunctions::userGroupSecurityIdentifier(const QString& groupNa
 {
 	WindowsCoreFunctions::SecurityIdentifierBuffer groupSid{};
 	DWORD sidLen = groupSid.size();
+	std::array<wchar_t, DOMAIN_LENGTH> domain{};
+
+	DWORD domainLen = domain.size();
 
 	SID_NAME_USE sidNameUse;
 
 	if (LookupAccountName(nullptr, WindowsCoreFunctions::toConstWCharArray(groupName),
 						  groupSid.data(), &sidLen,
-						  NULL, 0, &sidNameUse) == false)
+						  domain.data(), &domainLen, &sidNameUse) == false)
 	{
 		vCritical() << "Could not look up SID structure:" << GetLastError();
 		return {};
@@ -213,9 +213,11 @@ bool WindowsUserFunctions::performLogon( const QString& username, const Password
 	DesktopInputController input( config.logonKeyPressInterval() );
 
 	const auto ctrlAltDel = []() {
-		auto sasEvent = OpenEvent( EVENT_MODIFY_STATE, false, L"Global\\VeyonServiceSasEvent" );
-		SetEvent( sasEvent );
-		CloseHandle( sasEvent );
+		SmartHandle sasEvent{OpenEvent(EVENT_MODIFY_STATE, false, L"Global\\VeyonServiceSasEvent" )};
+		if (sasEvent.isValid())
+		{
+			SetEvent(sasEvent.get());
+		}
 	};
 
 	const auto sendString = [&input]( const QString& string ) {
@@ -285,21 +287,20 @@ bool WindowsUserFunctions::authenticate( const QString& username, const Password
 	{
 		for (auto logonProvider: {LOGON32_PROVIDER_DEFAULT, LOGON32_PROVIDER_WINNT50, LOGON32_PROVIDER_WINNT40})
 		{
-			HANDLE token = nullptr;
-			result = LogonUserW(userWide.data(), domain.isEmpty() ? nullptr : domainWide.data(), passwordWide.data(),
-								LOGON32_LOGON_NETWORK, logonProvider, &token);
+			SmartHandle token;
+			result = LogonUserW(userWide.get(), domain.isEmpty() ? nullptr : domainWide.get(), passwordWide.get(),
+								LOGON32_LOGON_NETWORK, logonProvider, token.put());
 			const auto error = GetLastError();
 			vDebug() << "LogonUserW()" << logonProvider << result << error;
 			if (token)
 			{
-				CloseHandle(token);
 				break;
 			}
 		}
 	}
 	else
 	{
-		result = SSPLogonUser( domainWide.data(), userWide.data(), passwordWide.data() );
+		result = SSPLogonUser(domainWide.get(), userWide.get(), passwordWide.get());
 		const auto error = GetLastError();
 		vDebug() << "SSPLogonUser()" << result << error;
 	}
@@ -320,7 +321,7 @@ QString WindowsUserFunctions::currentUserLoginName()
 	if( !domainName.isEmpty() )
 	{
 		std::array<wchar_t, MAX_COMPUTERNAME_LENGTH+1> computerName{}; // Flawfinder: ignore
-		DWORD size = MAX_COMPUTERNAME_LENGTH;
+		DWORD size = computerName.size();
 		GetComputerName( computerName.data(), &size );
 
 		if( domainName == QString::fromWCharArray( computerName.data() ) )
@@ -342,25 +343,22 @@ QString WindowsUserFunctions::currentUserLoginName()
 
 QString WindowsUserFunctions::currentUserFullName()
 {
-	HANDLE sessionToken = nullptr;
+	HANDLE sessionTokenRaw = nullptr;
 	const auto sessionId = WtsSessionManager::currentSession();
 
-	if (!WTSQueryUserToken(sessionId, &sessionToken))
+	if (!WTSQueryUserToken(sessionId, &sessionTokenRaw))
 	{
 		vCritical() << "could not query user token for session" << sessionId;
 		return {};
 	}
-
-	auto closeHandle = qScopeGuard([&]() {
-		CloseHandle(sessionToken);
-	});
+	SmartToken sessionToken(sessionTokenRaw);
 
 	const bool needImpersonation = !isCurrentEffectiveUser(sessionToken);
 
 	bool impersonating = false;
 	if (needImpersonation)
 	{
-		if (!ImpersonateLoggedOnUser(sessionToken)) // Flawfinder: ignore
+		if (!ImpersonateLoggedOnUser(sessionToken.get())) // Flawfinder: ignore
 		{
 			vCritical() << "could not impersonate session user";
 			return {};

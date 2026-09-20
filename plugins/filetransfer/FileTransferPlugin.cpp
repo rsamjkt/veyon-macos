@@ -47,6 +47,20 @@
 #include "VeyonWorkerInterface.h"
 
 
+// Resolve a path relative to the active user's home directory.
+// Absolute paths (starting with /) are returned as-is.
+// Relative paths are prefixed with the user's home directory.
+// Empty paths are returned as-is.
+static QString resolvePathToHome(const QString& path)
+{
+	if (path.isEmpty())
+		return path;
+	if (QDir::isAbsolutePath(path))
+		return path;
+	return QDir::toNativeSeparators(QDir::homePath() + QLatin1Char('/') + path);
+}
+
+
 FileTransferPlugin::FileTransferPlugin( QObject* parent ) :
 	QObject( parent ),
 	m_distributeFilesFeature(QStringLiteral("DistributeFiles"),
@@ -284,13 +298,20 @@ bool FileTransferPlugin::handleFeatureMessage( VeyonWorkerInterface& worker, con
 
 
 void FileTransferPlugin::sendStartMessage( QUuid transferId, const QString& fileName,
-										   bool overwriteExistingFile, const ComputerControlInterfaceList& interfaces )
+										   bool overwriteExistingFile, const ComputerControlInterfaceList& interfaces,
+										   const QString& destinationDirectory )
 {
-	sendFeatureMessage(FeatureMessage(m_distributeFilesFeature.uid(), FeatureCommand::StartFileTransfer).
-					   addArgument(Argument::TransferId, transferId).
-					   addArgument(Argument::FileName, fileName).
-					   addArgument(Argument::OverwriteExistingFile, overwriteExistingFile),
-					   interfaces);
+	FeatureMessage msg(m_distributeFilesFeature.uid(), FeatureCommand::StartFileTransfer);
+	msg.addArgument(Argument::TransferId, transferId);
+	msg.addArgument(Argument::FileName, fileName);
+	msg.addArgument(Argument::OverwriteExistingFile, overwriteExistingFile);
+
+	if (destinationDirectory.isEmpty() == false)
+	{
+		msg.addArgument(Argument::DestinationDirectory, destinationDirectory);
+	}
+
+	sendFeatureMessage(msg, interfaces);
 }
 
 
@@ -340,7 +361,8 @@ void FileTransferPlugin::sendStopWorkerMessage(const ComputerControlInterfaceLis
 
 
 
-void FileTransferPlugin::sendInitFileCollectionMessage(const FileCollection& collection, ComputerControlInterface::Pointer computerControlInterface)
+void FileTransferPlugin::sendInitFileCollectionMessage(const FileCollection& collection,
+													   ComputerControlInterface::Pointer computerControlInterface)
 {
 	computerControlInterface->sendFeatureMessage(
 				FeatureMessage(m_collectFilesFeature.uid(), FeatureCommand::InitFileCollection)
@@ -348,8 +370,36 @@ void FileTransferPlugin::sendInitFileCollectionMessage(const FileCollection& col
 }
 
 
+void FileTransferPlugin::sendInitFileCollectionMessage(const FileCollection& collection,
+													   ComputerControlInterface::Pointer computerControlInterface,
+													   const QString& sourceDirectory,
+													   const QString& filePattern,
+													   FileCollectController::SubfolderHandling subfolderHandling)
+{
+	FeatureMessage msg(m_collectFilesFeature.uid(), FeatureCommand::InitFileCollection);
+	msg.addArgument(Argument::CollectionId, collection.id);
 
-void FileTransferPlugin::sendFinishFileCollectionMessage(const FileCollection& collection, ComputerControlInterface::Pointer computerControlInterface)
+	if (sourceDirectory.isEmpty() == false)
+	{
+		msg.addArgument(Argument::SourceDirectory, sourceDirectory);
+	}
+	if (filePattern.isEmpty() == false)
+	{
+		msg.addArgument(Argument::FilePattern, filePattern);
+	}
+	if (subfolderHandling != FileCollectController::SubfolderHandling::Default)
+	{
+		msg.addArgument(Argument::CollectRecursively,
+						subfolderHandling == FileCollectController::SubfolderHandling::Recursive);
+	}
+
+	computerControlInterface->sendFeatureMessage(msg);
+}
+
+
+
+void FileTransferPlugin::sendFinishFileCollectionMessage(const FileCollection& collection,
+														 ComputerControlInterface::Pointer computerControlInterface)
 {
 	computerControlInterface->sendFeatureMessage(
 				FeatureMessage(m_collectFilesFeature.uid(), FeatureCommand::FinishFileCollection)
@@ -358,7 +408,8 @@ void FileTransferPlugin::sendFinishFileCollectionMessage(const FileCollection& c
 
 
 
-void FileTransferPlugin::sendStartFileTransferMessage(const FileCollection& collection, ComputerControlInterface::Pointer computerControlInterface)
+void FileTransferPlugin::sendStartFileTransferMessage(const FileCollection& collection,
+													  ComputerControlInterface::Pointer computerControlInterface)
 {
 	computerControlInterface->sendFeatureMessage(
 				FeatureMessage(m_collectFilesFeature.uid(), FeatureCommand::StartFileTransfer)
@@ -367,7 +418,8 @@ void FileTransferPlugin::sendStartFileTransferMessage(const FileCollection& coll
 
 
 
-void FileTransferPlugin::sendContinueFileTransferMessage(const FileCollection& collection, ComputerControlInterface::Pointer computerControlInterface)
+void FileTransferPlugin::sendContinueFileTransferMessage(const FileCollection& collection,
+														 ComputerControlInterface::Pointer computerControlInterface)
 {
 	computerControlInterface->sendFeatureMessage(
 				FeatureMessage(m_collectFilesFeature.uid(), FeatureCommand::ContinueFileTransfer)
@@ -448,7 +500,25 @@ bool FileTransferPlugin::handleDistributeFilesMessage(const FeatureMessage& mess
 	case FeatureCommand::StartFileTransfer:
 		m_currentFile.close();
 
-		m_currentFileName = destinationDirectory() + QDir::separator() + message.argument(Argument::FileName).toString();
+		{
+			// Use custom destination directory if provided, otherwise fall back to config
+			QString destDir;
+			if (message.hasArgument(Argument::DestinationDirectory))
+			{
+				destDir = resolvePathToHome(
+								  message.argument(Argument::DestinationDirectory).toString());
+			}
+			if (destDir.isEmpty())
+			{
+				destDir = destinationDirectory();
+			}
+			if (QDir(destDir).exists() == false)
+			{
+				VeyonCore::filesystem().ensurePathExists(destDir);
+			}
+
+			m_currentFileName = destDir + QDir::separator() + message.argument(Argument::FileName).toString();
+		}
 		m_currentFile.setFileName(m_currentFileName);
 		if( m_currentFile.exists() && message.argument(Argument::OverwriteExistingFile).toBool() == false )
 		{
@@ -540,7 +610,14 @@ bool FileTransferPlugin::handleCollectFilesMessage(VeyonWorkerInterface& worker,
 	case FeatureCommand::InitFileCollection:
 		if (fileCollectWorker == nullptr)
 		{
-			fileCollectWorker = new FileCollectWorker(this);
+			const auto sourceDir = message.argument(Argument::SourceDirectory).toString();
+			const auto filePattern = message.argument(Argument::FilePattern).toString();
+			auto collectRecursively = m_configuration.collectFilesRecursively();
+			if (message.hasArgument(Argument::CollectRecursively))
+			{
+				collectRecursively = message.argument(Argument::CollectRecursively).toBool();
+			}
+			fileCollectWorker = new FileCollectWorker(this, sourceDir, filePattern, collectRecursively);
 			m_fileCollectWorkers[collectionId] = fileCollectWorker;
 		}
 		worker.sendFeatureMessageReply(reply.addArgument(Argument::Files, fileCollectWorker->files()));
@@ -655,6 +732,13 @@ bool FileTransferPlugin::controlDistributeFilesFeature(Operation operation, cons
 
 		m_fileTransferController->setFiles(files);
 		m_fileTransferController->setInterfaces(computerControlInterfaces);
+
+		// Set custom destination directory if provided
+		if (arguments.contains(argToString(Argument::DestinationDirectory)))
+		{
+			m_fileTransferController->setDestinationDirectory(
+						arguments.value(argToString(Argument::DestinationDirectory)).toString());
+		}
 
 		return true;
 	}

@@ -39,7 +39,8 @@ FileTransferController::FileTransferController( FileTransferPlugin* plugin ) :
 	m_interfaces(),
 	m_fileReadThread( nullptr ),
 	m_fileState( FileStateFinished ),
-	m_processTimer( this )
+	m_processTimer( this ),
+	m_destinationDirectory()
 {
 	m_processTimer.setInterval( ProcessInterval );
 	connect( &m_processTimer, &QTimer::timeout, this, &FileTransferController::process );
@@ -76,6 +77,13 @@ void FileTransferController::setInterfaces( const ComputerControlInterfaceList& 
 void FileTransferController::setFlags( Flags flags )
 {
 	m_flags = flags;
+}
+
+
+
+void FileTransferController::setDestinationDirectory( const QString& destDir )
+{
+	m_destinationDirectory = destDir;
 }
 
 
@@ -197,7 +205,10 @@ bool FileTransferController::openFile()
 	{
 		delete m_fileReadThread;
 		m_fileReadThread = nullptr;
-		Q_EMIT errorOccured( tr( "Could not open file %1 for reading! Please check your permissions!" ).arg( m_currentFileIndex ) );
+		Q_EMIT errorOccurred(tr("Could not open file %1 for reading. "
+								"Please check your permissions. "
+								"The file will be skipped, remaining files will still be transferred.")
+							 .arg(m_files.value(m_currentFileIndex)));
 		return false;
 	}
 
@@ -207,7 +218,8 @@ bool FileTransferController::openFile()
 	m_currentTransferId = QUuid::createUuid();
 
 	m_plugin->sendStartMessage( m_currentTransferId, QFileInfo(m_files.value(m_currentFileIndex)).fileName(),
-								m_flags.testFlag( OverwriteExistingFiles ), m_interfaces );
+								m_flags.testFlag( OverwriteExistingFiles ), m_interfaces,
+								m_destinationDirectory );
 
 	return true;
 }

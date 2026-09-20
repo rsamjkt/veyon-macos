@@ -4,6 +4,7 @@ endif()
 
 if(VEYON_BUILD_LINUX)
 	add_subdirectory(x11vnc-builtin)
+	add_subdirectory(pipewire)
 endif()
 
 if(VEYON_BUILD_APPLE)

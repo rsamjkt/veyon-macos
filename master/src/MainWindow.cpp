@@ -232,7 +232,7 @@ MainWindow::MainWindow( VeyonMaster &masterCore, QWidget* parent ) :
 	ui->computerMonitoringWidget->setComputerScreenSize( size );
 
 	// initialize computer placement controls
-	auto customComputerPositionsControlMenu = new QMenu;
+	auto customComputerPositionsControlMenu = new QMenu(this);
 	const auto darkSuffix = VeyonCore::useDarkMode() ? QStringLiteral("-dark") : QString();
 	customComputerPositionsControlMenu->addAction(QIcon(QStringLiteral(":/core/document-open%1.png").arg(darkSuffix)),
 													tr("Load computer positions"),
@@ -274,7 +274,11 @@ MainWindow::MainWindow( VeyonMaster &masterCore, QWidget* parent ) :
 	addFeaturesToToolBar();
 	reloadSubFeatures();
 
-	m_modeGroup->button(int(qHash(VeyonCore::builtinFeatures().monitoringMode().feature().uid())))->setChecked(true); // clazy:exclude=qt6-qhash-signature
+	const auto monitoringModeButton = m_modeGroup->button(int(qHash(VeyonCore::builtinFeatures().monitoringMode().feature().uid()))); // clazy:exclude=qt6-qhash-signature
+	if (monitoringModeButton)
+	{
+		monitoringModeButton->setChecked(true);
+	}
 }
 
 

@@ -27,6 +27,7 @@
 
 #include "AuthenticationCredentials.h"
 #include "Computer.h"
+#include "ComputerControlInterface.h"
 #include "CryptoCore.h"
 #include "DemoClient.h"
 #include "DemoConfigurationPage.h"
@@ -233,17 +234,7 @@ bool DemoFeaturePlugin::startFeature( VeyonMasterInterface& master, const Featur
 		// computer itself: it is listed as a regular room computer but has to
 		// keep control over the running demonstration - it receives a dedicated
 		// window demo below instead
-		for (auto it = userDemoControlInterfaces.begin(); it != userDemoControlInterfaces.end(); )
-		{
-			if (HostAddress(HostAddress::parseHost((*it)->computer().hostName())).isLocalHost())
-			{
-				it = userDemoControlInterfaces.erase(it);
-			}
-			else
-			{
-				++it;
-			}
-		}
+		userDemoControlInterfaces.removeLocalHostInterfaces();
 
 		const QVariantMap demoClientArgs{
 			{ argToString(Argument::DemoServerHost), HostAddress::parseHost(demoServerHost) },
@@ -462,6 +453,15 @@ bool DemoFeaturePlugin::handleFeatureMessage( VeyonWorkerInterface& worker, cons
 	}
 
 	return false;
+}
+
+
+
+bool DemoFeaturePlugin::isFeatureActive(VeyonServerInterface& server, Feature::Uid featureUid) const
+{
+	return featureUid == m_demoFeature.uid() &&
+			(server.featureWorkerManager().isWorkerRunning(m_demoClientFullScreenFeature.uid()) ||
+			 server.featureWorkerManager().isWorkerRunning(m_demoClientWindowFeature.uid()));
 }
 
 

@@ -42,6 +42,8 @@ public:
 	void initNativeLoggingSystem( const QString& appName ) override;
 	void writeToNativeLoggingSystem( const QString& message, Logger::LogLevel loglevel ) override;
 
+	QObject* notifyOnStandardInputReadyRead( const NotifierCallback& callback ) override;
+
 	void reboot() override;
 	void powerDown( bool installUpdates ) override;
 
@@ -59,7 +61,8 @@ public:
 
 	bool runProgramAsUser( const QString& program, const QStringList& parameters,
 						   const QString& username,
-						   const QString& desktop = {} ) override;
+						   const QString& desktop,
+						   const QByteArray& stdInData ) override;
 
 	QString genericUrlHandler() const override;
 

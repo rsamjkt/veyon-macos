@@ -1,6 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE TS>
-<TS version="2.1" language="tr">
+<?xml version="1.0" ?><!DOCTYPE TS><TS version="2.1" language="tr">
 <context>
     <name>AboutDialog</name>
     <message>
@@ -45,7 +43,7 @@ Veyon&apos;u kendi dilinizde veya başka bir dile çevirmek istiyorsanız veya v
     </message>
     <message>
         <source>About Veyon %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
 </context>
 <context>
@@ -710,11 +708,11 @@ Birbirine ait anahtarların isimlerinin tüm bilgisayarlarda aynı olduğundan e
     </message>
     <message>
         <source>Move selected computer up</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Move selected computer down</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Name</source>
@@ -738,11 +736,11 @@ Birbirine ait anahtarların isimlerinin tüm bilgisayarlarda aynı olduğundan e
     </message>
     <message>
         <source>Move selected location up</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Move selected location down</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>The import of CSV files is possible through the command line interface. For more information, see the &lt;a href=&quot;https://docs.veyon.io/en/latest/admin/cli.html#network-object-directory&quot;&gt;online documentation&lt;/a&gt;.</source>
@@ -1121,7 +1119,7 @@ Birbirine ait anahtarların isimlerinin tüm bilgisayarlarda aynı olduğundan e
     </message>
     <message>
         <source>Veyon Service %1 at %2:%3</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Active connections:</source>
@@ -1144,7 +1142,7 @@ Birbirine ait anahtarların isimlerinin tüm bilgisayarlarda aynı olduğundan e
     </message>
     <message>
         <source>No default network object directory plugin was found. Please check your installation or configure a different network object directory backend via Veyon Configurator.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Computer name;Hostname;User</source>
@@ -1281,15 +1279,15 @@ Birbirine ait anahtarların isimlerinin tüm bilgisayarlarda aynı olduğundan e
     <name>ConfigurationManager</name>
     <message>
         <source>Could not modify the autostart property for the Veyon Service.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Could not configure the firewall configuration for the Veyon Server.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Could not configure the firewall configuration for the Veyon Worker.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Could not apply platform-specific configuration settings.</source>
@@ -1304,7 +1302,7 @@ Birbirine ait anahtarların isimlerinin tüm bilgisayarlarda aynı olduğundan e
     <name>DemoClient</name>
     <message>
         <source>Veyon Demo</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
 </context>
 <context>
@@ -1745,6 +1743,46 @@ Birbirine ait anahtarların isimlerinin tüm bilgisayarlarda aynı olduğundan e
         <translation>Dosya transferi</translation>
     </message>
     <message>
+        <source>Settings</source>
+        <translation>Ayarlar</translation>
+    </message>
+    <message>
+        <source>Subfolder handling</source>
+        <translation type="unfinished"/>
+    </message>
+    <message>
+        <source>*.* or *.docx;*.pdf (leave empty for all files)</source>
+        <translation type="unfinished"/>
+    </message>
+    <message>
+        <source>File pattern</source>
+        <translation type="unfinished"/>
+    </message>
+    <message>
+        <source>Local destination directory</source>
+        <translation type="unfinished"/>
+    </message>
+    <message>
+        <source>Relative (Documents/) or absolute (/tmp/ or C:\TMP) or empty for configured directory</source>
+        <translation type="unfinished"/>
+    </message>
+    <message>
+        <source>Source directory on remote computers</source>
+        <translation type="unfinished"/>
+    </message>
+    <message>
+        <source>Default</source>
+        <translation>Varsayılan</translation>
+    </message>
+    <message>
+        <source>Files in source directory only</source>
+        <translation type="unfinished"/>
+    </message>
+    <message>
+        <source>Files in source directory and subdirectories</source>
+        <translation type="unfinished"/>
+    </message>
+    <message>
         <source>Collected files</source>
         <translation>Toplanan dosyalar</translation>
     </message>
@@ -1753,12 +1791,16 @@ Birbirine ait anahtarların isimlerinin tüm bilgisayarlarda aynı olduğundan e
         <translation>Genel ilerleme</translation>
     </message>
     <message>
-        <source>Output directory</source>
-        <translation>Çıkış dizini</translation>
-    </message>
-    <message>
         <source>Start</source>
         <translation>Başlat</translation>
+    </message>
+    <message>
+        <source>Select destination directory</source>
+        <translation>Hedef dizini seç</translation>
+    </message>
+    <message>
+        <source>Open output directory</source>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Enter collection name</source>
@@ -1789,7 +1831,7 @@ Birbirine ait anahtarların isimlerinin tüm bilgisayarlarda aynı olduğundan e
     </message>
     <message>
         <source>Number of files</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
 </context>
 <context>
@@ -1824,11 +1866,11 @@ Birbirine ait anahtarların isimlerinin tüm bilgisayarlarda aynı olduğundan e
     </message>
     <message>
         <source>First part of user name</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Last part of user name</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Collect all files from configured source directory</source>
@@ -1844,31 +1886,31 @@ Birbirine ait anahtarların isimlerinin tüm bilgisayarlarda aynı olduğundan e
     </message>
     <message>
         <source>Grouping attribute 3:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Destination directory:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Store collected files in:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Group collected files:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Grouping attribute 1:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Grouping attribute 2:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Directly in the destination directory</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Subdirectory based on date &amp; time</source>
@@ -1880,15 +1922,15 @@ Birbirine ait anahtarların isimlerinin tüm bilgisayarlarda aynı olduğundan e
     </message>
     <message>
         <source>Files to collect:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Files to exclude:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>e.g. *.lnk or *.desktop</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Collect files recursively</source>
@@ -1896,15 +1938,15 @@ Birbirine ait anahtarların isimlerinin tüm bilgisayarlarda aynı olduğundan e
     </message>
     <message>
         <source>Destination directory (remote):</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Default source directory:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Source directory (remote):</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>User login name</source>
@@ -1930,8 +1972,8 @@ Birbirine ait anahtarların isimlerinin tüm bilgisayarlarda aynı olduğundan e
 <context>
     <name>FileTransferController</name>
     <message>
-        <source>Could not open file %1 for reading! Please check your permissions!</source>
-        <translation type="unfinished"></translation>
+        <source>Could not open file %1 for reading. Please check your permissions. The file will be skipped, remaining files will still be transferred.</source>
+        <translation type="unfinished"/>
     </message>
 </context>
 <context>
@@ -1943,6 +1985,14 @@ Birbirine ait anahtarların isimlerinin tüm bilgisayarlarda aynı olduğundan e
     <message>
         <source>Options</source>
         <translation>Seçenekler</translation>
+    </message>
+    <message>
+        <source>Destination directory on remote computers:</source>
+        <translation type="unfinished"/>
+    </message>
+    <message>
+        <source>Relative (Desktop/) or absolute (/tmp/ or C:\TMP) or empty for configured directory</source>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Overwrite existing files</source>
@@ -1967,6 +2017,10 @@ Birbirine ait anahtarların isimlerinin tüm bilgisayarlarda aynı olduğundan e
     <message>
         <source>Start</source>
         <translation>Başlat</translation>
+    </message>
+    <message>
+        <source>File transfer error</source>
+        <translation type="unfinished"/>
     </message>
 </context>
 <context>
@@ -1997,31 +2051,31 @@ Birbirine ait anahtarların isimlerinin tüm bilgisayarlarda aynı olduğundan e
     </message>
     <message>
         <source>Received file %1.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>The file %1 is to be collected, but is still open in an application.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>The file %1 is to be collected, but is still open in the application &lt;b&gt;%2&lt;/b&gt;.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Please save your changes and close the program so that the transfer can be completed.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Are you sure you want to skip transferring the file %1?</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Could not receive file %1 as it already exists.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Could not receive file %1 as it could not be opened for writing!</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Transfer files between computers</source>
@@ -2160,11 +2214,11 @@ Birbirine ait anahtarların isimlerinin tüm bilgisayarlarda aynı olduğundan e
     </message>
     <message>
         <source>Veyon service</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>The Veyon service needs to be stopped temporarily in order to remove the log files. Continue?</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Log files cleared</source>
@@ -2379,8 +2433,8 @@ Birbirine ait anahtarların isimlerinin tüm bilgisayarlarda aynı olduğundan e
         <translation>Nesne öznitelikleri</translation>
     </message>
     <message>
-        <source>e.g. name or description</source>
-        <translation>örn. ad ve tanımlama</translation>
+        <source>e.g. name, ou or description</source>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Hostnames stored as fully qualified domain names (FQDN, e.g. myhost.example.org)</source>
@@ -2945,7 +2999,7 @@ Birbirine ait anahtarların isimlerinin tüm bilgisayarlarda aynı olduğundan e
     </message>
     <message>
         <source>LDAP/AD support for Veyon</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
 </context>
 <context>
@@ -2984,11 +3038,11 @@ Birbirine ait anahtarların isimlerinin tüm bilgisayarlarda aynı olduğundan e
     </message>
     <message>
         <source>Key press interval for text input</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Key press interval to control input fields</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
 </context>
 <context>
@@ -3152,7 +3206,7 @@ Birbirine ait anahtarların isimlerinin tüm bilgisayarlarda aynı olduğundan e
     </message>
     <message>
         <source>Veyon Configurator %1</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Load settings from file</source>
@@ -3188,7 +3242,7 @@ Birbirine ait anahtarların isimlerinin tüm bilgisayarlarda aynı olduğundan e
     </message>
     <message>
         <source>The local configuration backend reported that the configuration is not writable! Please run Veyon Configurator with higher privileges.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Authentication impossible</source>
@@ -3196,7 +3250,7 @@ Birbirine ait anahtarların isimlerinin tüm bilgisayarlarda aynı olduğundan e
     </message>
     <message>
         <source>No authentication key files were found or your current ones are outdated. Please create new key files using Veyon Configurator. Alternatively set up logon authentication using Veyon Configurator. Otherwise you won&apos;t be able to access computers using Veyon.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Access denied</source>
@@ -3212,7 +3266,7 @@ Birbirine ait anahtarların isimlerinin tüm bilgisayarlarda aynı olduğundan e
     </message>
     <message>
         <source>The feature &quot;%1&quot; is still active. Please stop it before closing Veyon.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Use custom computer arrangement.
@@ -3343,27 +3397,27 @@ Düzenlemeyi bir dosyadan yüklemek veya mevcut düzenlemeyi bir dosyaya kaydetm
     </message>
     <message>
         <source>Identify users in guest sessions</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Never</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>If login name matches</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>If full name matches</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Guest</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Guest user identity extension</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>None</source>
@@ -3371,11 +3425,11 @@ Düzenlemeyi bir dosyadan yüklemek veya mevcut düzenlemeyi bir dosyaya kaydetm
     </message>
     <message>
         <source>Prefix</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Suffix</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Behaviour</source>
@@ -3550,19 +3604,19 @@ Düzenlemeyi bir dosyadan yüklemek veya mevcut düzenlemeyi bir dosyaya kaydetm
     </message>
     <message>
         <source>Identify users in guest sessions</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Identification request</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Please enter your name:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>First name + last name</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Builtin monitoring mode</source>
@@ -3628,6 +3682,13 @@ Düzenlemeyi bir dosyadan yüklemek veya mevcut düzenlemeyi bir dosyaya kaydetm
     <message>
         <source>Logon failed with given username and password. Please try again!</source>
         <translation>Verilen kullanıcı adı ve parola ile giriş başarısız. Lütfen yeniden deneyin!</translation>
+    </message>
+</context>
+<context>
+    <name>PipeWireVncServer</name>
+    <message>
+        <source>Wayland VNC server (PipeWire/XDG Desktop Portal)</source>
+        <translation type="unfinished"/>
     </message>
 </context>
 <context>
@@ -3718,10 +3779,6 @@ Düzenlemeyi bir dosyadan yüklemek veya mevcut düzenlemeyi bir dosyaya kaydetm
     <message>
         <source>This command broadcasts a Wake-on-LAN (WOL) packet to the network in order to power on the computer with the given MAC address.</source>
         <translation>Bu komut, verilen MAC adresine sahip bilgisayarı ağ üzerinden uyandırmak için Ağdan-Uyandırma (WOL) paketi yayımlar</translation>
-    </message>
-    <message>
-        <source>Please specify the command to display help for!</source>
-        <translation>Lütfen yardım görüntüleme komutunu belirtin!</translation>
     </message>
     <message>
         <source>Confirm reboot</source>
@@ -3834,11 +3891,11 @@ Lütfen çalışmalarınızı kaydedip tüm açık pencereleri kapatın.</transl
     <name>RemoteAccessWidget</name>
     <message>
         <source>%1 - Veyon Remote Access</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>%1 - %2 - Veyon Remote Access</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
 </context>
 <context>
@@ -4078,6 +4135,14 @@ Lütfen çalışmalarınızı kaydedip tüm açık pencereleri kapatın.</transl
         <translation>Uzak bağlantıda bildirim göster</translation>
     </message>
     <message>
+        <source>Maximum simultaneous server connections</source>
+        <translation type="unfinished"/>
+    </message>
+    <message>
+        <source>Limits simultaneous remote connections to protect the server against resource exhaustion.</source>
+        <translation type="unfinished"/>
+    </message>
+    <message>
         <source>Hide tray icon</source>
         <translation>Tepsi simgesini gizle</translation>
     </message>
@@ -4177,7 +4242,7 @@ Bu genellikle terminal sunucularını desteklemek için gereklidir.</translation
     </message>
     <message>
         <source>All settings were saved successfully. In order to take effect the Veyon service needs to be restarted. Restart it now?</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Running</source>
@@ -4337,7 +4402,7 @@ Example: [^-]*-(PC[0-9]*)</source>
     </message>
     <message>
         <source>Veyon Master – Slideshow</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
 </context>
 <context>
@@ -4436,6 +4501,22 @@ Example: [^-]*-(PC[0-9]*)</source>
     <message>
         <source>Use the field below to type your message which will be sent to all selected users.</source>
         <translation>Tüm seçili kullanıcılara gönderilecek iletinizi yazmak için aşağıdaki alanı kullanın.</translation>
+    </message>
+    <message>
+        <source>Title:</source>
+        <translation type="unfinished"/>
+    </message>
+    <message>
+        <source>Optional custom title for the message window</source>
+        <translation type="unfinished"/>
+    </message>
+    <message>
+        <source>Message from teacher</source>
+        <translation>Öğretmenden ileti</translation>
+    </message>
+    <message>
+        <source>Message from %1</source>
+        <translation type="unfinished"/>
     </message>
 </context>
 <context>
@@ -4553,10 +4634,6 @@ Example: [^-]*-(PC[0-9]*)</source>
         <translation>[BAŞARISIZ]</translation>
     </message>
     <message>
-        <source>Invalid command!</source>
-        <translation>Geçersiz komut!</translation>
-    </message>
-    <message>
         <source>Invalid arguments given</source>
         <translation>Geçersiz argümanlar verildi</translation>
     </message>
@@ -4565,16 +4642,24 @@ Example: [^-]*-(PC[0-9]*)</source>
         <translation>Yeteri kadar argüman verilmedi - ayrıntılı bilgi için &quot;%1 help&quot; kullanın</translation>
     </message>
     <message>
+        <source>No command given</source>
+        <translation type="unfinished"/>
+    </message>
+    <message>
+        <source>Invalid command given</source>
+        <translation type="unfinished"/>
+    </message>
+    <message>
         <source>Plugin not licensed</source>
         <translation>Eklenti lisanslı değil</translation>
     </message>
     <message>
-        <source>Unknown result!</source>
-        <translation>Bilinmeyen sonuç!</translation>
-    </message>
-    <message>
         <source>Available commands:</source>
         <translation>Kullanılabilir komutlar:</translation>
+    </message>
+    <message>
+        <source>Unknown command result</source>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Available modules:</source>
@@ -4614,7 +4699,7 @@ Example: [^-]*-(PC[0-9]*)</source>
     </message>
     <message>
         <source>Guest</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
 </context>
 <context>
@@ -4625,7 +4710,7 @@ Example: [^-]*-(PC[0-9]*)</source>
     </message>
     <message>
         <source>Could not save your personal settings! Please check the user configuration file path using Veyon Configurator.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
 </context>
 <context>
@@ -4788,7 +4873,7 @@ Example: [^-]*-(PC[0-9]*)</source>
     </message>
     <message>
         <source>Use custom power scheme with disabled power and sleep buttons</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Use input device interception driver</source>
@@ -4796,15 +4881,15 @@ Example: [^-]*-(PC[0-9]*)</source>
     </message>
     <message>
         <source>Disable touchpads and touchscreens</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Disable keyboard devices</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Disable mouse devices</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Handling of interfering windows</source>

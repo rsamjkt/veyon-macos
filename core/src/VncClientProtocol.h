@@ -56,6 +56,7 @@ public:
 		return m_state;
 	}
 
+	void reset();
 	void start();
 	bool read();  // Flawfinder: ignore
 
@@ -94,11 +95,6 @@ public:
 		return static_cast<uint8_t>( m_lastMessage.constData()[0] );
 	}
 
-	const QRect& lastUpdatedRect() const
-	{
-		return m_lastUpdatedRect;
-	}
-
 protected:
 	void setState(State state)
 	{
@@ -107,6 +103,8 @@ protected:
 
 private:
 	static constexpr auto MaxMessageSize = 64*1024*1024;
+	static constexpr auto MaximumFramebufferDimension = 16384;
+	static constexpr auto MaximumRectanglesPerUpdate = 16384;
 
 	bool readProtocol();
 	bool receiveSecurityTypes();
@@ -153,6 +151,5 @@ private:
 	quint16 m_framebufferHeight;
 
 	QByteArray m_lastMessage;
-	QRect m_lastUpdatedRect;
 
 } ;

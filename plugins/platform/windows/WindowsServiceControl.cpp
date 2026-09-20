@@ -75,7 +75,7 @@ bool WindowsServiceControl::isRunning()
 		return false;
 	}
 
-	SERVICE_STATUS status;
+	SERVICE_STATUS status{};
 	if( QueryServiceStatus( m_serviceHandle, &status ) )
 	{
 		return status.dwCurrentState == SERVICE_RUNNING;
@@ -192,6 +192,12 @@ bool WindowsServiceControl::install( const QString& filePath, const QString& dis
 	const auto binaryPath = QStringLiteral("\"%1\"").arg( QString( filePath ).replace( QLatin1Char('"'), QString() ) );
 
 	const wchar_t* dependencies = L"Tcpip\0RpcSs\0LSM\0\0";
+
+	if (m_serviceHandle)
+	{
+		CloseServiceHandle(m_serviceHandle);
+		m_serviceHandle = nullptr;
+	}
 
 	m_serviceHandle = CreateService(
 				m_serviceManager,		// SCManager database

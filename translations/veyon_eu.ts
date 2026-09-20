@@ -1,6 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!DOCTYPE TS>
-<TS version="2.1" language="eu">
+<?xml version="1.0" ?><!DOCTYPE TS><TS version="2.1" language="eu">
 <context>
     <name>AboutDialog</name>
     <message>
@@ -710,11 +708,11 @@ Ziurtatu gakoen izenak ordenagailu guztietan berdinak direla.</translation>
     </message>
     <message>
         <source>Move selected computer up</source>
-        <translation type="unfinished"></translation>
+        <translation>Eraman hautatutako ordenagailua gora</translation>
     </message>
     <message>
         <source>Move selected computer down</source>
-        <translation type="unfinished"></translation>
+        <translation>Eraman hautatutako ordenagailua behera</translation>
     </message>
     <message>
         <source>Name</source>
@@ -738,11 +736,11 @@ Ziurtatu gakoen izenak ordenagailu guztietan berdinak direla.</translation>
     </message>
     <message>
         <source>Move selected location up</source>
-        <translation type="unfinished"></translation>
+        <translation>Mugitu hautatutako kokapena gora</translation>
     </message>
     <message>
         <source>Move selected location down</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>The import of CSV files is possible through the command line interface. For more information, see the &lt;a href=&quot;https://docs.veyon.io/en/latest/admin/cli.html#network-object-directory&quot;&gt;online documentation&lt;/a&gt;.</source>
@@ -1285,11 +1283,11 @@ Ziurtatu gakoen izenak ordenagailu guztietan berdinak direla.</translation>
     </message>
     <message>
         <source>Could not configure the firewall configuration for the Veyon Server.</source>
-        <translation>Ezin izan da Veyon zerbitzariaren suebakiaren konfigurazioa konfiguratu.</translation>
+        <translation>Ezin izan da Veyon zerbitzariaren suebakiaren konfigurazioa ezarri.</translation>
     </message>
     <message>
         <source>Could not configure the firewall configuration for the Veyon Worker.</source>
-        <translation type="unfinished"></translation>
+        <translation>Ezin izan da Veyon Worker-en suebakiaren konfigurazioa ezarri.</translation>
     </message>
     <message>
         <source>Could not apply platform-specific configuration settings.</source>
@@ -1691,7 +1689,7 @@ Ziurtatu gakoen izenak ordenagailu guztietan berdinak direla.</translation>
     </message>
     <message>
         <source>Master</source>
-        <translation>Master</translation>
+        <translation>Irakaslea</translation>
     </message>
     <message>
         <source>Service</source>
@@ -1745,43 +1743,87 @@ Ziurtatu gakoen izenak ordenagailu guztietan berdinak direla.</translation>
         <translation>Fitxategien transferentzia</translation>
     </message>
     <message>
+        <source>Settings</source>
+        <translation type="unfinished"/>
+    </message>
+    <message>
+        <source>Subfolder handling</source>
+        <translation type="unfinished"/>
+    </message>
+    <message>
+        <source>*.* or *.docx;*.pdf (leave empty for all files)</source>
+        <translation type="unfinished"/>
+    </message>
+    <message>
+        <source>File pattern</source>
+        <translation type="unfinished"/>
+    </message>
+    <message>
+        <source>Local destination directory</source>
+        <translation type="unfinished"/>
+    </message>
+    <message>
+        <source>Relative (Documents/) or absolute (/tmp/ or C:\TMP) or empty for configured directory</source>
+        <translation type="unfinished"/>
+    </message>
+    <message>
+        <source>Source directory on remote computers</source>
+        <translation type="unfinished"/>
+    </message>
+    <message>
+        <source>Default</source>
+        <translation>Lehenetsia</translation>
+    </message>
+    <message>
+        <source>Files in source directory only</source>
+        <translation type="unfinished"/>
+    </message>
+    <message>
+        <source>Files in source directory and subdirectories</source>
+        <translation type="unfinished"/>
+    </message>
+    <message>
         <source>Collected files</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Overall progress</source>
-        <translation type="unfinished"></translation>
-    </message>
-    <message>
-        <source>Output directory</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Start</source>
         <translation>Abiarazi</translation>
     </message>
     <message>
+        <source>Select destination directory</source>
+        <translation type="unfinished"/>
+    </message>
+    <message>
+        <source>Open output directory</source>
+        <translation type="unfinished"/>
+    </message>
+    <message>
         <source>Enter collection name</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Please enter a name for this file collection:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Output directory creation failed</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>The output directory &quot;%1&quot; does not exist and could not be created. Please check the configuration and the file permissions for the configured destination directory.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
 </context>
 <context>
     <name>FileCollectTreeModel</name>
     <message>
         <source>Progress</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Name</source>
@@ -1789,7 +1831,7 @@ Ziurtatu gakoen izenak ordenagailu guztietan berdinak direla.</translation>
     </message>
     <message>
         <source>Number of files</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
 </context>
 <context>
@@ -1800,23 +1842,23 @@ Ziurtatu gakoen izenak ordenagailu guztietan berdinak direla.</translation>
     </message>
     <message>
         <source>Settings for distributing files</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Settings for collecting files</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>No</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Prefix filenames with grouping attribute</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Store files in subdirectories based on the grouping attribute</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>None</source>
@@ -1824,87 +1866,87 @@ Ziurtatu gakoen izenak ordenagailu guztietan berdinak direla.</translation>
     </message>
     <message>
         <source>First part of user name</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Last part of user name</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Collect all files from configured source directory</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Prompt user for folder to collect</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Prompt user for files to collect</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Grouping attribute 3:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Destination directory:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Store collected files in:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Group collected files:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Grouping attribute 1:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Grouping attribute 2:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Directly in the destination directory</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Subdirectory based on date &amp; time</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Subdirectory with name entered by the collecting user</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Files to collect:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Files to exclude:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>e.g. *.lnk or *.desktop</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Collect files recursively</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Destination directory (remote):</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Default source directory:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Source directory (remote):</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>User login name</source>
@@ -1916,7 +1958,7 @@ Ziurtatu gakoen izenak ordenagailu guztietan berdinak direla.</translation>
     </message>
     <message>
         <source>Device name</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Remember last source directory</source>
@@ -1930,8 +1972,8 @@ Ziurtatu gakoen izenak ordenagailu guztietan berdinak direla.</translation>
 <context>
     <name>FileTransferController</name>
     <message>
-        <source>Could not open file %1 for reading! Please check your permissions!</source>
-        <translation type="unfinished"></translation>
+        <source>Could not open file %1 for reading. Please check your permissions. The file will be skipped, remaining files will still be transferred.</source>
+        <translation type="unfinished"/>
     </message>
 </context>
 <context>
@@ -1943,6 +1985,14 @@ Ziurtatu gakoen izenak ordenagailu guztietan berdinak direla.</translation>
     <message>
         <source>Options</source>
         <translation>Aukerak</translation>
+    </message>
+    <message>
+        <source>Destination directory on remote computers:</source>
+        <translation type="unfinished"/>
+    </message>
+    <message>
+        <source>Relative (Desktop/) or absolute (/tmp/ or C:\TMP) or empty for configured directory</source>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Overwrite existing files</source>
@@ -1968,24 +2018,28 @@ Ziurtatu gakoen izenak ordenagailu guztietan berdinak direla.</translation>
         <source>Start</source>
         <translation>Abiarazi</translation>
     </message>
+    <message>
+        <source>File transfer error</source>
+        <translation type="unfinished"/>
+    </message>
 </context>
 <context>
     <name>FileTransferPlugin</name>
     <message>
         <source>Distribute</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Click this button to distribute files from your computer to all computers.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Collect</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Click this button to collect files from all computers to your computer.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Select one or more files to transfer</source>
@@ -1997,35 +2051,35 @@ Ziurtatu gakoen izenak ordenagailu guztietan berdinak direla.</translation>
     </message>
     <message>
         <source>Received file %1.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>The file %1 is to be collected, but is still open in an application.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>The file %1 is to be collected, but is still open in the application &lt;b&gt;%2&lt;/b&gt;.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Please save your changes and close the program so that the transfer can be completed.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Are you sure you want to skip transferring the file %1?</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Could not receive file %1 as it already exists.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Could not receive file %1 as it could not be opened for writing!</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Transfer files between computers</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
 </context>
 <context>
@@ -2379,8 +2433,8 @@ Ziurtatu gakoen izenak ordenagailu guztietan berdinak direla.</translation>
         <translation>Objektu-atributuak</translation>
     </message>
     <message>
-        <source>e.g. name or description</source>
-        <translation>adib. izena edo deskribapena</translation>
+        <source>e.g. name, ou or description</source>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Hostnames stored as fully qualified domain names (FQDN, e.g. myhost.example.org)</source>
@@ -2500,7 +2554,7 @@ Ziurtatu gakoen izenak ordenagailu guztietan berdinak direla.</translation>
     </message>
     <message>
         <source>Distinguished name (Samba/AD/FreeIPA)</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Configured attribute for user login name or computer hostname (OpenLDAP)</source>
@@ -2898,7 +2952,7 @@ Ziurtatu gakoen izenak ordenagailu guztietan berdinak direla.</translation>
     </message>
     <message>
         <source>Map container/OU structure 1:1 to locations</source>
-        <translation type="unfinished"></translation>
+        <translation>Mapeatu edukiontzia/OU egitura 1:1 kokapenekin</translation>
     </message>
 </context>
 <context>
@@ -2945,7 +2999,7 @@ Ziurtatu gakoen izenak ordenagailu guztietan berdinak direla.</translation>
     </message>
     <message>
         <source>LDAP/AD support for Veyon</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
 </context>
 <context>
@@ -2984,11 +3038,11 @@ Ziurtatu gakoen izenak ordenagailu guztietan berdinak direla.</translation>
     </message>
     <message>
         <source>Key press interval for text input</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Key press interval to control input fields</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
 </context>
 <context>
@@ -3028,7 +3082,7 @@ Ziurtatu gakoen izenak ordenagailu guztietan berdinak direla.</translation>
     <name>MainWindow</name>
     <message>
         <source>Veyon Configurator</source>
-        <translation>Veyon Configurator</translation>
+        <translation>Veyon Konfiguratzailea</translation>
     </message>
     <message>
         <source>General</source>
@@ -3040,7 +3094,7 @@ Ziurtatu gakoen izenak ordenagailu guztietan berdinak direla.</translation>
     </message>
     <message>
         <source>Master</source>
-        <translation>Master</translation>
+        <translation>Irakaslea</translation>
     </message>
     <message>
         <source>Access control</source>
@@ -3152,7 +3206,7 @@ Ziurtatu gakoen izenak ordenagailu guztietan berdinak direla.</translation>
     </message>
     <message>
         <source>Veyon Configurator %1</source>
-        <translation>Veyon konfiguratzailea %1</translation>
+        <translation>Veyon Konfiguratzailea %1</translation>
     </message>
     <message>
         <source>Load settings from file</source>
@@ -3196,7 +3250,7 @@ Ziurtatu gakoen izenak ordenagailu guztietan berdinak direla.</translation>
     </message>
     <message>
         <source>No authentication key files were found or your current ones are outdated. Please create new key files using Veyon Configurator. Alternatively set up logon authentication using Veyon Configurator. Otherwise you won&apos;t be able to access computers using Veyon.</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Access denied</source>
@@ -3343,27 +3397,27 @@ Luze sakatu fitxategi batetik kargatzeko edo uneko antolamendua fitxategi batera
     </message>
     <message>
         <source>Identify users in guest sessions</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Never</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>If login name matches</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>If full name matches</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Guest</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Guest user identity extension</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>None</source>
@@ -3371,11 +3425,11 @@ Luze sakatu fitxategi batetik kargatzeko edo uneko antolamendua fitxategi batera
     </message>
     <message>
         <source>Prefix</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Suffix</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Behaviour</source>
@@ -3523,7 +3577,7 @@ Luze sakatu fitxategi batetik kargatzeko edo uneko antolamendua fitxategi batera
     </message>
     <message>
         <source>Session meta data hash</source>
-        <translation type="unfinished"></translation>
+        <translation>Saioko metadatuen hash</translation>
     </message>
 </context>
 <context>
@@ -3550,19 +3604,19 @@ Luze sakatu fitxategi batetik kargatzeko edo uneko antolamendua fitxategi batera
     </message>
     <message>
         <source>Identify users in guest sessions</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Identification request</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Please enter your name:</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>First name + last name</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Builtin monitoring mode</source>
@@ -3628,6 +3682,13 @@ Luze sakatu fitxategi batetik kargatzeko edo uneko antolamendua fitxategi batera
     <message>
         <source>Logon failed with given username and password. Please try again!</source>
         <translation>Ezin izan da saioa hasi emandako erabiltzaile-izen eta pasahitzarekin. Mesedez, saiatu berriro!</translation>
+    </message>
+</context>
+<context>
+    <name>PipeWireVncServer</name>
+    <message>
+        <source>Wayland VNC server (PipeWire/XDG Desktop Portal)</source>
+        <translation type="unfinished"/>
     </message>
 </context>
 <context>
@@ -3718,10 +3779,6 @@ Luze sakatu fitxategi batetik kargatzeko edo uneko antolamendua fitxategi batera
     <message>
         <source>This command broadcasts a Wake-on-LAN (WOL) packet to the network in order to power on the computer with the given MAC address.</source>
         <translation>Komando honek Wake-on-LAN (WOL) pakete bat igortzen du sarera, emandako MAC helbidea duen ordenagailua pizteko.</translation>
-    </message>
-    <message>
-        <source>Please specify the command to display help for!</source>
-        <translation>Zehaztu laguntza bistaratzeko komandoa!</translation>
     </message>
     <message>
         <source>Confirm reboot</source>
@@ -4078,6 +4135,14 @@ Mesedez, gorde zure lana eta itxi programa guztiak.</translation>
         <translation>Erakutsi jakinarazpena urrutiko konexioan</translation>
     </message>
     <message>
+        <source>Maximum simultaneous server connections</source>
+        <translation type="unfinished"/>
+    </message>
+    <message>
+        <source>Limits simultaneous remote connections to protect the server against resource exhaustion.</source>
+        <translation type="unfinished"/>
+    </message>
+    <message>
         <source>Hide tray icon</source>
         <translation>Ezkutatu erretiluko ikonoa</translation>
     </message>
@@ -4337,7 +4402,7 @@ Adibidea: [^ -] * - (PC [0-9] *)</translation>
     </message>
     <message>
         <source>Veyon Master – Slideshow</source>
-        <translation>Veyon Master – Diaporama</translation>
+        <translation>Veyon Irakaslea – Diaporama</translation>
     </message>
 </context>
 <context>
@@ -4436,6 +4501,22 @@ Adibidea: [^ -] * - (PC [0-9] *)</translation>
     <message>
         <source>Use the field below to type your message which will be sent to all selected users.</source>
         <translation>Erabili beheko eremua hautatutako erabiltzaile guztiei bidaliko zaien mezua idazteko.</translation>
+    </message>
+    <message>
+        <source>Title:</source>
+        <translation type="unfinished"/>
+    </message>
+    <message>
+        <source>Optional custom title for the message window</source>
+        <translation type="unfinished"/>
+    </message>
+    <message>
+        <source>Message from teacher</source>
+        <translation>Irakaslearen mezua</translation>
+    </message>
+    <message>
+        <source>Message from %1</source>
+        <translation type="unfinished"/>
     </message>
 </context>
 <context>
@@ -4553,10 +4634,6 @@ Adibidea: [^ -] * - (PC [0-9] *)</translation>
         <translation>[PORROT]</translation>
     </message>
     <message>
-        <source>Invalid command!</source>
-        <translation>Agindu baliogabea!</translation>
-    </message>
-    <message>
         <source>Invalid arguments given</source>
         <translation>Emandako argumentu baliogabeak</translation>
     </message>
@@ -4565,16 +4642,24 @@ Adibidea: [^ -] * - (PC [0-9] *)</translation>
         <translation>Ez da nahikoa argumentu eman - erabili &quot;%1 laguntza&quot; informazio gehiago lortzeko</translation>
     </message>
     <message>
+        <source>No command given</source>
+        <translation type="unfinished"/>
+    </message>
+    <message>
+        <source>Invalid command given</source>
+        <translation type="unfinished"/>
+    </message>
+    <message>
         <source>Plugin not licensed</source>
         <translation>Lizentziarik gabeko plugina</translation>
     </message>
     <message>
-        <source>Unknown result!</source>
-        <translation>Emaitza ezezaguna!</translation>
-    </message>
-    <message>
         <source>Available commands:</source>
         <translation>Eskuragarri dauden komandoak:</translation>
+    </message>
+    <message>
+        <source>Unknown command result</source>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Available modules:</source>
@@ -4614,7 +4699,7 @@ Adibidea: [^ -] * - (PC [0-9] *)</translation>
     </message>
     <message>
         <source>Guest</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
 </context>
 <context>
@@ -4788,7 +4873,7 @@ Adibidea: [^ -] * - (PC [0-9] *)</translation>
     </message>
     <message>
         <source>Use custom power scheme with disabled power and sleep buttons</source>
-        <translation type="unfinished"></translation>
+        <translation type="unfinished"/>
     </message>
     <message>
         <source>Use input device interception driver</source>
@@ -4796,15 +4881,15 @@ Adibidea: [^ -] * - (PC [0-9] *)</translation>
     </message>
     <message>
         <source>Disable touchpads and touchscreens</source>
-        <translation type="unfinished"></translation>
+        <translation>Desgaitu ukipen-panelak eta ukipen-pantailak</translation>
     </message>
     <message>
         <source>Disable keyboard devices</source>
-        <translation type="unfinished"></translation>
+        <translation>Desgaitu teklatu-gailuak</translation>
     </message>
     <message>
         <source>Disable mouse devices</source>
-        <translation type="unfinished"></translation>
+        <translation>Desgaitu sagu-gailuak</translation>
     </message>
     <message>
         <source>Handling of interfering windows</source>

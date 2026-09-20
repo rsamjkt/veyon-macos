@@ -42,11 +42,9 @@ cmake -S "${SCRIPT_DIR}" -B "${BUILD_DIR}" -G "${GENERATOR}" \
 	-DWITH_PCH=OFF \
 	"$@"
 
-# Build the components that are expected to work first. The mac-platform plugin
-# is required at runtime (otherwise the apps abort with "no platform plugin").
-# Drop the --target list to attempt a full-tree build once these succeed.
-cmake --build "${BUILD_DIR}" --parallel \
-	--target veyon-core mac-platform veyon-master veyon-configurator veyon-cli
+# The whole tree builds on macOS these days - server, worker, CLI and all
+# plugins included - so no target list is needed anymore.
+cmake --build "${BUILD_DIR}" --parallel
 
 # Assemble a runtime plugin directory so the apps can locate plugins.
 # Veyon looks for plugins in <bindir>/../lib/veyon (relative to each executable).
@@ -55,6 +53,16 @@ mkdir -p "${RUNTIME_PLUGIN_DIR}"
 while IFS= read -r plugin; do
 	ln -sf "$plugin" "${RUNTIME_PLUGIN_DIR}/$(basename "$plugin")"
 done < <(find "${BUILD_DIR}/plugins" -name '*.so' 2>/dev/null)
+
+# veyon-server looks for veyon-worker right next to itself, which is how an
+# installed bundle is laid out. In the build tree every component sits in its
+# own directory, so link the worker over - otherwise worker-based features (the
+# tray icon in the user session, for instance) silently fail to start here.
+for exeDir in server master configurator cli; do
+	if [ -d "${BUILD_DIR}/${exeDir}" ] && [ -x "${BUILD_DIR}/worker/veyon-worker" ]; then
+		ln -sf "${BUILD_DIR}/worker/veyon-worker" "${BUILD_DIR}/${exeDir}/veyon-worker"
+	fi
+done
 
 echo
 echo "Build finished. Binaries are under ${BUILD_DIR}/ (core, master, configurator, cli)."

@@ -22,8 +22,10 @@
  *
  */
 
+#include <QCoreApplication>
 #include <QProcess>
 #include <QScreen>
+#include <QSocketNotifier>
 #include <QWidget>
 
 #include <libproc.h>
@@ -70,6 +72,17 @@ void MacCoreFunctions::writeToNativeLoggingSystem( const QString& message, Logge
 	}
 
 	syslog( priority, "%s", message.toUtf8().constData() );
+}
+
+
+
+QObject* MacCoreFunctions::notifyOnStandardInputReadyRead( const NotifierCallback& callback )
+{
+	auto* notifier = new QSocketNotifier( STDIN_FILENO, QSocketNotifier::Read );
+	QObject::connect( notifier, &QSocketNotifier::activated, QCoreApplication::instance(),
+					  [notifier, callback]() { callback( notifier ); } );
+
+	return notifier;
 }
 
 
@@ -170,12 +183,40 @@ bool MacCoreFunctions::runProgramAsAdmin( const QString& program, const QStringL
 
 
 bool MacCoreFunctions::runProgramAsUser( const QString& program, const QStringList& parameters,
-										 const QString& username, const QString& desktop )
+										 const QString& username, const QString& desktop,
+										 const QByteArray& stdInData )
 {
+	// The macOS server is a LaunchAgent and therefore already runs inside the
+	// session of the very user we would have to switch to - no privilege
+	// juggling required, unlike on Linux and Windows.
 	Q_UNUSED(username)
 	Q_UNUSED(desktop)
 
-	return QProcess::startDetached( program, parameters );
+	// The process cannot be started detached: the worker authentication token is
+	// handed over through its standard input, which requires a channel to it.
+	auto* process = new QProcess;
+
+	if( stdInData.isEmpty() == false )
+	{
+		QObject::connect( process, &QProcess::started, process, [process, stdInData]() {
+			process->write( stdInData );
+			process->closeWriteChannel();
+		} );
+	}
+
+	// QProcess reports a failed start asynchronously, so log it here rather than
+	// letting the caller wonder why the program never showed up
+	QObject::connect( process, &QProcess::errorOccurred, process,
+					  [program]( QProcess::ProcessError error ) {
+		vWarning() << "failed to run" << program << "as user:" << error;
+	} );
+
+	QObject::connect( process, QOverload<int, QProcess::ExitStatus>::of( &QProcess::finished ),
+					  process, &QProcess::deleteLater );
+
+	process->start( program, parameters );
+
+	return true;
 }
 
 

@@ -42,6 +42,7 @@ build_veyon_plugin(windows-platform
 	WindowsServiceCore.h
 	WindowsServiceFunctions.h
 	WindowsSessionFunctions.h
+	WindowsSmartObjects.h
 	WindowsUserFunctions.h
 	WtsSessionManager.h
 	DesktopInputController.h
@@ -68,7 +69,7 @@ target_include_directories(windows-platform PRIVATE
 target_link_libraries(windows-platform PRIVATE -lws2_32 -lwtsapi32 -lnetapi32 -luserenv -limm32 -lntdll -linterception -liphlpapi -lsetupapi -lsecur32)
 target_link_libraries(windows-platform PRIVATE Qt6::GuiPrivate)
 target_compile_definitions(windows-platform PRIVATE ULTRAVNC_VEYON_SUPPORT)
-target_compile_options(windows-platform PRIVATE "-Wno-unknown-pragmas")
+target_compile_options(windows-platform PRIVATE "-Wno-unknown-pragmas;-flarge-source-files;-Wno-misleading-indentation")
 set_source_files_properties(WindowsNetworkFunctions.cpp PROPERTIES SKIP_UNITY_BUILD_INCLUSION TRUE SKIP_PRECOMPILE_HEADERS TRUE)
 
 # The MS-Logon SSP sources use SEH (__try/__except), which GCC only accepts with
