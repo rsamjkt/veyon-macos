@@ -22,6 +22,8 @@
  *
  */
 
+#include <QJsonArray>
+#include <QJsonObject>
 #include <QNetworkInterface>
 #include <QTcpSocket>
 #include <QTimer>
@@ -48,12 +50,78 @@ void NetworkDiscoveryDirectory::update()
 {
 	addOrUpdateObject( m_location, rootObject() );
 
+	// Scanning only covers subnets small enough to sweep (see scanTargets()), so
+	// hosts on e.g. a /16 VPN overlay can never be discovered. Show the manually
+	// configured objects alongside the discovered ones so those hosts are still
+	// reachable from the master without having to switch directory backends.
+	updateConfiguredObjects();
+
 	if( m_scanning )
 	{
 		return;
 	}
 
 	startScan();
+}
+
+
+
+void NetworkDiscoveryDirectory::updateConfiguredObjects()
+{
+	const auto networkObjects = VeyonCore::config().value( QStringLiteral("NetworkObjects"),
+														   QStringLiteral("BuiltinDirectory"),
+														   {} ).toJsonArray();
+
+	vDebug() << "NetworkDiscovery: configured objects in store:" << networkObjects.size();
+
+	NetworkObjectUidList locationUids;
+
+	for( const auto& networkObjectValue : networkObjects )
+	{
+		const NetworkObject networkObject( networkObjectValue.toObject() );
+
+		if( networkObject.type() == NetworkObject::Type::Location )
+		{
+			locationUids.append( networkObject.uid() ); // clazy:exclude=reserve-candidates
+			addOrUpdateObject( networkObject, rootObject() );
+			updateConfiguredLocation( networkObject, networkObjects );
+		}
+	}
+
+	// drop configured locations that have been removed, but never the location
+	// holding the discovered computers
+	const auto discoveredUid = m_location.uid();
+	removeObjects( rootObject(), [locationUids, discoveredUid]( const NetworkObject& object ) {
+		return object.type() == NetworkObject::Type::Location &&
+			   object.uid() != discoveredUid &&
+			   locationUids.contains( object.uid() ) == false; } );
+}
+
+
+
+void NetworkDiscoveryDirectory::updateConfiguredLocation( const NetworkObject& locationObject,
+														  const QJsonArray& networkObjects )
+{
+	NetworkObjectUidList computerUids;
+
+	for( const auto& networkObjectValue : networkObjects )
+	{
+		const NetworkObject networkObject( networkObjectValue.toObject() );
+
+		if( networkObject.parentUid() == locationObject.uid() )
+		{
+			computerUids.append( networkObject.uid() ); // clazy:exclude=reserve-candidates
+			addOrUpdateObject( networkObject, locationObject );
+		}
+	}
+
+	vDebug() << "NetworkDiscovery: location" << locationObject.name() << "has" << computerUids.size() << "computer(s)";
+
+	setObjectPopulated( locationObject );
+
+	removeObjects( locationObject, [computerUids]( const NetworkObject& object ) {
+		return object.type() == NetworkObject::Type::Host &&
+			   computerUids.contains( object.uid() ) == false; } );
 }
 
 
@@ -102,9 +170,33 @@ void NetworkDiscoveryDirectory::finishScan()
 	}
 	m_pendingSockets.clear();
 
-	NetworkObjectList computers;
-	computers.reserve( m_foundHosts.size() );
+	// age out hosts that keep missing scans, but keep recently seen ones so a
+	// single slow reply does not tear down an active connection
+	for( auto it = m_knownHosts.begin(); it != m_knownHosts.end(); )
+	{
+		if( m_foundHosts.contains( it.key() ) )
+		{
+			it.value() = 0;
+			++it;
+		}
+		else if( ++it.value() >= MaxMissedScans )
+		{
+			it = m_knownHosts.erase( it );
+		}
+		else
+		{
+			++it;
+		}
+	}
+
 	for( const auto& host : std::as_const( m_foundHosts ) )
+	{
+		m_knownHosts.insert( host, 0 );
+	}
+
+	NetworkObjectList computers;
+	computers.reserve( m_knownHosts.size() );
+	for( const auto& host : m_knownHosts.keys() )
 	{
 		const auto uid = NetworkObject::Uid::createUuidV5( NetworkObject::Uid(),
 														   QStringLiteral("aruni-discovery:") + host );
@@ -116,7 +208,8 @@ void NetworkDiscoveryDirectory::finishScan()
 	propagateChildObjectChanges();
 
 	vDebug() << "NetworkDiscovery: scan finished, found" << m_foundHosts.size()
-			 << "AruniControl server(s):" << QStringList( m_foundHosts.begin(), m_foundHosts.end() );
+			 << "AruniControl server(s):" << QStringList( m_foundHosts.begin(), m_foundHosts.end() )
+			 << "- listing" << m_knownHosts.size() << "host(s) including recently seen ones";
 
 	m_scanning = false;
 }

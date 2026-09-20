@@ -24,6 +24,7 @@ if(LibVNCServer_FOUND)
 		"-framework CoreFoundation"
 		"-framework CoreVideo"
 		"-framework ApplicationServices"
+		"-framework CoreMedia"
 		"-framework ScreenCaptureKit"
 		)
 

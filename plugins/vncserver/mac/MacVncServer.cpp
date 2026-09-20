@@ -26,12 +26,10 @@ extern "C" {
 #include "rfb/rfb.h"
 }
 
+#include <algorithm>
 #include <array>
-#include <atomic>
 #include <cstdio>
 #include <cstring>
-#include <mutex>
-#include <thread>
 
 #include <CoreGraphics/CoreGraphics.h>
 
@@ -54,7 +52,6 @@ struct MacVncScreen
 	rfbScreenInfoPtr rfbScreen{nullptr};
 	std::array<char *, 2> passwords{};
 	QImage framebuffer;
-	QImage scratch;
 	CGDirectDisplayID display{0};
 };
 
@@ -80,6 +77,104 @@ static enum rfbNewClientAction macNewClientHook( rfbClientPtr cl )
 			<< ( cl && cl->host ? cl->host : "?" );
 	return RFB_CLIENT_ACCEPT;
 }
+
+
+// ---- framebuffer updates -------------------------------------------------
+
+namespace {
+
+constexpr int TileSize = 64;
+
+
+bool tileChanged( const uchar* framebuffer, int framebufferStride,
+				  const QImage& source, int x, int y, int tileWidth, int tileHeight )
+{
+	const size_t offset = static_cast<size_t>( x ) * 4;
+	const size_t rowBytes = static_cast<size_t>( tileWidth ) * 4;
+
+	for( int row = 0; row < tileHeight; ++row )
+	{
+		if( std::memcmp( framebuffer + static_cast<size_t>( y+row )*framebufferStride + offset,
+						 source.constScanLine( y+row ) + offset, rowBytes ) != 0 )
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+
+
+// Copy only those parts of `source` that actually differ from the live
+// framebuffer and mark just those as modified. Marking the whole screen on
+// every frame - which is what a naive implementation does - makes
+// libvncserver re-encode and re-transmit the entire desktop for something as
+// small as a blinking cursor, which is what made the remote view stutter.
+//
+// `region` bounds the search to what ScreenCaptureKit reported as changed; the
+// per-tile comparison below still decides what is actually sent, so an overly
+// generous region only costs a little extra comparing.
+void updateChangedTiles( rfbScreenInfoPtr rfbScreen, uchar* framebuffer, int framebufferStride,
+						 const QImage& source, const MacScreenCaptureRegion& region )
+{
+	const int width = std::min( rfbScreen->width, source.width() );
+	const int height = std::min( rfbScreen->height, source.height() );
+
+	// snap to the tile grid so that a tile always covers the same pixels
+	const int xStart = std::max( 0, region.x - region.x % TileSize );
+	const int yStart = std::max( 0, region.y - region.y % TileSize );
+	const int xEnd = std::min( width, region.x + region.width );
+	const int yEnd = std::min( height, region.y + region.height );
+
+	for( int y = yStart; y < yEnd; y += TileSize )
+	{
+		const int tileHeight = std::min( TileSize, height - y );
+
+		// consecutive changed tiles are merged into a single rectangle so that
+		// the update stays well below rfbScreen->maxRectsPerUpdate
+		int runStart = -1;
+		int runEnd = -1;
+
+		const auto flushRun = [&]() {
+			const size_t offset = static_cast<size_t>( runStart ) * 4;
+			const size_t rowBytes = static_cast<size_t>( runEnd - runStart ) * 4;
+
+			for( int row = 0; row < tileHeight; ++row )
+			{
+				std::memcpy( framebuffer + static_cast<size_t>( y+row )*framebufferStride + offset,
+							 source.constScanLine( y+row ) + offset, rowBytes );
+			}
+
+			rfbMarkRectAsModified( rfbScreen, runStart, y, runEnd, y+tileHeight );
+			runStart = -1;
+		};
+
+		for( int x = xStart; x < xEnd; x += TileSize )
+		{
+			const int tileWidth = std::min( TileSize, width - x );
+
+			if( tileChanged( framebuffer, framebufferStride, source, x, y, tileWidth, tileHeight ) )
+			{
+				if( runStart < 0 )
+				{
+					runStart = x;
+				}
+				runEnd = x + tileWidth;
+			}
+			else if( runStart >= 0 )
+			{
+				flushRun();
+			}
+		}
+
+		if( runStart >= 0 )
+		{
+			flushRun();
+		}
+	}
+}
+
+} // namespace
 
 
 // ---- plugin --------------------------------------------------------------
@@ -118,55 +213,30 @@ bool MacVncServer::runServer( int serverPort, const Password& password )
 		return false;
 	}
 
-	const size_t bufferBytes = static_cast<size_t>( screen.framebuffer.bytesPerLine() ) *
-							   static_cast<size_t>( screen.framebuffer.height() );
-
-	// Capture runs on its own thread so that slow frames (e.g. while the Screen
-	// Recording permission is still missing, each capture blocks for its full
-	// timeout) never stall the RFB event loop. The capture thread fills a shared
-	// scratch buffer; the RFB loop copies it into the live framebuffer.
-	std::atomic<bool> running{ true };
-	std::atomic<bool> hasNewFrame{ false };
-	std::mutex scratchMutex;
+	// ScreenCaptureKit delivers frames asynchronously on its own queue, so the
+	// RFB loop only ever picks up whatever has already been captured - it never
+	// waits for the capture hardware. When nothing on screen changes no frame
+	// arrives at all and this loop costs virtually nothing.
+	// carries the previous frame - macScreenCaptureFrame() only writes the part
+	// that changed
 	QImage captured{ screen.framebuffer.width(), screen.framebuffer.height(), QImage::Format_RGB32 };
 	captured.fill( Qt::black );
 
-	std::thread captureThread( [&]() {
-		QImage local{ screen.framebuffer.width(), screen.framebuffer.height(), QImage::Format_RGB32 };
-		while( running.load() )
-		{
-			if( macScreenCaptureFrame( local ) )
-			{
-				std::lock_guard<std::mutex> lock( scratchMutex );
-				std::memcpy( captured.bits(), local.bits(), bufferBytes );
-				hasNewFrame.store( true );
-			}
-			else
-			{
-				// capture unavailable (e.g. permission missing) - avoid a busy loop
-				std::this_thread::sleep_for( std::chrono::milliseconds( 500 ) );
-			}
-		}
-	} );
+	auto* framebuffer = reinterpret_cast<uchar *>( screen.framebuffer.bits() );
+	const auto framebufferStride = static_cast<int>( screen.framebuffer.bytesPerLine() );
 
 	while( rfbIsActive( screen.rfbScreen ) )
 	{
-		if( hasNewFrame.exchange( false ) )
+		MacScreenCaptureRegion changedRegion;
+
+		if( macScreenCaptureFrame( captured, &changedRegion ) )
 		{
-			std::lock_guard<std::mutex> lock( scratchMutex );
-			if( std::memcmp( captured.bits(), screen.framebuffer.bits(), bufferBytes ) != 0 )
-			{
-				std::memcpy( screen.framebuffer.bits(), captured.bits(), bufferBytes );
-				rfbMarkRectAsModified( screen.rfbScreen, 0, 0,
-									   screen.rfbScreen->width, screen.rfbScreen->height );
-			}
+			updateChangedTiles( screen.rfbScreen, framebuffer, framebufferStride,
+								captured, changedRegion );
 		}
 
-		rfbProcessEvents( screen.rfbScreen, DefaultCaptureIntervalMs * 1000 );
+		rfbProcessEvents( screen.rfbScreen, PollIntervalMs * 1000 );
 	}
-
-	running.store( false );
-	captureThread.join();
 
 	rfbShutdownServer( screen.rfbScreen, true );
 	rfbScreenCleanup( screen.rfbScreen );
@@ -203,9 +273,6 @@ bool MacVncServer::initScreen( MacVncScreen* screen )
 
 	screen->framebuffer = QImage( width, height, QImage::Format_RGB32 );
 	screen->framebuffer.fill( Qt::black );
-	screen->scratch = QImage( width, height, QImage::Format_RGB32 );
-	screen->scratch.fill( Qt::black );
-
 	// map the RFB framebuffer (pixels) onto the display bounds (points)
 	macVncInputInit( screen->display, CGDisplayBounds( screen->display ), width, height );
 
@@ -246,6 +313,12 @@ bool MacVncServer::initVncServer( int serverPort, const Password& password, MacV
 	rfbScreen->alwaysShared = true;
 	rfbScreen->handleEventsEagerly = true;
 	rfbScreen->deferUpdateTime = 5;
+
+	// updateChangedTiles() produces one rectangle per run of changed tiles;
+	// once a client exceeds this limit libvncserver falls back to sending the
+	// bounding box of everything that changed, which is exactly what we are
+	// trying to avoid
+	rfbScreen->maxRectsPerUpdate = 200;
 
 	rfbScreen->screenData = screen;
 	rfbScreen->cursor = nullptr;

@@ -29,6 +29,7 @@
 
 #include "NetworkObjectDirectory.h"
 
+class QJsonArray;
 class QTcpSocket;
 class QTimer;
 
@@ -43,16 +44,26 @@ public:
 private:
 	void startScan();
 	void finishScan();
+	void updateConfiguredObjects();
+	void updateConfiguredLocation( const NetworkObject& locationObject, const QJsonArray& networkObjects );
 	QList<QHostAddress> scanTargets() const;
 
 	NetworkObject m_location;
 	int m_serverPort;
 	bool m_scanning{false};
 	QSet<QString> m_foundHosts;
+	// hosts kept across scans along with how many consecutive scans missed them
+	QHash<QString, int> m_knownHosts;
 	QList<QTcpSocket *> m_pendingSockets;
 	QTimer* m_scanTimeout{nullptr};
 
 	static constexpr int ScanTimeoutMs = 2000;
+	// A host that fails to answer within ScanTimeoutMs would otherwise be dropped
+	// from the directory straight away, destroying its ComputerControlInterface
+	// and resetting the update mode of any session in progress back to
+	// Monitoring - which silently downgrades a live remote view to the much
+	// lower monitoring image quality. Tolerate a few misses instead.
+	static constexpr int MaxMissedScans = 3;
 	static constexpr int MaxHostsPerScan = 4096;
 
 };

@@ -28,15 +28,52 @@
 
 class QImage;
 
-// Resolve the SCDisplay for the given display and prepare a content filter.
-// Returns the capture dimensions (in points) via outWidth/outHeight.
+// The rectangle of the framebuffer that changed since the previous frame.
+struct MacScreenCaptureRegion
+{
+	int x = 0;
+	int y = 0;
+	int width = 0;
+	int height = 0;
+
+	bool isEmpty() const { return width <= 0 || height <= 0; }
+};
+
+// Start a continuous ScreenCaptureKit stream for the given display and report
+// the capture dimensions via outWidth/outHeight.
+//
+// The dimensions are the display's native PIXEL dimensions, not its size in
+// points: SCDisplay.width/height are points, so capturing at those on a Retina
+// display yields a half-resolution (visibly blurry) framebuffer.
+//
+// Two environment variables tune the stream:
+//   VEYON_MAC_CAPTURE_SCALE  0.1 .. 1.0, downscales the capture (default 1.0 =
+//                            native pixels). Lower it to trade sharpness for
+//                            bandwidth on slow networks.
+//   VEYON_MAC_CAPTURE_FPS    1 .. 60, maximum frame rate (default 30).
+//   VEYON_MAC_CAPTURE_FULL_DIFF  set to 1 to ignore the dirty rectangles that
+//                            ScreenCaptureKit reports and always treat the
+//                            whole screen as changed (troubleshooting only).
+//
 // Returns false if ScreenCaptureKit is unavailable or the Screen Recording
 // permission has not been granted.
 bool macScreenCaptureInit( CGDirectDisplayID display, int* outWidth, int* outHeight );
 
-// Capture a single frame into the given QImage (must be Format_RGB32 and sized
-// to the dimensions returned by macScreenCaptureInit). Returns false on failure.
-bool macScreenCaptureFrame( QImage& target );
+// Copy the most recent frame into the given QImage (must be Format_RGB32 and
+// sized to the dimensions returned by macScreenCaptureInit).
+//
+// Frames arrive asynchronously on the stream's own queue, so this never waits
+// for the capture hardware. It returns false straight away when no new frame
+// has arrived since the last call - waiting at most timeoutMs for one if
+// timeoutMs is greater than zero.
+//
+// Only the region that changed is written, so `target` must be the same image
+// across calls: it carries the previous frame's pixels. That region is
+// reported through changedRegion, letting the caller restrict its own work to
+// it as well. Every couple of seconds the full frame is refreshed regardless,
+// bounding how long a missed dirty rectangle could go unnoticed.
+bool macScreenCaptureFrame( QImage& target, MacScreenCaptureRegion* changedRegion = nullptr,
+							int timeoutMs = 0 );
 
 // Release ScreenCaptureKit resources.
 void macScreenCaptureCleanup();

@@ -97,7 +97,9 @@ public:
 	}
 
 private:
-	static constexpr int DefaultCaptureIntervalMs = 50;
+	// how long rfbProcessEvents() may sleep while idle - keeps input latency low
+	// and picks up new capture frames promptly
+	static constexpr int PollIntervalMs = 16;
 
 	bool initScreen( MacVncScreen* screen );
 	bool initVncServer( int serverPort, const Password& password, MacVncScreen* screen );

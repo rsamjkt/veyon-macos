@@ -20,3 +20,6 @@ plugins/extra
 # local Claude settings (keep skills, ignore local settings)
 .claude/settings.local.json
 .claude/projects/
+
+# kunci lokal (jangan pernah di-commit)
+/keygue/
