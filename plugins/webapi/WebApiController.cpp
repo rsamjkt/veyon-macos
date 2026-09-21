@@ -355,6 +355,11 @@ WebApiController::Response WebApiController::sendPointerEvent( const Request& re
 	}
 
 	const auto connection = lookupConnection( request );
+	if( !connection )
+	{
+		return Error::InvalidConnection;
+	}
+
 	auto* vncConnection = connection->controlInterface()->vncConnection();
 	if( vncConnection == nullptr )
 	{
@@ -389,6 +394,11 @@ WebApiController::Response WebApiController::sendKeyEvent( const Request& reques
 	}
 
 	const auto connection = lookupConnection( request );
+	if( !connection )
+	{
+		return Error::InvalidConnection;
+	}
+
 	auto* vncConnection = connection->controlInterface()->vncConnection();
 	if( vncConnection == nullptr )
 	{
@@ -430,7 +440,13 @@ WebApiController::Response WebApiController::postFeatureMessage( const Request& 
 	message.setCommand( FeatureMessage::Command( command ) );
 	message.addArgument( key, data );
 
-	lookupConnection( request )->controlInterface()->sendFeatureMessage( message );
+	const auto connection = lookupConnection( request );
+	if( !connection )
+	{
+		return Error::InvalidConnection;
+	}
+
+	connection->controlInterface()->sendFeatureMessage( message );
 
 	return {};
 }

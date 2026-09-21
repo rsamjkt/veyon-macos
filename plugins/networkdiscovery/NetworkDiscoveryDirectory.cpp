@@ -22,6 +22,8 @@
  *
  */
 
+#include <algorithm>
+
 #include <QJsonArray>
 #include <QJsonObject>
 #include <QNetworkInterface>
@@ -41,7 +43,7 @@ NetworkDiscoveryDirectory::NetworkDiscoveryDirectory( QObject* parent ) :
 {
 	m_scanTimeout = new QTimer( this );
 	m_scanTimeout->setSingleShot( true );
-	connect( m_scanTimeout, &QTimer::timeout, this, &NetworkDiscoveryDirectory::finishScan );
+	connect( m_scanTimeout, &QTimer::timeout, this, &NetworkDiscoveryDirectory::abortScanRound );
 }
 
 
@@ -131,32 +133,97 @@ void NetworkDiscoveryDirectory::startScan()
 	m_scanning = true;
 	m_foundHosts.clear();
 
-	const auto targets = scanTargets();
-	vDebug() << "NetworkDiscovery: scanning" << targets.size() << "hosts on port" << m_serverPort;
-	if( targets.isEmpty() )
+	m_pendingTargets = scanTargets();
+	vDebug() << "NetworkDiscovery: scanning" << m_pendingTargets.size() << "hosts on port" << m_serverPort;
+
+	startScanRound();
+}
+
+
+
+void NetworkDiscoveryDirectory::startScanRound()
+{
+	if( m_pendingTargets.isEmpty() )
 	{
 		finishScan();
 		return;
 	}
 
-	for( const auto& address : targets )
+	const auto roundSize = std::min( m_pendingTargets.size(), qsizetype{MaxConcurrentScans} );
+
+	m_startingRound = true;
+
+	for( int i = 0; i < roundSize; ++i )
 	{
-		auto socket = new QTcpSocket( this );
+		const auto address = m_pendingTargets.takeFirst();
 		const auto hostString = address.toString();
+
+		auto socket = new QTcpSocket( this );
 
 		connect( socket, &QTcpSocket::connected, this, [this, socket, hostString]() {
 			m_foundHosts.insert( hostString );
-			socket->abort();
+			retireSocket( socket );
 		} );
-		connect( socket, &QTcpSocket::errorOccurred, socket, [socket]( QAbstractSocket::SocketError ) {
-			socket->abort();
+		connect( socket, &QTcpSocket::errorOccurred, this, [this, socket]( QAbstractSocket::SocketError ) {
+			retireSocket( socket );
 		} );
 
-		socket->connectToHost( address, static_cast<quint16>( m_serverPort ) );
+		// listed before connecting: connectToHost() can fail right away and
+		// then reports the error before it returns
 		m_pendingSockets.append( socket );
+		socket->connectToHost( address, static_cast<quint16>( m_serverPort ) );
 	}
 
+	m_startingRound = false;
+
+	if( m_pendingSockets.isEmpty() )
+	{
+		// every host in this round refused immediately
+		startScanRound();
+		return;
+	}
+
+	// bounds how long a round may take: hosts that neither accept nor refuse
+	// the connection (a firewall dropping the packets) would otherwise hold up
+	// the whole sweep until the operating system gives up minutes later
 	m_scanTimeout->start( ScanTimeoutMs );
+}
+
+
+
+void NetworkDiscoveryDirectory::abortScanRound()
+{
+	// whatever is still pending did not answer within ScanTimeoutMs
+	for( auto socket : std::as_const( m_pendingSockets ) )
+	{
+		socket->abort();
+		socket->deleteLater();
+	}
+	m_pendingSockets.clear();
+
+	startScanRound();
+}
+
+
+
+void NetworkDiscoveryDirectory::retireSocket( QTcpSocket* socket )
+{
+	if( m_pendingSockets.removeOne( socket ) == false )
+	{
+		return;
+	}
+
+	socket->abort();
+	socket->deleteLater();
+
+	// start the next round as soon as this one has run out of sockets rather
+	// than waiting for the timeout - a subnet full of refusing hosts is swept
+	// in milliseconds that way
+	if( m_startingRound == false && m_pendingSockets.isEmpty() )
+	{
+		m_scanTimeout->stop();
+		startScanRound();
+	}
 }
 
 
@@ -169,6 +236,7 @@ void NetworkDiscoveryDirectory::finishScan()
 		socket->deleteLater();
 	}
 	m_pendingSockets.clear();
+	m_pendingTargets.clear();
 
 	// age out hosts that keep missing scans, but keep recently seen ones so a
 	// single slow reply does not tear down an active connection
@@ -196,8 +264,9 @@ void NetworkDiscoveryDirectory::finishScan()
 
 	NetworkObjectList computers;
 	computers.reserve( m_knownHosts.size() );
-	for( const auto& host : m_knownHosts.keys() )
+	for( auto it = m_knownHosts.keyBegin(), end = m_knownHosts.keyEnd(); it != end; ++it )
 	{
+		const auto& host = *it;
 		const auto uid = NetworkObject::Uid::createUuidV5( NetworkObject::Uid(),
 														   QStringLiteral("aruni-discovery:") + host );
 		computers.append( NetworkObject( NetworkObject::Type::Host, host, host, {}, {}, uid ) );
