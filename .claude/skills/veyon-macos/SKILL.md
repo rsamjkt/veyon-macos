@@ -46,34 +46,42 @@ Toolchain (Homebrew): `cmake pkg-config ninja qt qca openssl@3 jpeg-turbo lzo li
 
 1. **`CGDisplayCreateImage` is REMOVED in macOS 15+** (hard error, not just deprecated).
    Screen capture MUST use **ScreenCaptureKit** (`SCScreenshotManager`) — see `MacScreenCapture.mm`.
-2. **qca + Homebrew duplicate-Qt crash.** The self-contained `Veyon.app` crashes on any machine
+2. **Verifying the self-contained bundle on a dev machine.** `sandbox-exec` can hide Homebrew
+   from a single process, which is exactly what a clean Mac looks like:
+   ```bash
+   printf '(version 1)\n(allow default)\n(deny file-read* file-read-metadata (subpath "/opt/homebrew"))\n' > /tmp/clean-mac.sb
+   sandbox-exec -f /tmp/clean-mac.sb dist/AruniControl.app/Contents/MacOS/veyon-cli plugin list
+   ```
+   The bundle passes this only when nothing inside it still links against `/opt/homebrew`
+   (`package-macos.sh` counts those references at the end).
+3. **qca + Homebrew duplicate-Qt crash.** The self-contained `Veyon.app` crashes on any machine
    that ALSO has Homebrew `qca` installed: QCA loads its provider plugins from the baked-in
    Homebrew path *in addition* to the bundled ones, pulling a 2nd Qt → SIGSEGV in
    `QCA::get_logger()`. `QCA_PLUGIN_PATH` and `brew unlink qca` do NOT fix it (verified).
    → On the dev machine use **`package-macos-local.sh`** (thin apps using Homebrew Qt) or the
    `build/` binaries. The self-contained bundle is only for machines without Homebrew.
-3. **Framework version dirs differ.** Qt frameworks use `Versions/A`, but `qca-qt6` uses
+4. **Framework version dirs differ.** Qt frameworks use `Versions/A`, but `qca-qt6` uses
    `Versions/2`. When rewriting install names in `package-macos.sh`, preserve the real
    suffix after `.framework/` — never hard-code `Versions/A`.
-4. **Plugin discovery suffix.** Veyon filters plugins by `*-platform` + `VEYON_SHARED_LIBRARY_SUFFIX`.
+5. **Plugin discovery suffix.** Veyon filters plugins by `*-platform` + `VEYON_SHARED_LIBRARY_SUFFIX`.
    On macOS that must be the MODULE suffix `.so` (not `.dylib`). Set in root CMakeLists for APPLE.
-5. **rpath cleanup when bundling.** macdeployqt leaves Homebrew rpaths and 2nd-level deps; strip
+6. **rpath cleanup when bundling.** macdeployqt leaves Homebrew rpaths and 2nd-level deps; strip
    any `/opt/homebrew` LC_RPATH and relink remaining absolute deps to `@rpath`, else Qt loads twice.
-6. **Config is user-level on macOS.** `LocalStore` maps System scope → `QSettings::UserScope`
+7. **Config is user-level on macOS.** `LocalStore` maps System scope → `QSettings::UserScope`
    (`~/Library/Preferences/com.veyon-solutions.Veyon.plist`) so the Configurator needs no admin.
    The Configurator's admin self-elevation is `#ifndef Q_OS_MACOS`. `globalAppDataPath()` is
    `~/Library/Application Support/Veyon`.
-7. **The "Service" is a launchd LaunchAgent.** `MacServiceFunctions` writes
+8. **The "Service" is a launchd LaunchAgent.** `MacServiceFunctions` writes
    `~/Library/LaunchAgents/io.veyon.server.plist` running **veyon-server** (resolved robustly for
    build-tree AND bundle layouts) and controls it with `launchctl bootstrap/kickstart/bootout gui/$UID`.
    No admin needed.
-8. **TCC permissions.** The controlled-client `veyon-server` needs **Screen Recording** (capture)
+9. **TCC permissions.** The controlled-client `veyon-server` needs **Screen Recording** (capture)
    and **Accessibility** (input). Granted per-binary; a process must be (re)started AFTER granting.
    launchd-launched servers get cleaner TCC attribution than shell-launched ones. Check with
    `CGPreflightScreenCaptureAccess()` (logged at server start).
-9. **`-fno-exceptions`** is on project-wide — no try/catch, including in `.mm` files (Objective-C
+10. **`-fno-exceptions`** is on project-wide — no try/catch, including in `.mm` files (Objective-C
    exceptions off too; `MacScreenCapture.mm` is built with `-fobjc-arc -fexceptions`).
-10. **`QT_USE_QSTRINGBUILDER`**: `auto x = strA + strB` deduces a lazy `QStringBuilder`, not
+11. **`QT_USE_QSTRINGBUILDER`**: `auto x = strA + strB` deduces a lazy `QStringBuilder`, not
     `QString`. Use an explicit `const QString` when you need `.contains()` etc.
 
 ## Architecture notes

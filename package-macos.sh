@@ -105,13 +105,22 @@ echo "==> Running macdeployqt (bundling Qt + dependencies)"
 "${MACDEPLOYQT}" "${APP}" "${EXECUTABLE_ARGS[@]}" -verbose=1 || true
 
 echo "==> Bundling QCA crypto provider plugins"
-# QCA loads its crypto providers (ossl, etc.) from its build-time plugin dir
-# (inside Homebrew), which drags in a second copy of Qt. Bundle them so QCA
-# finds these first (same provider name -> the Homebrew duplicates are skipped).
+# QCA loads its crypto providers from its build-time plugin dir inside Homebrew,
+# so they have to be bundled to be found on a machine without Homebrew. Only the
+# providers Veyon actually needs are taken: 'ossl' does the RSA key
+# authentication, the other two are tiny and dependency-free. The remaining
+# providers (botan, nss, pkcs11, ...) would only add dylibs that cannot resolve
+# their own Homebrew dependencies on the target machine.
 QCA_SRC="$(brew --prefix qca)/lib/qt/plugins/crypto"
 if [ -d "${QCA_SRC}" ]; then
 	mkdir -p "${CONTENTS}/PlugIns/crypto"
-	cp "${QCA_SRC}"/*.dylib "${CONTENTS}/PlugIns/crypto/" 2>/dev/null || true
+	for provider in ossl softstore logger; do
+		cp "${QCA_SRC}/libqca-${provider}.dylib" "${CONTENTS}/PlugIns/crypto/" 2>/dev/null || true
+	done
+	if [ ! -f "${CONTENTS}/PlugIns/crypto/libqca-ossl.dylib" ]; then
+		echo "error: QCA 'ossl' provider not found - RSA key authentication would fail" >&2
+		exit 1
+	fi
 fi
 
 echo "==> Relinking any remaining absolute dependencies to @rpath"
@@ -182,9 +191,14 @@ for exe in "${MACOS_DIR}"/*; do codesign --force --timestamp=none --sign - "$exe
 codesign --force --timestamp=none --sign - "${APP}" 2>/dev/null || true
 
 echo "==> Verifying no Homebrew paths leak into the bundle"
-LEAKS="$(find "${MACOS_DIR}" "${PLUGIN_DIR}" "${FRAMEWORKS_DIR}" -type f -print0 \
+# Contents/PlugIns has to be part of this: a crypto provider or Qt plugin that
+# still points at Homebrew simply fails to load on the target machine.
+LEAKS="$(find "${MACOS_DIR}" "${PLUGIN_DIR}" "${FRAMEWORKS_DIR}" "${CONTENTS}/PlugIns" -type f -print0 2>/dev/null \
 	| xargs -0 -n1 otool -L 2>/dev/null | grep -c "/opt/homebrew" || true)"
 echo "    remaining /opt/homebrew references: ${LEAKS}"
+if [ "${LEAKS}" -gt 0 ]; then
+	echo "    warning: the bundle will not run on a Mac without Homebrew" >&2
+fi
 
 echo "==> Writing LaunchAgent template for the Veyon Server"
 # A LaunchAgent (not a LaunchDaemon) is required: the server must run inside the
