@@ -60,11 +60,15 @@ void VncServerProtocol::start()
 {
 	if( state() == State::Disconnected )
 	{
-		std::array<char, sz_rfbProtocolVersionMsg> protocol{};
+		// The greeting is sz_rfbProtocolVersionMsg characters long *plus* the
+		// terminating NUL, so it needs one byte more than it puts on the wire.
+		// Sized any smaller, snprintf() drops the trailing newline - which the
+		// protocol requires and readProtocol() on the other side insists on.
+		std::array<char, sz_rfbProtocolVersionMsg + 1> protocol{};
 
 		std::snprintf(protocol.data(), protocol.size(), rfbProtocolVersionFormat, 3, 8); // Flawfinder: ignore
 
-		m_socket->write(protocol.data(), protocol.size());
+		m_socket->write(protocol.data(), sz_rfbProtocolVersionMsg);
 
 		setState( State::Protocol );
 	}
