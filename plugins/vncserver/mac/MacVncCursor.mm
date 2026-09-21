@@ -26,6 +26,7 @@
 #import <dispatch/dispatch.h>
 
 #include <algorithm>
+#include <atomic>
 #include <cmath>
 #include <cstdio>
 #include <mutex>
@@ -49,8 +50,9 @@ uint64_t g_serial = 0;
 uint64_t g_consumed = 0;
 uint64_t g_shapeHash = 0;
 
-// written once before the refresh timer starts and only read afterwards
-double g_scale = 1.0;
+// written when tracking starts, read by the refresh handler on the main queue;
+// a handler already queued may still run while a restart writes it
+std::atomic<double> g_scale{1.0};
 
 dispatch_source_t g_timer = nullptr;
 
@@ -97,8 +99,10 @@ bool renderSystemCursor( MacVncCursorShape* shape )
 		return false;
 	}
 
-	const int width = std::clamp( static_cast<int>( std::lround( size.width * g_scale ) ), 1, MaxCursorSize );
-	const int height = std::clamp( static_cast<int>( std::lround( size.height * g_scale ) ), 1, MaxCursorSize );
+	const double scale = g_scale.load();
+
+	const int width = std::clamp( static_cast<int>( std::lround( size.width * scale ) ), 1, MaxCursorSize );
+	const int height = std::clamp( static_cast<int>( std::lround( size.height * scale ) ), 1, MaxCursorSize );
 
 	shape->width = width;
 	shape->height = height;
@@ -149,8 +153,8 @@ bool renderSystemCursor( MacVncCursorShape* shape )
 	}
 
 	const NSPoint hotSpot = cursor.hotSpot;
-	shape->hotspotX = std::clamp( static_cast<int>( std::lround( hotSpot.x * g_scale ) ), 0, width - 1 );
-	shape->hotspotY = std::clamp( static_cast<int>( std::lround( hotSpot.y * g_scale ) ), 0, height - 1 );
+	shape->hotspotX = std::clamp( static_cast<int>( std::lround( hotSpot.x * scale ) ), 0, width - 1 );
+	shape->hotspotY = std::clamp( static_cast<int>( std::lround( hotSpot.y * scale ) ), 0, height - 1 );
 
 	return true;
 }
@@ -184,7 +188,7 @@ bool macVncCursorInit( double scale )
 {
 	macVncCursorCleanup();
 
-	g_scale = scale > 0 ? scale : 1.0;
+	g_scale.store( scale > 0 ? scale : 1.0 );
 
 	// Probe once before committing to the cursor-through-RFB path: if AppKit
 	// hands out no cursor (which it may in a session without a window server

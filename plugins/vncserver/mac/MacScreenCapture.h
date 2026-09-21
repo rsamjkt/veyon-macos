@@ -88,9 +88,20 @@ bool macScreenCaptureInit( CGDirectDisplayID display, const MacScreenCaptureOpti
 bool macScreenCaptureFrame( QImage& target, MacScreenCaptureRegion* changedRegion = nullptr,
 							int timeoutMs = 0 );
 
-// Whether ScreenCaptureKit stopped the stream on its own - which it does when
-// the display setup changes or the Screen Recording permission is withdrawn.
-bool macScreenCaptureStopped();
+// Drop the capture to a trickle while nobody is watching, and back to the
+// configured frame rate afterwards. The stream keeps running either way, so a
+// client that connects sees a picture right away.
+void macScreenCaptureSetIdle( bool idle );
+
+// Whether a capture stream is currently set up and able to deliver frames.
+// It is not once ScreenCaptureKit stopped the stream on its own, which it does
+// when the display setup changes or the Screen Recording permission is
+// withdrawn, and not before the first successful macScreenCaptureInit().
+bool macScreenCaptureRunning();
+
+// Whether the Screen Recording permission has been granted. Answered locally
+// and instantly, unlike starting a stream.
+bool macScreenCaptureAccessGranted();
 
 // Release ScreenCaptureKit resources.
 void macScreenCaptureCleanup();

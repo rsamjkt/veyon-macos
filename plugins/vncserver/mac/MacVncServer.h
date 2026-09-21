@@ -109,8 +109,13 @@ private:
 	// how long rfbProcessEvents() may block waiting for client input
 	static constexpr int ClientPollIntervalMs = 2;
 
-	// how often restarting a stopped capture stream is attempted
+	// how long it may block while no client is connected at all
+	static constexpr int IdlePollIntervalMs = 100;
+
+	// how soon restarting a stopped capture stream is attempted, and how far
+	// that delay is allowed to grow while it keeps failing
 	static constexpr int CaptureRecoveryIntervalMs = 2000;
+	static constexpr int MaxCaptureRecoveryIntervalMs = 30000;
 
 	// Decide how the display is captured and start tracking the system cursor
 	// when it is to be sent separately - the two go together because the cursor
@@ -119,6 +124,7 @@ private:
 	bool initScreen( MacVncScreen* screen );
 	void resizeFramebuffer( MacVncScreen* screen, int width, int height );
 	void recoverCapture( MacVncScreen* screen );
+	void backOffCaptureRecovery();
 	bool initVncServer( int serverPort, const Password& password, MacVncScreen* screen );
 	void updateCursor( MacVncScreen* screen );
 
@@ -128,6 +134,7 @@ private:
 	MacVncConfiguration m_configuration;
 
 	QElapsedTimer m_captureRecoveryTimer;
+	int m_captureRecoveryDelay{CaptureRecoveryIntervalMs};
 
 	// whether the cursor is sent as a VNC cursor shape instead of being part of
 	// the captured pixels - decided at startup, see initScreen()

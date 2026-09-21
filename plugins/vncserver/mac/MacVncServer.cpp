@@ -183,6 +183,24 @@ void updateChangedTiles( rfbScreenInfoPtr rfbScreen, uchar* framebuffer, int fra
 	}
 }
 
+// The framebuffer is a QImage::Format_RGB32, i.e. 0xffRRGGBB in a native-endian
+// word, which puts blue in the first byte on a little-endian machine.
+// LibVNCServer's rfbInitServerFormat() assumes the opposite order, so the
+// shifts have to be spelled out - and spelled out again after every
+// rfbNewFramebuffer(), which silently resets them.
+void applyServerFormat( rfbScreenInfoPtr rfbScreen )
+{
+	rfbScreen->serverFormat.redShift = 16;
+	rfbScreen->serverFormat.greenShift = 8;
+	rfbScreen->serverFormat.blueShift = 0;
+	rfbScreen->serverFormat.redMax = 255;
+	rfbScreen->serverFormat.greenMax = 255;
+	rfbScreen->serverFormat.blueMax = 255;
+	rfbScreen->serverFormat.trueColour = true;
+	rfbScreen->serverFormat.bitsPerPixel = 32;
+}
+
+
 // Framebuffer pixels per point of the display - 2.0 on a Retina screen.
 double displayScaleFactor( CGDirectDisplayID display )
 {
@@ -296,11 +314,32 @@ bool MacVncServer::runServer( int serverPort, const Password& password )
 		return false;
 	}
 
+	// no client connected yet, so the capture may idle right away
+	bool idle = false;
+
 	while( rfbIsActive( screen.rfbScreen ) )
 	{
-		if( macScreenCaptureStopped() )
+		if( macScreenCaptureRunning() == false )
 		{
 			recoverCapture( &screen );
+		}
+
+		const bool hasClients = screen.rfbScreen->clientHead != nullptr;
+		if( hasClients == idle )
+		{
+			idle = hasClients == false;
+			macScreenCaptureSetIdle( idle );
+		}
+
+		if( hasClients == false )
+		{
+			// Nobody is watching this machine - which is the normal state for
+			// most of the day. Diffing megabytes of pixels for no one is pure
+			// waste, so idle instead: the capture keeps track of everything
+			// that changes meanwhile and hands it over in one go as soon as a
+			// client shows up.
+			rfbProcessEvents( screen.rfbScreen, IdlePollIntervalMs * 1000 );
+			continue;
 		}
 
 		MacScreenCaptureRegion changedRegion;
@@ -403,29 +442,58 @@ void MacVncServer::resizeFramebuffer( MacVncScreen* screen, int width, int heigh
 
 void MacVncServer::recoverCapture( MacVncScreen* screen )
 {
-	// ScreenCaptureKit stops the stream on its own when the display setup
-	// changes or the Screen Recording permission is withdrawn. Without this the
+	// Called whenever no stream is delivering frames: ScreenCaptureKit stops
+	// the stream on its own when the display setup changes or the Screen
+	// Recording permission is withdrawn, and the very first attempt may have
+	// failed because the permission had not been granted yet. Without this the
 	// clients would stare at a frozen screen until the server is restarted.
 	if( m_captureRecoveryTimer.isValid() &&
-		m_captureRecoveryTimer.elapsed() < CaptureRecoveryIntervalMs )
+		m_captureRecoveryTimer.elapsed() < m_captureRecoveryDelay )
 	{
 		return;
 	}
 
 	m_captureRecoveryTimer.restart();
 
-	int width = 0;
-	int height = 0;
-
-	if( macScreenCaptureInit( screen->display, prepareCapture( screen->display ),
-							  &width, &height ) == false ||
-		width <= 0 || height <= 0 )
+	// Starting a stream means blocking this thread - and with it every
+	// connected client - in ScreenCaptureKit's timeouts for several seconds.
+	// The permission check is instant, so the common case of a permission that
+	// was never granted never gets that far.
+	if( macScreenCaptureAccessGranted() == false )
 	{
-		vWarning() << "MacVncServer: screen capture stopped, retrying";
+		backOffCaptureRecovery();
 		return;
 	}
 
-	vDebug() << "MacVncServer: screen capture restarted at" << width << 'x' << height;
+	// The display setup is a likely reason for the stream to have stopped, so
+	// do not insist on the display that was the main one back then.
+	screen->display = CGMainDisplayID();
+
+	const auto options = prepareCapture( screen->display );
+
+	if( m_remoteCursor == false )
+	{
+		// The cursor is part of the captured pixels again. Drop the shape the
+		// clients were handed earlier, or they would keep drawing it frozen at
+		// its last position on top of the captured one.
+		rfbSetCursor( screen->rfbScreen, nullptr );
+	}
+
+	int width = 0;
+	int height = 0;
+
+	if( macScreenCaptureInit( screen->display, options, &width, &height ) == false ||
+		width <= 0 || height <= 0 )
+	{
+		backOffCaptureRecovery();
+		vWarning() << "MacVncServer: screen capture unavailable, retrying in"
+				   << m_captureRecoveryDelay / 1000 << "s";
+		return;
+	}
+
+	m_captureRecoveryDelay = CaptureRecoveryIntervalMs;
+
+	vDebug() << "MacVncServer: screen capture running at" << width << 'x' << height;
 
 	if( width != screen->framebuffer.width() || height != screen->framebuffer.height() )
 	{
@@ -433,9 +501,19 @@ void MacVncServer::recoverCapture( MacVncScreen* screen )
 		resizeFramebuffer( screen, width, height );
 		rfbNewFramebuffer( screen->rfbScreen, reinterpret_cast<char *>( screen->framebuffer.bits() ),
 						   width, height, 8, 3, 4 );
+		applyServerFormat( screen->rfbScreen );
 	}
 
 	rfbMarkRectAsModified( screen->rfbScreen, 0, 0, screen->rfbScreen->width, screen->rfbScreen->height );
+}
+
+
+
+void MacVncServer::backOffCaptureRecovery()
+{
+	// retrying every couple of seconds forever would keep stalling the clients,
+	// so slow down while the capture stays unavailable
+	m_captureRecoveryDelay = std::min( m_captureRecoveryDelay * 2, MaxCaptureRecoveryIntervalMs );
 }
 
 
@@ -460,14 +538,7 @@ bool MacVncServer::initVncServer( int serverPort, const Password& password, MacV
 	rfbScreen->authPasswdData = screen->passwords.data();
 	rfbScreen->passwordCheck = rfbCheckPasswordByList;
 
-	rfbScreen->serverFormat.redShift = 16;
-	rfbScreen->serverFormat.greenShift = 8;
-	rfbScreen->serverFormat.blueShift = 0;
-	rfbScreen->serverFormat.redMax = 255;
-	rfbScreen->serverFormat.greenMax = 255;
-	rfbScreen->serverFormat.blueMax = 255;
-	rfbScreen->serverFormat.trueColour = true;
-	rfbScreen->serverFormat.bitsPerPixel = 32;
+	applyServerFormat( rfbScreen );
 
 	rfbScreen->alwaysShared = true;
 	rfbScreen->handleEventsEagerly = true;

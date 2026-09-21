@@ -47,6 +47,10 @@ namespace {
 
 constexpr int MaxFrameRate = 60;
 
+// frames per second while no client is connected - just enough to keep the
+// picture from going stale without burning CPU on an unwatched machine
+constexpr int IdleFrameRate = 1;
+
 // how often the whole frame is copied and diffed regardless of what
 // ScreenCaptureKit reported as dirty
 constexpr int FullRefreshIntervalSeconds = 2;
@@ -78,7 +82,7 @@ int g_framesSinceFullRefresh = 0;
 int g_fullRefreshInterval = 0;
 
 bool g_ignoreDirtyRects = false;
-bool g_streamStopped = false;
+bool g_streamRunning = false;
 
 // Bumped every time a stream is set up. A stream that has been replaced may
 // still deliver a frame or report that it stopped; those callbacks carry the
@@ -256,7 +260,7 @@ void storeFrame( CVPixelBufferRef pixelBuffer, CFArrayRef dirtyRects )
 
 	{
 		const std::lock_guard<std::mutex> lock( g_mutex );
-		g_streamStopped = true;
+		g_streamRunning = false;
 	}
 
 	g_frameAvailable.notify_all();
@@ -268,8 +272,12 @@ void storeFrame( CVPixelBufferRef pixelBuffer, CFArrayRef dirtyRects )
 namespace {
 
 SCStream* g_stream = nil;
+SCStreamConfiguration* g_config = nil;
 VeyonScreenCaptureOutput* g_output = nil;
 dispatch_queue_t g_queue = nullptr;
+
+// the frame rate the stream was set up with, restored when it stops idling
+int g_configuredFrameRate = 0;
 
 
 SCDisplay* findDisplay( CGDirectDisplayID display )
@@ -372,6 +380,9 @@ bool macScreenCaptureInit( CGDirectDisplayID display, const MacScreenCaptureOpti
 	config.queueDepth = 5;
 	config.minimumFrameInterval = CMTimeMake( 1, frameRate );
 
+	g_config = config;
+	g_configuredFrameRate = frameRate;
+
 	g_output = [[VeyonScreenCaptureOutput alloc] init];
 	g_output.generation = g_generation.fetch_add( 1 ) + 1;
 	g_queue = dispatch_queue_create( "io.veyon.server.screencapture", DISPATCH_QUEUE_SERIAL );
@@ -388,7 +399,6 @@ bool macScreenCaptureInit( CGDirectDisplayID display, const MacScreenCaptureOpti
 		g_framesSinceFullRefresh = 0;
 		g_fullRefreshInterval = frameRate * FullRefreshIntervalSeconds;
 		g_ignoreDirtyRects = options.fullDiff;
-		g_streamStopped = false;
 	}
 
 	NSError* error = nil;
@@ -434,6 +444,11 @@ bool macScreenCaptureInit( CGDirectDisplayID display, const MacScreenCaptureOpti
 				 ? "granted"
 				 : "DENIED - grant it in System Settings > Privacy & Security > Screen Recording and restart the server" );
 
+	{
+		const std::lock_guard<std::mutex> lock( g_mutex );
+		g_streamRunning = true;
+	}
+
 	if( outWidth != nullptr ) { *outWidth = width; }
 	if( outHeight != nullptr ) { *outHeight = height; }
 
@@ -468,7 +483,7 @@ bool macScreenCaptureFrame( QImage& target, MacScreenCaptureRegion* changedRegio
 		}
 
 		g_frameAvailable.wait_for( lock, std::chrono::milliseconds( timeoutMs ),
-								   []{ return g_serial != g_consumed || g_streamStopped; } );
+								   []{ return g_serial != g_consumed || g_streamRunning == false; } );
 
 		if( g_serial == g_consumed )
 		{
@@ -513,10 +528,37 @@ bool macScreenCaptureFrame( QImage& target, MacScreenCaptureRegion* changedRegio
 
 
 
-bool macScreenCaptureStopped()
+void macScreenCaptureSetIdle( bool idle )
+{
+	if( g_stream == nil || g_config == nil )
+	{
+		return;
+	}
+
+	g_config.minimumFrameInterval = CMTimeMake( 1, idle ? IdleFrameRate : g_configuredFrameRate );
+
+	[g_stream updateConfiguration:g_config completionHandler:^( NSError* error ) {
+		if( error != nil )
+		{
+			fprintf( stderr, "[MacVncServer] could not change the capture frame rate: %s\n",
+					 error.localizedDescription.UTF8String );
+		}
+	}];
+}
+
+
+
+bool macScreenCaptureRunning()
 {
 	const std::lock_guard<std::mutex> lock( g_mutex );
-	return g_streamStopped;
+	return g_streamRunning;
+}
+
+
+
+bool macScreenCaptureAccessGranted()
+{
+	return CGPreflightScreenCaptureAccess();
 }
 
 
@@ -537,6 +579,7 @@ void macScreenCaptureCleanup()
 	}
 
 	g_output = nil;
+	g_config = nil;
 	g_queue = nullptr;
 
 	const std::lock_guard<std::mutex> lock( g_mutex );
@@ -549,5 +592,5 @@ void macScreenCaptureCleanup()
 	g_dirtyX0 = g_dirtyY0 = g_dirtyX1 = g_dirtyY1 = 0;
 	g_fullRefreshDue = true;
 	g_framesSinceFullRefresh = 0;
-	g_streamStopped = false;
+	g_streamRunning = false;
 }
