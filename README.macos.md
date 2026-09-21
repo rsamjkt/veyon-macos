@@ -225,6 +225,10 @@ stays sharp) at up to 30 fps. Both can be changed without rebuilding:
 
 The server has to be restarted for a change to take effect.
 
+While no one is connected, the server stops diffing the screen and drops the
+capture to 1 fps, so an unwatched Mac spends about 1% of a CPU core instead of
+10%. It returns to the configured frame rate the moment a client connects.
+
 > Note: the Configurator tries to relaunch itself with administrator
 > privileges at startup (like the Windows version), which triggers a macOS
 > password prompt via AppleScript. Set `VEYON_CONFIGURATOR_NO_ELEVATION=1` to

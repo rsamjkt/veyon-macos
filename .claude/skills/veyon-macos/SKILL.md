@@ -99,6 +99,14 @@ Toolchain (Homebrew): `cmake pkg-config ninja qt qca openssl@3 jpeg-turbo lzo li
   returns no cursor, the code falls back to letting ScreenCaptureKit draw it.
 - Capture settings live in the Veyon config, not in environment variables:
   `MacVncServer/CaptureScale`, `MacVncServer/CaptureFrameRate`, `MacVncServer/RemoteCursor`.
+- With **no client connected** the loop skips all pixel work and the stream is dropped to
+  1 fps (`macScreenCaptureSetIdle`), which takes idle `veyon-server` from ~10% to ~1% CPU
+  on a Retina display. The stream keeps running so a connecting client sees a picture at once.
+- The loop retries `macScreenCaptureInit()` (with backoff, and only when
+  `CGPreflightScreenCaptureAccess()` says yes) for as long as no stream is running, so the
+  server picks up a permission granted after it started and survives display changes.
+  `rfbNewFramebuffer()` resets `serverFormat` - re-apply `applyServerFormat()` after it or
+  red and blue end up swapped.
 - Verifying end-to-end without the GUI: read the RFB greeting from 11200 with a real socket
   (NOT `nc </dev/null`, which closes too early — use Python `socket.recv`).
 
