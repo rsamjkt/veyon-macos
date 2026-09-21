@@ -29,6 +29,7 @@
 #import <dispatch/dispatch.h>
 
 #include <algorithm>
+#include <atomic>
 #include <chrono>
 #include <condition_variable>
 #include <cstdio>
@@ -44,7 +45,6 @@
 
 namespace {
 
-constexpr int DefaultFrameRate = 30;
 constexpr int MaxFrameRate = 60;
 
 // how often the whole frame is copied and diffed regardless of what
@@ -79,6 +79,11 @@ int g_fullRefreshInterval = 0;
 
 bool g_ignoreDirtyRects = false;
 bool g_streamStopped = false;
+
+// Bumped every time a stream is set up. A stream that has been replaced may
+// still deliver a frame or report that it stopped; those callbacks carry the
+// generation they were created for and are ignored once it is stale.
+std::atomic<uint64_t> g_generation{0};
 
 
 void markDirty( int x0, int y0, int x1, int y1 )
@@ -194,6 +199,7 @@ void storeFrame( CVPixelBufferRef pixelBuffer, CFArrayRef dirtyRects )
 
 
 @interface VeyonScreenCaptureOutput : NSObject <SCStreamOutput, SCStreamDelegate>
+@property (nonatomic, assign) uint64_t generation;
 @end
 
 @implementation VeyonScreenCaptureOutput
@@ -204,7 +210,8 @@ void storeFrame( CVPixelBufferRef pixelBuffer, CFArrayRef dirtyRects )
 {
 	Q_UNUSED(stream)
 
-	if( type != SCStreamOutputTypeScreen || CMSampleBufferIsValid( sampleBuffer ) == NO )
+	if( type != SCStreamOutputTypeScreen || CMSampleBufferIsValid( sampleBuffer ) == NO ||
+		self.generation != g_generation.load() )
 	{
 		return;
 	}
@@ -239,6 +246,11 @@ void storeFrame( CVPixelBufferRef pixelBuffer, CFArrayRef dirtyRects )
 {
 	Q_UNUSED(stream)
 
+	if( self.generation != g_generation.load() )
+	{
+		return;
+	}
+
 	fprintf( stderr, "[MacVncServer] capture stream stopped: %s\n",
 			 error != nil ? error.localizedDescription.UTF8String : "unknown error" );
 
@@ -258,39 +270,6 @@ namespace {
 SCStream* g_stream = nil;
 VeyonScreenCaptureOutput* g_output = nil;
 dispatch_queue_t g_queue = nullptr;
-
-
-double captureScale()
-{
-	const char* value = std::getenv( "VEYON_MAC_CAPTURE_SCALE" ); // Flawfinder: ignore
-	if( value == nullptr )
-	{
-		return 1.0;
-	}
-
-	const double scale = std::atof( value );
-	return scale >= 0.1 && scale <= 1.0 ? scale : 1.0;
-}
-
-
-int captureFrameRate()
-{
-	const char* value = std::getenv( "VEYON_MAC_CAPTURE_FPS" ); // Flawfinder: ignore
-	if( value == nullptr )
-	{
-		return DefaultFrameRate;
-	}
-
-	const int fps = std::atoi( value );
-	return fps >= 1 && fps <= MaxFrameRate ? fps : DefaultFrameRate;
-}
-
-
-bool ignoreDirtyRects()
-{
-	const char* value = std::getenv( "VEYON_MAC_CAPTURE_FULL_DIFF" ); // Flawfinder: ignore
-	return value != nullptr && std::atoi( value ) != 0;
-}
 
 
 SCDisplay* findDisplay( CGDirectDisplayID display )
@@ -352,7 +331,8 @@ void pixelDimensions( SCDisplay* display, int* width, int* height )
 } // namespace
 
 
-bool macScreenCaptureInit( CGDirectDisplayID display, int* outWidth, int* outHeight )
+bool macScreenCaptureInit( CGDirectDisplayID display, const MacScreenCaptureOptions& options,
+						   int* outWidth, int* outHeight )
 {
 	macScreenCaptureCleanup();
 
@@ -366,7 +346,7 @@ bool macScreenCaptureInit( CGDirectDisplayID display, int* outWidth, int* outHei
 	int height = 0;
 	pixelDimensions( targetDisplay, &width, &height );
 
-	const double scale = captureScale();
+	const double scale = std::clamp( options.scale, 0.1, 1.0 );
 	if( scale < 1.0 )
 	{
 		// keep both dimensions even so that the 4-byte rows stay aligned
@@ -379,7 +359,7 @@ bool macScreenCaptureInit( CGDirectDisplayID display, int* outWidth, int* outHei
 		return false;
 	}
 
-	const int frameRate = captureFrameRate();
+	const int frameRate = std::clamp( options.frameRate, 1, MaxFrameRate );
 
 	SCContentFilter* filter = [[SCContentFilter alloc] initWithDisplay:targetDisplay excludingWindows:@[]];
 
@@ -388,11 +368,12 @@ bool macScreenCaptureInit( CGDirectDisplayID display, int* outWidth, int* outHei
 	config.height = static_cast<size_t>( height );
 	config.pixelFormat = kCVPixelFormatType_32BGRA;
 	config.colorSpaceName = kCGColorSpaceSRGB;
-	config.showsCursor = YES;
+	config.showsCursor = options.captureCursor ? YES : NO;
 	config.queueDepth = 5;
 	config.minimumFrameInterval = CMTimeMake( 1, frameRate );
 
 	g_output = [[VeyonScreenCaptureOutput alloc] init];
+	g_output.generation = g_generation.fetch_add( 1 ) + 1;
 	g_queue = dispatch_queue_create( "io.veyon.server.screencapture", DISPATCH_QUEUE_SERIAL );
 
 	{
@@ -406,7 +387,7 @@ bool macScreenCaptureInit( CGDirectDisplayID display, int* outWidth, int* outHei
 		g_fullRefreshDue = true;
 		g_framesSinceFullRefresh = 0;
 		g_fullRefreshInterval = frameRate * FullRefreshIntervalSeconds;
-		g_ignoreDirtyRects = ignoreDirtyRects();
+		g_ignoreDirtyRects = options.fullDiff;
 		g_streamStopped = false;
 	}
 
@@ -445,9 +426,9 @@ bool macScreenCaptureInit( CGDirectDisplayID display, int* outWidth, int* outHei
 		return false;
 	}
 
-	fprintf( stderr, "[MacVncServer] screen capture ready: %dx%d @ %d fps (display is %.0fx%.0f pt), "
+	fprintf( stderr, "[MacVncServer] screen capture ready: %dx%d @ %d fps, cursor %s (display is %.0fx%.0f pt), "
 					 "Screen Recording permission = %s\n",
-			 width, height, frameRate,
+			 width, height, frameRate, options.captureCursor ? "in frames" : "sent separately",
 			 static_cast<double>( targetDisplay.width ), static_cast<double>( targetDisplay.height ),
 			 CGPreflightScreenCaptureAccess()
 				 ? "granted"
@@ -467,6 +448,15 @@ bool macScreenCaptureFrame( QImage& target, MacScreenCaptureRegion* changedRegio
 
 	if( g_frame.empty() )
 	{
+		// No stream running (the Screen Recording permission may be missing).
+		// Still honour the timeout so that the caller's loop keeps its pace
+		// instead of spinning on a capture that never delivers.
+		if( timeoutMs > 0 )
+		{
+			g_frameAvailable.wait_for( lock, std::chrono::milliseconds( timeoutMs ),
+									   []{ return g_frame.empty() == false; } );
+		}
+
 		return false;
 	}
 
@@ -523,8 +513,19 @@ bool macScreenCaptureFrame( QImage& target, MacScreenCaptureRegion* changedRegio
 
 
 
+bool macScreenCaptureStopped()
+{
+	const std::lock_guard<std::mutex> lock( g_mutex );
+	return g_streamStopped;
+}
+
+
+
 void macScreenCaptureCleanup()
 {
+	// anything the old stream still delivers belongs to a past generation
+	g_generation.fetch_add( 1 );
+
 	if( g_stream != nil )
 	{
 		dispatch_semaphore_t sem = dispatch_semaphore_create( 0 );

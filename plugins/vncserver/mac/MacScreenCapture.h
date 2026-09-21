@@ -39,25 +39,38 @@ struct MacScreenCaptureRegion
 	bool isEmpty() const { return width <= 0 || height <= 0; }
 };
 
+// How the capture stream should be set up. The caller reads these from the
+// plugin configuration, so all policy stays in one place.
+struct MacScreenCaptureOptions
+{
+	// fraction of the display's native pixel resolution to capture, 0.1 .. 1.0
+	double scale = 1.0;
+
+	// upper bound for the frames ScreenCaptureKit delivers per second
+	int frameRate = 30;
+
+	// let ScreenCaptureKit draw the mouse cursor into the frames. Turning this
+	// off is what makes it possible to send the cursor as a VNC cursor shape
+	// instead, which keeps mouse movement off the framebuffer entirely.
+	bool captureCursor = true;
+
+	// ignore the dirty rectangles reported by ScreenCaptureKit and always treat
+	// the whole screen as changed (troubleshooting only)
+	bool fullDiff = false;
+};
+
 // Start a continuous ScreenCaptureKit stream for the given display and report
 // the capture dimensions via outWidth/outHeight.
 //
-// The dimensions are the display's native PIXEL dimensions, not its size in
-// points: SCDisplay.width/height are points, so capturing at those on a Retina
-// display yields a half-resolution (visibly blurry) framebuffer.
-//
-// Two environment variables tune the stream:
-//   VEYON_MAC_CAPTURE_SCALE  0.1 .. 1.0, downscales the capture (default 1.0 =
-//                            native pixels). Lower it to trade sharpness for
-//                            bandwidth on slow networks.
-//   VEYON_MAC_CAPTURE_FPS    1 .. 60, maximum frame rate (default 30).
-//   VEYON_MAC_CAPTURE_FULL_DIFF  set to 1 to ignore the dirty rectangles that
-//                            ScreenCaptureKit reports and always treat the
-//                            whole screen as changed (troubleshooting only).
+// The dimensions are the display's native PIXEL dimensions scaled by
+// options.scale, not its size in points: SCDisplay.width/height are points, so
+// capturing at those on a Retina display yields a half-resolution (visibly
+// blurry) framebuffer.
 //
 // Returns false if ScreenCaptureKit is unavailable or the Screen Recording
 // permission has not been granted.
-bool macScreenCaptureInit( CGDirectDisplayID display, int* outWidth, int* outHeight );
+bool macScreenCaptureInit( CGDirectDisplayID display, const MacScreenCaptureOptions& options,
+						   int* outWidth, int* outHeight );
 
 // Copy the most recent frame into the given QImage (must be Format_RGB32 and
 // sized to the dimensions returned by macScreenCaptureInit).
@@ -74,6 +87,10 @@ bool macScreenCaptureInit( CGDirectDisplayID display, int* outWidth, int* outHei
 // bounding how long a missed dirty rectangle could go unnoticed.
 bool macScreenCaptureFrame( QImage& target, MacScreenCaptureRegion* changedRegion = nullptr,
 							int timeoutMs = 0 );
+
+// Whether ScreenCaptureKit stopped the stream on its own - which it does when
+// the display setup changes or the Screen Recording permission is withdrawn.
+bool macScreenCaptureStopped();
 
 // Release ScreenCaptureKit resources.
 void macScreenCaptureCleanup();

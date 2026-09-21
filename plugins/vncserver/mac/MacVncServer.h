@@ -26,6 +26,10 @@
 
 #include "PluginInterface.h"
 #include "VncServerPluginInterface.h"
+#include <QElapsedTimer>
+
+#include "MacScreenCapture.h"
+#include "MacVncConfiguration.h"
 
 struct MacVncScreen;
 
@@ -97,14 +101,36 @@ public:
 	}
 
 private:
-	// how long rfbProcessEvents() may sleep while idle - keeps input latency low
-	// and picks up new capture frames promptly
-	static constexpr int PollIntervalMs = 16;
+	// how long to wait for the next captured frame; the wait ends early as soon
+	// as a frame arrives, so this only bounds how long client input can sit
+	// unhandled while nothing on screen moves
+	static constexpr int FrameWaitMs = 10;
 
+	// how long rfbProcessEvents() may block waiting for client input
+	static constexpr int ClientPollIntervalMs = 2;
+
+	// how often restarting a stopped capture stream is attempted
+	static constexpr int CaptureRecoveryIntervalMs = 2000;
+
+	// Decide how the display is captured and start tracking the system cursor
+	// when it is to be sent separately - the two go together because the cursor
+	// may only be left out of the frames if we can read its shape ourselves.
+	MacScreenCaptureOptions prepareCapture( CGDirectDisplayID display );
 	bool initScreen( MacVncScreen* screen );
+	void resizeFramebuffer( MacVncScreen* screen, int width, int height );
+	void recoverCapture( MacVncScreen* screen );
 	bool initVncServer( int serverPort, const Password& password, MacVncScreen* screen );
+	void updateCursor( MacVncScreen* screen );
 
 	static void rfbLogNone( const char* format, ... );
 	static void rfbLogDebug( const char* format, ... );
+
+	MacVncConfiguration m_configuration;
+
+	QElapsedTimer m_captureRecoveryTimer;
+
+	// whether the cursor is sent as a VNC cursor shape instead of being part of
+	// the captured pixels - decided at startup, see initScreen()
+	bool m_remoteCursor{false};
 
 };

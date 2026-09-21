@@ -29,6 +29,7 @@ extern "C" {
 #include <algorithm>
 #include <array>
 #include <cstdio>
+#include <cstdlib>
 #include <cstring>
 
 #include <CoreGraphics/CoreGraphics.h>
@@ -37,6 +38,7 @@ extern "C" {
 #include <QThread>
 
 #include "MacVncServer.h"
+#include "MacVncCursor.h"
 #include "MacVncInput.h"
 #include "MacScreenCapture.h"
 #include "VeyonConfiguration.h"
@@ -51,7 +53,14 @@ struct MacVncScreen
 
 	rfbScreenInfoPtr rfbScreen{nullptr};
 	std::array<char *, 2> passwords{};
+
+	// what the clients see
 	QImage framebuffer;
+
+	// the most recent capture; carries the previous frame between iterations
+	// because macScreenCaptureFrame() only writes the part that changed
+	QImage captured;
+
 	CGDirectDisplayID display{0};
 };
 
@@ -174,13 +183,87 @@ void updateChangedTiles( rfbScreenInfoPtr rfbScreen, uchar* framebuffer, int fra
 	}
 }
 
+// Framebuffer pixels per point of the display - 2.0 on a Retina screen.
+double displayScaleFactor( CGDirectDisplayID display )
+{
+	const auto bounds = CGDisplayBounds( display );
+	if( bounds.size.width <= 0 )
+	{
+		return 1.0;
+	}
+
+	double pixelWidth = bounds.size.width;
+
+	if( CGDisplayModeRef mode = CGDisplayCopyDisplayMode( display ) )
+	{
+		const auto modePixelWidth = CGDisplayModeGetPixelWidth( mode );
+		if( modePixelWidth > 0 )
+		{
+			pixelWidth = static_cast<double>( modePixelWidth );
+		}
+		CGDisplayModeRelease( mode );
+	}
+
+	return pixelWidth / bounds.size.width;
+}
+
+
+// Build a LibVNCServer cursor from a snapshot of the system cursor. Ownership
+// of everything allocated here passes to LibVNCServer through the cleanup
+// flags; `source` is left out on purpose because LibVNCServer derives it
+// itself (and frees it again) whenever a client asks for an X-style cursor.
+rfbCursorPtr makeCursor( const MacVncCursorShape& shape )
+{
+	const auto pixelCount = static_cast<size_t>( shape.width ) * static_cast<size_t>( shape.height );
+
+	auto* cursor = static_cast<rfbCursorPtr>( calloc( 1, sizeof( rfbCursor ) ) );
+	auto* richSource = static_cast<unsigned char *>( malloc( pixelCount * 4 ) );
+	auto* alphaSource = static_cast<unsigned char *>( malloc( pixelCount ) );
+
+	if( cursor == nullptr || richSource == nullptr || alphaSource == nullptr )
+	{
+		free( cursor );
+		free( richSource );
+		free( alphaSource );
+		return nullptr;
+	}
+
+	std::memcpy( richSource, shape.pixels.data(), pixelCount * 4 );
+	std::memcpy( alphaSource, shape.alpha.data(), pixelCount );
+
+	cursor->width = static_cast<unsigned short>( shape.width );
+	cursor->height = static_cast<unsigned short>( shape.height );
+	cursor->xhot = static_cast<unsigned short>( shape.hotspotX );
+	cursor->yhot = static_cast<unsigned short>( shape.hotspotY );
+	cursor->richSource = richSource;
+	cursor->alphaSource = alphaSource;
+	cursor->alphaPreMultiplied = TRUE;
+	cursor->mask = reinterpret_cast<unsigned char *>(
+		rfbMakeMaskFromAlphaSource( shape.width, shape.height, alphaSource ) );
+
+	if( cursor->mask == nullptr )
+	{
+		free( cursor );
+		free( richSource );
+		free( alphaSource );
+		return nullptr;
+	}
+
+	cursor->cleanup = TRUE;
+	cursor->cleanupRichSource = TRUE;
+	cursor->cleanupMask = TRUE;
+
+	return cursor;
+}
+
 } // namespace
 
 
 // ---- plugin --------------------------------------------------------------
 
 MacVncServer::MacVncServer( QObject* parent ) :
-	QObject( parent )
+	QObject( parent ),
+	m_configuration( &VeyonCore::config() )
 {
 }
 
@@ -213,36 +296,57 @@ bool MacVncServer::runServer( int serverPort, const Password& password )
 		return false;
 	}
 
-	// ScreenCaptureKit delivers frames asynchronously on its own queue, so the
-	// RFB loop only ever picks up whatever has already been captured - it never
-	// waits for the capture hardware. When nothing on screen changes no frame
-	// arrives at all and this loop costs virtually nothing.
-	// carries the previous frame - macScreenCaptureFrame() only writes the part
-	// that changed
-	QImage captured{ screen.framebuffer.width(), screen.framebuffer.height(), QImage::Format_RGB32 };
-	captured.fill( Qt::black );
-
-	auto* framebuffer = reinterpret_cast<uchar *>( screen.framebuffer.bits() );
-	const auto framebufferStride = static_cast<int>( screen.framebuffer.bytesPerLine() );
-
 	while( rfbIsActive( screen.rfbScreen ) )
 	{
-		MacScreenCaptureRegion changedRegion;
-
-		if( macScreenCaptureFrame( captured, &changedRegion ) )
+		if( macScreenCaptureStopped() )
 		{
-			updateChangedTiles( screen.rfbScreen, framebuffer, framebufferStride,
-								captured, changedRegion );
+			recoverCapture( &screen );
 		}
 
-		rfbProcessEvents( screen.rfbScreen, PollIntervalMs * 1000 );
+		MacScreenCaptureRegion changedRegion;
+
+		// Frames are captured asynchronously on ScreenCaptureKit's own queue.
+		// Waiting for the next one here - rather than polling on a fixed tick -
+		// turns a frame into an RFB update the moment it arrives, and costs
+		// nothing at all while the screen stays still.
+		if( macScreenCaptureFrame( screen.captured, &changedRegion, FrameWaitMs ) )
+		{
+			updateChangedTiles( screen.rfbScreen,
+								reinterpret_cast<uchar *>( screen.framebuffer.bits() ),
+								static_cast<int>( screen.framebuffer.bytesPerLine() ),
+								screen.captured, changedRegion );
+		}
+
+		updateCursor( &screen );
+
+		rfbProcessEvents( screen.rfbScreen, ClientPollIntervalMs * 1000 );
 	}
 
 	rfbShutdownServer( screen.rfbScreen, true );
 	rfbScreenCleanup( screen.rfbScreen );
+	macVncCursorCleanup();
 	macScreenCaptureCleanup();
 
 	return true;
+}
+
+
+
+MacScreenCaptureOptions MacVncServer::prepareCapture( CGDirectDisplayID display )
+{
+	MacScreenCaptureOptions options;
+	options.scale = qBound( 10, m_configuration.captureScale(), 100 ) / 100.0;
+	options.frameRate = m_configuration.captureFrameRate();
+
+	// The cursor can only be kept out of the captured frames if we are able to
+	// read its shape ourselves - otherwise clients would see no cursor at all.
+	// Scale it the same way as the framebuffer so it keeps the size it has on
+	// the local screen.
+	m_remoteCursor = m_configuration.remoteCursor() &&
+					 macVncCursorInit( options.scale * displayScaleFactor( display ) );
+	options.captureCursor = m_remoteCursor == false;
+
+	return options;
 }
 
 
@@ -251,10 +355,15 @@ bool MacVncServer::initScreen( MacVncScreen* screen )
 {
 	screen->display = CGMainDisplayID();
 
+	const auto options = prepareCapture( screen->display );
+
+	vDebug() << "MacVncServer: mouse cursor is"
+			 << ( m_remoteCursor ? "sent as a VNC cursor shape" : "captured as part of the screen" );
+
 	int width = 0;
 	int height = 0;
 
-	if( macScreenCaptureInit( screen->display, &width, &height ) == false ||
+	if( macScreenCaptureInit( screen->display, options, &width, &height ) == false ||
 		width <= 0 || height <= 0 )
 	{
 		// Most likely the Screen Recording permission has not been granted yet.
@@ -271,12 +380,62 @@ bool MacVncServer::initScreen( MacVncScreen* screen )
 		}
 	}
 
-	screen->framebuffer = QImage( width, height, QImage::Format_RGB32 );
-	screen->framebuffer.fill( Qt::black );
-	// map the RFB framebuffer (pixels) onto the display bounds (points)
-	macVncInputInit( screen->display, CGDisplayBounds( screen->display ), width, height );
+	resizeFramebuffer( screen, width, height );
 
 	return true;
+}
+
+
+
+void MacVncServer::resizeFramebuffer( MacVncScreen* screen, int width, int height )
+{
+	screen->framebuffer = QImage( width, height, QImage::Format_RGB32 );
+	screen->framebuffer.fill( Qt::black );
+
+	screen->captured = QImage( width, height, QImage::Format_RGB32 );
+	screen->captured.fill( Qt::black );
+
+	// map the RFB framebuffer (pixels) onto the display bounds (points)
+	macVncInputInit( screen->display, CGDisplayBounds( screen->display ), width, height );
+}
+
+
+
+void MacVncServer::recoverCapture( MacVncScreen* screen )
+{
+	// ScreenCaptureKit stops the stream on its own when the display setup
+	// changes or the Screen Recording permission is withdrawn. Without this the
+	// clients would stare at a frozen screen until the server is restarted.
+	if( m_captureRecoveryTimer.isValid() &&
+		m_captureRecoveryTimer.elapsed() < CaptureRecoveryIntervalMs )
+	{
+		return;
+	}
+
+	m_captureRecoveryTimer.restart();
+
+	int width = 0;
+	int height = 0;
+
+	if( macScreenCaptureInit( screen->display, prepareCapture( screen->display ),
+							  &width, &height ) == false ||
+		width <= 0 || height <= 0 )
+	{
+		vWarning() << "MacVncServer: screen capture stopped, retrying";
+		return;
+	}
+
+	vDebug() << "MacVncServer: screen capture restarted at" << width << 'x' << height;
+
+	if( width != screen->framebuffer.width() || height != screen->framebuffer.height() )
+	{
+		// the display resolution changed - hand the clients a new framebuffer
+		resizeFramebuffer( screen, width, height );
+		rfbNewFramebuffer( screen->rfbScreen, reinterpret_cast<char *>( screen->framebuffer.bits() ),
+						   width, height, 8, 3, 4 );
+	}
+
+	rfbMarkRectAsModified( screen->rfbScreen, 0, 0, screen->rfbScreen->width, screen->rfbScreen->height );
 }
 
 
@@ -358,3 +517,53 @@ void MacVncServer::rfbLogNone( const char* format, ... )
 {
 	Q_UNUSED(format)
 }
+
+
+
+void MacVncServer::updateCursor( MacVncScreen* screen )
+{
+	if( m_remoteCursor == false )
+	{
+		return;
+	}
+
+	MacVncCursorShape shape;
+	if( macVncCursorShapeChanged( &shape ) )
+	{
+		if( auto* cursor = makeCursor( shape ) )
+		{
+			vDebug() << "MacVncServer: new cursor shape" << shape.width << 'x' << shape.height
+					 << "hotspot" << shape.hotspotX << shape.hotspotY;
+
+			// also frees the cursor set before
+			rfbSetCursor( screen->rfbScreen, cursor );
+		}
+	}
+
+	int x = 0;
+	int y = 0;
+
+	if( macVncInputMapToFramebuffer( macVncCursorPosition(), &x, &y ) &&
+		( x != screen->rfbScreen->cursorX || y != screen->rfbScreen->cursorY ) )
+	{
+		screen->rfbScreen->cursorX = x;
+		screen->rfbScreen->cursorY = y;
+
+		// Clients drawing the cursor themselves have to be told that it moved.
+		// For the others LibVNCServer compares against the position it last
+		// sent them and redraws on its own.
+		auto* iterator = rfbGetClientIterator( screen->rfbScreen );
+		while( auto* client = rfbClientIteratorNext( iterator ) )
+		{
+			if( client->enableCursorPosUpdates )
+			{
+				client->cursorWasMoved = TRUE;
+			}
+		}
+		rfbReleaseClientIterator( iterator );
+	}
+}
+
+
+
+IMPLEMENT_CONFIG_PROXY(MacVncConfiguration)

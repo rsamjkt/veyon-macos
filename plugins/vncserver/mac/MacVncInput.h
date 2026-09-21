@@ -35,5 +35,11 @@ void macVncInputInit( CGDirectDisplayID display, CGRect displayBounds, int fbWid
 // Inject a pointer event coming from the RFB protocol.
 void macVncInjectPointer( int buttonMask, int x, int y );
 
+// Map a point in global display coordinates (points) onto the framebuffer
+// (pixels) - the inverse of what macVncInjectPointer() does with the
+// coordinates it receives. Points outside the captured display are clamped to
+// its edge. Returns false before macVncInputInit() has run.
+bool macVncInputMapToFramebuffer( CGPoint point, int* x, int* y );
+
 // Inject a keyboard event coming from the RFB protocol (keysym is an X keysym).
 void macVncInjectKey( bool down, uint32_t keysym );

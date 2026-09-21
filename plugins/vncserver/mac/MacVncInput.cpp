@@ -22,6 +22,8 @@
  *
  */
 
+#include <algorithm>
+
 #include "MacVncInput.h"
 
 namespace {
@@ -348,4 +350,23 @@ void macVncInjectKey( bool down, uint32_t keysym )
 			postUnicode( ch );
 		}
 	}
+}
+
+
+
+bool macVncInputMapToFramebuffer( CGPoint point, int* x, int* y )
+{
+	if( g.fbWidth <= 0 || g.fbHeight <= 0 ||
+		g.bounds.size.width <= 0 || g.bounds.size.height <= 0 )
+	{
+		return false;
+	}
+
+	const double fx = ( point.x - g.bounds.origin.x ) / g.bounds.size.width;
+	const double fy = ( point.y - g.bounds.origin.y ) / g.bounds.size.height;
+
+	*x = std::clamp( static_cast<int>( fx * g.fbWidth ), 0, g.fbWidth - 1 );
+	*y = std::clamp( static_cast<int>( fy * g.fbHeight ), 0, g.fbHeight - 1 );
+
+	return true;
 }
