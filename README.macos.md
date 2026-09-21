@@ -2,7 +2,7 @@
 
 Upstream Veyon officially supports **Linux, Windows and Android only**. This
 tree contains an *in-progress* native macOS port. It is not complete and not
-endorsed by the Veyon project.
+endorsed by the Veyon project. The code base tracks **upstream Veyon 4.11.3**.
 
 ## Current status
 
@@ -17,11 +17,13 @@ Verified on: macOS 26.4 (Apple Silicon / arm64), Qt 6.11, libvncserver 0.9.15.
 | Veyon CLI runs, loads all plugins incl. `MacPlatformPlugin` | ✅ verified (`veyon-cli plugin list`) |
 | Veyon Master / Configurator launch on macOS | ✅ launch & initialise (run from a real Terminal/`open`) |
 | Veyon Server VNC plugin (`mac-vnc-server`) — screen capture + remote input | ✅ implemented (ScreenCaptureKit + CGEvent) |
-| &nbsp;&nbsp;↳ screen capture | ✅ ScreenCaptureKit (`SCScreenshotManager`) — needs Screen Recording permission |
+| &nbsp;&nbsp;↳ screen capture | ✅ ScreenCaptureKit (`SCStream`, native pixel resolution, dirty rectangles) — needs Screen Recording permission |
+| &nbsp;&nbsp;↳ mouse cursor | ✅ sent as an RFB cursor shape, so moving the mouse costs no framebuffer traffic |
 | &nbsp;&nbsp;↳ remote keyboard/mouse | ✅ `CGEventPost` — needs Accessibility permission |
 | &nbsp;&nbsp;↳ auto-selected by `veyon-server` for `console` sessions | ✅ verified |
 | &nbsp;&nbsp;↳ serves the RFB protocol (greets `RFB 003.008` on the VNC port) | ✅ verified end-to-end |
-| &nbsp;&nbsp;↳ capture runs on a worker thread (RFB loop stays responsive) | ✅ |
+| &nbsp;&nbsp;↳ frames arrive asynchronously; only changed 64×64 tiles are sent | ✅ |
+| &nbsp;&nbsp;↳ recovers on its own when the capture stream stops or the resolution changes | ✅ |
 | Self-contained `Veyon.app` bundle (Qt + plugins + deps, ad-hoc signed) | ✅ `./package-macos.sh` (runs on a clean Mac) |
 | LaunchAgent to auto-start the server in the user session | ✅ template generated (`dist/io.veyon.server.plist`) |
 | LDAP plugin | ⏭️ excluded on macOS for now (system OpenLDAP removed) |
@@ -203,10 +205,25 @@ then connect from a Veyon Master (on this or another machine) to this Mac's IP.
 Without the permissions the server still runs but shows a black screen and
 ignores remote input.
 
-> Known limitations of the current server: full-frame updates (no dirty-region
-> diffing beyond a whole-frame change check), single (main) display only, no
+> Known limitations of the current server: single (main) display only, no
 > local-input blocking, and permissions/packaging rely on a future signed
 > `.app` bundle for a smooth prompt-based flow.
+
+### Tuning the capture
+
+The server captures at the display's full pixel resolution (so a Retina screen
+stays sharp) at up to 30 fps. Both can be changed without rebuilding:
+
+```bash
+# percentage of the native resolution, 10..100 (lower = less bandwidth)
+./build/cli/veyon-cli config set MacVncServer/CaptureScale 75
+# maximum frames per second, 1..60
+./build/cli/veyon-cli config set MacVncServer/CaptureFrameRate 60
+# send the cursor as an RFB cursor shape (default) or capture it into the frames
+./build/cli/veyon-cli config set MacVncServer/RemoteCursor false
+```
+
+The server has to be restarted for a change to take effect.
 
 > Note: the Configurator tries to relaunch itself with administrator
 > privileges at startup (like the Windows version), which triggers a macOS

@@ -35,7 +35,8 @@ Toolchain (Homebrew): `cmake pkg-config ninja qt qca openssl@3 jpeg-turbo lzo li
 - `plugins/platform/mac/` — the **MacPlatformPlugin** (7 function groups: Core, Filesystem,
   InputDevice, Network, Service, Session, User). Model on the Windows plugin, not X11.
 - `plugins/vncserver/mac/` — **MacVncServer** (libvncserver) + `MacScreenCapture.mm`
-  (ScreenCaptureKit) + `MacVncInput.cpp` (CGEvent keyboard/mouse injection).
+  (ScreenCaptureKit `SCStream`) + `MacVncInput.cpp` (CGEvent keyboard/mouse injection)
+  + `MacVncCursor.mm` (system cursor shape) + `MacVncConfiguration.h` (config keys).
 - CMake hooks: root `CMakeLists.txt` (APPLE is first-class, NOT VEYON_BUILD_LINUX),
   `plugins/platform/CMakeLists.txt`, `plugins/vncserver/CMakeLists.txt`, `plugins/CMakeLists.txt`
   (excludes `ldap`), `cmake/modules/SetDefaultTargetProperties.cmake` (no -Werror / -no-undefined on Apple).
@@ -77,11 +78,27 @@ Toolchain (Homebrew): `cmake pkg-config ninja qt qca openssl@3 jpeg-turbo lzo li
 
 ## Architecture notes
 
+- The tree tracks **upstream Veyon 4.11.3**. To take a newer upstream release, diff the
+  two upstream tags and `git apply --3way` it (excluding `3rdparty/` and `translations/`,
+  which are replaced wholesale); only a handful of files conflict. The vendored
+  `3rdparty/libvncserver` and `3rdparty/ultravnc` must be refreshed to the commits the
+  new tag pins, re-applying the MSYS2 `__try` patch to UltraVNC afterwards.
+
 - VNC ports: **11100** = VncProxyServer (Master entry, Veyon protocol+auth), **11200** =
   mac-vnc-server (raw RFB), **11300** = FeatureWorkerManager. The proxy on 11100 proxies to 11200.
 - `mac-vnc-server` is auto-selected because it's the only VNC server plugin with
   `Plugin::ProvidesDefaultImplementation` that supports the `console` session type.
-- Screen capture runs on a **worker thread** so slow/denied captures never stall the RFB loop.
+- Screen capture is a continuous `SCStream`: frames land on ScreenCaptureKit's own queue,
+  the RFB loop waits for the next one (`macScreenCaptureFrame( …, timeoutMs )`) and copies
+  only the 64×64 tiles that really changed. Capture size is the display's PIXEL size
+  (`CGDisplayModeGetPixelWidth`), not its size in points.
+- The **mouse cursor is not captured** (`showsCursor = NO`); its shape is read from
+  `NSCursor.currentSystemCursor` on the main queue (AppKit is main-thread only) and handed
+  to LibVNCServer via `rfbSetCursor()`, which sends it to clients that support cursor
+  shape updates and draws it into the framebuffer for the ones that do not. If AppKit
+  returns no cursor, the code falls back to letting ScreenCaptureKit draw it.
+- Capture settings live in the Veyon config, not in environment variables:
+  `MacVncServer/CaptureScale`, `MacVncServer/CaptureFrameRate`, `MacVncServer/RemoteCursor`.
 - Verifying end-to-end without the GUI: read the RFB greeting from 11200 with a real socket
   (NOT `nc </dev/null`, which closes too early — use Python `socket.recv`).
 
