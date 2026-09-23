@@ -201,16 +201,10 @@ void applyServerFormat( rfbScreenInfoPtr rfbScreen )
 }
 
 
-// Framebuffer pixels per point of the display - 2.0 on a Retina screen.
-double displayScaleFactor( CGDirectDisplayID display )
+// Width of the display in pixels rather than points.
+double displayPixelWidth( CGDirectDisplayID display )
 {
-	const auto bounds = CGDisplayBounds( display );
-	if( bounds.size.width <= 0 )
-	{
-		return 1.0;
-	}
-
-	double pixelWidth = bounds.size.width;
+	double pixelWidth = CGDisplayBounds( display ).size.width;
 
 	if( CGDisplayModeRef mode = CGDisplayCopyDisplayMode( display ) )
 	{
@@ -222,7 +216,43 @@ double displayScaleFactor( CGDirectDisplayID display )
 		CGDisplayModeRelease( mode );
 	}
 
-	return pixelWidth / bounds.size.width;
+	return pixelWidth;
+}
+
+
+// Framebuffer pixels per point of the display - 2.0 on a Retina screen.
+double displayScaleFactor( CGDirectDisplayID display )
+{
+	const auto pointWidth = CGDisplayBounds( display ).size.width;
+	if( pointWidth <= 0 )
+	{
+		return 1.0;
+	}
+
+	return displayPixelWidth( display ) / pointWidth;
+}
+
+
+// The scale to capture at when none is configured. A Retina display has three
+// to four times as many pixels as the Full HD screen of a typical Windows
+// client, and every one of them has to be compared, encoded, sent and decoded
+// again by the master - which is what made a Mac feel sluggish next to a
+// Windows machine. Limiting the framebuffer to Full HD keeps text legible while
+// putting a Mac on par with a Windows client.
+double automaticCaptureScale( CGDirectDisplayID display )
+{
+	constexpr double MaxAutomaticLongEdge = 1920;
+
+	const auto bounds = CGDisplayBounds( display );
+	const auto scaleFactor = displayScaleFactor( display );
+	const auto longEdge = std::max( bounds.size.width, bounds.size.height ) * scaleFactor;
+
+	if( longEdge <= MaxAutomaticLongEdge )
+	{
+		return 1.0;
+	}
+
+	return MaxAutomaticLongEdge / longEdge;
 }
 
 
@@ -374,7 +404,9 @@ bool MacVncServer::runServer( int serverPort, const Password& password )
 MacScreenCaptureOptions MacVncServer::prepareCapture( CGDirectDisplayID display )
 {
 	MacScreenCaptureOptions options;
-	options.scale = qBound( 10, m_configuration.captureScale(), 100 ) / 100.0;
+	const auto captureScale = m_configuration.captureScale();
+	options.scale = captureScale > 0 ? qBound( 10, captureScale, 100 ) / 100.0
+									 : automaticCaptureScale( display );
 	options.frameRate = m_configuration.captureFrameRate();
 
 	// The cursor can only be kept out of the captured frames if we are able to
@@ -418,6 +450,9 @@ bool MacVncServer::initScreen( MacVncScreen* screen )
 			return false;
 		}
 	}
+
+	vDebug() << "MacVncServer: capturing at" << width << 'x' << height
+			 << "scale" << options.scale;
 
 	resizeFramebuffer( screen, width, height );
 

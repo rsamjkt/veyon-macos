@@ -98,8 +98,10 @@ Toolchain (Homebrew): `cmake pkg-config ninja qt qca openssl@3 jpeg-turbo lzo li
   `Plugin::ProvidesDefaultImplementation` that supports the `console` session type.
 - Screen capture is a continuous `SCStream`: frames land on ScreenCaptureKit's own queue,
   the RFB loop waits for the next one (`macScreenCaptureFrame( …, timeoutMs )`) and copies
-  only the 64×64 tiles that really changed. Capture size is the display's PIXEL size
-  (`CGDisplayModeGetPixelWidth`), not its size in points.
+  only the 64×64 tiles that really changed. Capture size is derived from the display's PIXEL
+  size (`CGDisplayModeGetPixelWidth`), not its size in points. `CaptureScale` 0 (default) =
+  automatic: scaled down to at most 1920 px on the long edge, i.e. Full HD like a Windows
+  client. Full Retina resolution (3-4x the pixels) is what made Macs less smooth than Windows.
 - The **mouse cursor is not captured** (`showsCursor = NO`); its shape is read from
   `NSCursor.currentSystemCursor` on the main queue (AppKit is main-thread only) and handed
   to LibVNCServer via `rfbSetCursor()`, which sends it to clients that support cursor

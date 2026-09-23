@@ -211,11 +211,15 @@ ignores remote input.
 
 ### Tuning the capture
 
-The server captures at the display's full pixel resolution (so a Retina screen
-stays sharp) at up to 30 fps. Both can be changed without rebuilding:
+By default the server scales the capture down to at most Full HD (1920 pixels
+on the long edge) at up to 30 fps. That is about what a Windows client sends; a
+Retina display at full resolution has three to four times as many pixels, which
+made remote view and control noticeably less smooth than on Windows. Both can
+be changed without rebuilding:
 
 ```bash
-# percentage of the native resolution, 10..100 (lower = less bandwidth)
+# percentage of the native resolution, 10..100 (100 = full Retina sharpness);
+# 0 = automatic, at most Full HD (default)
 ./build/cli/veyon-cli config set MacVncServer/CaptureScale 75
 # maximum frames per second, 1..60
 ./build/cli/veyon-cli config set MacVncServer/CaptureFrameRate 60

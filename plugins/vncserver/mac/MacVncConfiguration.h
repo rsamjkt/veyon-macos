@@ -31,13 +31,15 @@
 //   veyon-cli config set MacVncServer/CaptureScale 75
 //
 // CaptureScale is a percentage of the display's native pixel resolution: 100
-// keeps every pixel (sharpest, the default), lower values trade sharpness for
-// bandwidth on slow networks. CaptureFrameRate caps how many frames per second
+// keeps every pixel (sharpest), lower values trade sharpness for bandwidth on
+// slow networks. 0 (the default) picks the scale automatically so that the
+// framebuffer is no larger than Full HD - about what a Windows client sends -
+// instead of the three to four times as many pixels of a Retina display. CaptureFrameRate caps how many frames per second
 // ScreenCaptureKit delivers. RemoteCursor keeps the mouse cursor out of the
 // captured pixels and sends it as a VNC cursor shape instead, so moving the
 // mouse no longer costs any framebuffer traffic.
 #define FOREACH_MAC_VNC_CONFIG_PROPERTY(OP) \
-	OP( MacVncConfiguration, m_configuration, int, captureScale, setCaptureScale, "CaptureScale", "MacVncServer", 100, Configuration::Property::Flag::Advanced ) \
+	OP( MacVncConfiguration, m_configuration, int, captureScale, setCaptureScale, "CaptureScale", "MacVncServer", 0, Configuration::Property::Flag::Advanced ) \
 	OP( MacVncConfiguration, m_configuration, int, captureFrameRate, setCaptureFrameRate, "CaptureFrameRate", "MacVncServer", 30, Configuration::Property::Flag::Advanced ) \
 	OP( MacVncConfiguration, m_configuration, bool, remoteCursor, setRemoteCursor, "RemoteCursor", "MacVncServer", true, Configuration::Property::Flag::Advanced )
 
