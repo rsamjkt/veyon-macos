@@ -104,6 +104,11 @@ jobs:
           find build -maxdepth 2 -name 'veyon-*.exe' -exec cp {} "$STAGE/" \;
           cp build/core/veyon-core.dll "$STAGE/"
 
+          # LibVNCServer/LibVNCClient are built from 3rdparty/ since 4.11
+          # (-DWITH_BUNDLED_LIBVNC=ON) and land outside build/core, so the two
+          # DLLs have to be picked up explicitly - veyon-core.dll links them.
+          find build/3rdparty -name '*.dll' -exec cp {} "$STAGE/" \; 2>/dev/null || true
+
           # plugins: real plugin modules into plugins/, helper libs to the root
           find build/plugins -name '*.dll' -exec cp {} "$STAGE/plugins/" \;
           ( cd "$STAGE/plugins" && for f in lib*.dll; do [ -e "$f" ] && mv "$f" "$STAGE/"; done; true )
