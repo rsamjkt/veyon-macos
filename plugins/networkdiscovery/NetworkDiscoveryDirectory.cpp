@@ -161,7 +161,7 @@ void NetworkDiscoveryDirectory::startScanRound()
 		auto socket = new QTcpSocket( this );
 
 		connect( socket, &QTcpSocket::connected, this, [this, socket, hostString]() {
-			m_foundHosts.insert( hostString );
+			hostFound( hostString );
 			retireSocket( socket );
 		} );
 		connect( socket, &QTcpSocket::errorOccurred, this, [this, socket]( QAbstractSocket::SocketError ) {
@@ -228,6 +228,36 @@ void NetworkDiscoveryDirectory::retireSocket( QTcpSocket* socket )
 
 
 
+void NetworkDiscoveryDirectory::hostFound( const QString& host )
+{
+	m_foundHosts.insert( host );
+
+	if( m_knownHosts.contains( host ) )
+	{
+		return;
+	}
+
+	// List a new host right away instead of at the end of the sweep. A full
+	// sweep takes several seconds, and until now the master showed nothing but
+	// the configured computers for all that time - which looked as if the
+	// computers on the local network were not found at all.
+	m_knownHosts.insert( host, 0 );
+	addOrUpdateObject( discoveredHost( host ), m_location );
+	setObjectPopulated( m_location );
+	propagateChildObjectChanges();
+}
+
+
+
+NetworkObject NetworkDiscoveryDirectory::discoveredHost( const QString& host ) const
+{
+	const auto uid = NetworkObject::Uid::createUuidV5( NetworkObject::Uid(),
+													   QStringLiteral("aruni-discovery:") + host );
+	return NetworkObject( NetworkObject::Type::Host, host, host, {}, {}, uid );
+}
+
+
+
 void NetworkDiscoveryDirectory::finishScan()
 {
 	for( auto socket : std::as_const( m_pendingSockets ) )
@@ -257,19 +287,11 @@ void NetworkDiscoveryDirectory::finishScan()
 		}
 	}
 
-	for( const auto& host : std::as_const( m_foundHosts ) )
-	{
-		m_knownHosts.insert( host, 0 );
-	}
-
 	NetworkObjectList computers;
 	computers.reserve( m_knownHosts.size() );
 	for( auto it = m_knownHosts.keyBegin(), end = m_knownHosts.keyEnd(); it != end; ++it )
 	{
-		const auto& host = *it;
-		const auto uid = NetworkObject::Uid::createUuidV5( NetworkObject::Uid(),
-														   QStringLiteral("aruni-discovery:") + host );
-		computers.append( NetworkObject( NetworkObject::Type::Host, host, host, {}, {}, uid ) );
+		computers.append( discoveredHost( *it ) );
 	}
 
 	replaceObjects( computers, m_location );

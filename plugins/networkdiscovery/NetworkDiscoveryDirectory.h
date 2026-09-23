@@ -46,6 +46,8 @@ private:
 	void startScanRound();
 	void abortScanRound();
 	void retireSocket( QTcpSocket* socket );
+	void hostFound( const QString& host );
+	NetworkObject discoveredHost( const QString& host ) const;
 	void finishScan();
 	void updateConfiguredObjects();
 	void updateConfiguredLocation( const NetworkObject& locationObject, const QJsonArray& networkObjects );
@@ -64,13 +66,16 @@ private:
 	QList<QTcpSocket *> m_pendingSockets;
 	QTimer* m_scanTimeout{nullptr};
 
-	static constexpr int ScanTimeoutMs = 2000;
+	// long enough for a host behind a VPN overlay such as ZeroTier to answer,
+	// short enough that a sweep of a /23 is over within a few seconds
+	static constexpr int ScanTimeoutMs = 1000;
 	// Connecting to every target at once would need one file descriptor per
 	// host, and a process started by launchd (or by double-clicking the app)
 	// only gets 256 of them - beyond that connect() fails and those hosts stay
 	// invisible. Sweep the targets in rounds instead, which also spares the
 	// network a burst of thousands of simultaneous SYNs.
-	static constexpr int MaxConcurrentScans = 64;
+	// 128 still leaves room for the connections to the monitored computers.
+	static constexpr int MaxConcurrentScans = 128;
 	// A host that fails to answer within ScanTimeoutMs would otherwise be dropped
 	// from the directory straight away, destroying its ComputerControlInterface
 	// and resetting the update mode of any session in progress back to
