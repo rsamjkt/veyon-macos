@@ -40,6 +40,17 @@ ComputerControlInterface::ComputerControlInterface( const Computer& computer, in
 	m_port(port),
 	m_computerNameSource(VeyonCore::config().computerNameSource())
 {
+	// A computer that was never given a name of its own - which is how the
+	// network discovery lists the hosts it finds - would otherwise be shown
+	// with nothing but its IP address. Show the host name the computer
+	// reports about itself instead; computers that were named on purpose keep
+	// their name.
+	if (m_computerNameSource == Computer::NameSource::Default &&
+		(m_computer.displayName().isEmpty() || m_computer.displayName() == m_computer.hostName()))
+	{
+		m_computerNameSource = Computer::NameSource::SessionHostName;
+	}
+
 	m_pingTimer.setInterval(ConnectionWatchdogPingDelay);
 	m_pingTimer.setSingleShot(true);
 	connect(&m_pingTimer, &QTimer::timeout, this, &ComputerControlInterface::ping);
