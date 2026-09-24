@@ -18,7 +18,13 @@ on:
       - 'CMakeLists.txt'
       - 'cmake/**'
       - '.github/workflows/windows-build.yml'
+    # pushing a version tag builds the release and attaches the assets to it
+    tags: [ 'v*' ]
   workflow_dispatch:
+
+env:
+  APP_VERSION: 1.1.0
+  APP_CODENAME: Bianca
 
 permissions:
   contents: write   # allow uploading assets to the release
@@ -172,12 +178,12 @@ jobs:
         run: |
           set -e
           STAGE="$GITHUB_WORKSPACE/AruniControl-Server-win64"
-          OUT="$GITHUB_WORKSPACE/AruniControl-Setup-1.0.0-Aurora-Windows-x64.exe"
+          OUT="$GITHUB_WORKSPACE/AruniControl-Setup-${{ env.APP_VERSION }}-${{ env.APP_CODENAME }}-Windows-x64.exe"
           makensis \
             -DSRC="$(cygpath -w "$STAGE")" \
             -DICON="$(cygpath -w "$GITHUB_WORKSPACE/nsis/installer.ico")" \
             -DOUTFILE="$(cygpath -w "$OUT")" \
-            -DVERSION=1.0.0 \
+            -DVERSION=${{ env.APP_VERSION }} \
             "$GITHUB_WORKSPACE/nsis/aruni-installer.nsi"
           ls -lh "$OUT"
 
@@ -185,21 +191,22 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: AruniControl-Setup-win64
-          path: AruniControl-Setup-1.0.0-Aurora-Windows-x64.exe
+          path: AruniControl-Setup-${{ env.APP_VERSION }}-${{ env.APP_CODENAME }}-Windows-x64.exe
           if-no-files-found: error
 
       # Publish the Windows assets to the release directly from the runner
       # (fast GitHub-internal network) so large files don't have to be moved
-      # through a slow local connection.
+      # through a slow local connection. Only version tags publish - builds of
+      # main used to overwrite the assets of an already published release.
       - name: Publish Windows assets to the release
-        if: github.ref == 'refs/heads/main'
+        if: startsWith(github.ref, 'refs/tags/v')
         shell: pwsh
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           Compress-Archive -Path AruniControl-Server-win64\* `
-            -DestinationPath AruniControl-Server-1.0.0-Aurora-Windows-x64.zip -Force
-          gh release upload v1.0.0 `
-            AruniControl-Setup-1.0.0-Aurora-Windows-x64.exe `
-            AruniControl-Server-1.0.0-Aurora-Windows-x64.zip `
+            -DestinationPath AruniControl-Server-${{ env.APP_VERSION }}-${{ env.APP_CODENAME }}-Windows-x64.zip -Force
+          gh release upload ${{ github.ref_name }} `
+            AruniControl-Setup-${{ env.APP_VERSION }}-${{ env.APP_CODENAME }}-Windows-x64.exe `
+            AruniControl-Server-${{ env.APP_VERSION }}-${{ env.APP_CODENAME }}-Windows-x64.zip `
             --clobber --repo $env:GITHUB_REPOSITORY

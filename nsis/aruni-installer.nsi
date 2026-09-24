@@ -6,14 +6,14 @@
 ;   OUTFILE  - output installer path
 ;   ICON     - .ico used for the installer/uninstaller
 ; Optional:
-;   VERSION  - product version string (default 1.0.0)
+;   VERSION  - product version string (default 1.1.0)
 
 Unicode true
 
 !define PRODUCT "AruniControl"
 !define PUBLISHER "Arunika"
 !ifndef VERSION
-  !define VERSION "1.0.0"
+  !define VERSION "1.1.0"
 !endif
 !ifndef ICON
   !define ICON "installer.ico"
