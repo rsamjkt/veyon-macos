@@ -23,8 +23,8 @@ on:
   workflow_dispatch:
 
 env:
-  APP_VERSION: 1.1.0
-  APP_CODENAME: Bianca
+  APP_VERSION: 1.2.0
+  APP_CODENAME: Clara
 
 permissions:
   contents: write   # allow uploading assets to the release
@@ -170,6 +170,8 @@ jobs:
 
       - name: Upload artifact (folder)
         uses: actions/upload-artifact@v4
+        # a full artifact quota must not block the installer and the release upload
+        continue-on-error: true
         with:
           name: AruniControl-Server-win64
           path: AruniControl-Server-win64
@@ -193,6 +195,8 @@ jobs:
 
       - name: Upload installer
         uses: actions/upload-artifact@v4
+        # a full artifact quota must not block the installer and the release upload
+        continue-on-error: true
         with:
           name: AruniControl-Setup-win64
           path: AruniControl-Setup-${{ env.APP_VERSION }}-${{ env.APP_CODENAME }}-Windows-x64.exe

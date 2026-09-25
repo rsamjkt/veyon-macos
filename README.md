@@ -7,7 +7,7 @@
 **Kendalikan banyak komputer dari satu layar — lintas macOS dan Windows.**
 
 [![Lisensi](https://img.shields.io/badge/lisensi-GPLv2-green.svg)](COPYING)
-[![Versi](https://img.shields.io/badge/versi-1.1.0_"Bianca"-F2812F.svg)](https://github.com/rsamjkt/veyon-macos/releases)
+[![Versi](https://img.shields.io/badge/versi-1.2.0_"Clara"-F2812F.svg)](https://github.com/rsamjkt/veyon-macos/releases)
 [![Platform](https://img.shields.io/badge/platform-macOS_•_Windows-blue.svg)](#-platform-yang-didukung)
 
 </div>
@@ -65,13 +65,14 @@ AruniControl adalah bagian dari keluarga produk **Arunika** (AruniHealth, Arunik
 
 ## 📥 Download
 
-Ambil rilis terbaru di **[halaman Releases](https://github.com/rsamjkt/veyon-macos/releases/tag/v1.1.0)** — versi **1.1.0 "Bianca"**:
+Ambil rilis terbaru di **[halaman Releases](https://github.com/rsamjkt/veyon-macos/releases/tag/v1.2.0)** — versi **1.2.0 "Clara"**:
 
 | Paket | Untuk |
 |-------|-------|
-| `AruniControl-1.1.0-Bianca-macOS-arm64.zip` | Master & Configurator di **macOS** (Apple Silicon) |
-| `AruniControl-Setup-1.1.0-Bianca-Windows-x64.exe` | Installer client **Windows** sekali klik |
-| `AruniControl-Server-1.1.0-Bianca-Windows-x64.zip` | Client **Windows** lengkap (mandiri) |
+| `AruniControl-1.2.0-Clara-macOS-arm64.zip` | Master & Configurator di **macOS** (Apple Silicon) |
+| `AruniControl-Setup-1.2.0-Clara-Windows-x64.exe` | Installer client **Windows** sekali klik |
+| `AruniControl-Server-1.2.0-Clara-Windows-x64.zip` | Client **Windows** lengkap (mandiri) |
+| `AruniControl-1.2.0-Clara-Android-arm64.apk` | **AruniControl Mobile**: Master di HP Android (layar live, kontrol sentuh, semua fitur) |
 
 ---
 

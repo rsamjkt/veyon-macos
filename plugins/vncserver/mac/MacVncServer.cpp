@@ -32,6 +32,7 @@ extern "C" {
 #include <cstdlib>
 #include <cstring>
 
+#include <ApplicationServices/ApplicationServices.h>
 #include <CoreGraphics/CoreGraphics.h>
 
 #include <QImage>
@@ -334,6 +335,24 @@ bool MacVncServer::runServer( int serverPort, const Password& password )
 	{
 		rfbLog = rfbLogNone;
 		rfbErr = rfbLogNone;
+	}
+
+	// Without the Accessibility permission macOS silently drops every injected
+	// mouse/keyboard event - the Master sees the screen but cannot control it.
+	// Ask for it (shows the system dialog once) and say so in the log.
+	{
+		const void* keys[] = { kAXTrustedCheckOptionPrompt };
+		const void* values[] = { kCFBooleanTrue };
+		auto options = CFDictionaryCreate( kCFAllocatorDefault, keys, values, 1,
+										   &kCFCopyStringDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks );
+		const bool trusted = AXIsProcessTrustedWithOptions( options );
+		CFRelease( options );
+		fprintf( stderr, "[MacVncServer] Accessibility permission (remote input) = %s\n", trusted ? "granted" : "MISSING" );
+		if( trusted == false )
+		{
+			vWarning() << "Accessibility permission missing - remote mouse/keyboard input is ignored by macOS."
+					   << "Grant it in System Settings > Privacy & Security > Accessibility and restart the server.";
+		}
 	}
 
 	MacVncScreen screen;
