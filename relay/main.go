@@ -128,6 +128,10 @@ func randomID() string {
 }
 
 func clientIP(req *http.Request) string {
+	// set by Cloudflare (tunnel) and not forgeable by clients behind it
+	if cf := req.Header.Get("CF-Connecting-IP"); cf != "" {
+		return cf
+	}
 	if fwd := req.Header.Get("X-Forwarded-For"); fwd != "" {
 		return strings.TrimSpace(strings.Split(fwd, ",")[0])
 	}

@@ -21,6 +21,20 @@ Caddy obtains the Let's Encrypt certificate automatically. With the GHCR image
 (`ghcr.io/rsamjkt/aruni-relay`, built by `.github/workflows/relay-image.yml`) use
 `docker compose pull && docker compose up -d` instead of `--build`.
 
+## Deploy in a Proxmox container (no Docker)
+
+```bash
+# Cloudflare Tunnel: no port forwarding, TLS by Cloudflare
+# (Zero Trust > Networks > Tunnels > create tunnel, public hostname
+#  relay.arunika.id -> http://localhost:8080, copy the token)
+SSH_PORT=2222 TLS=cloudflare CF_TUNNEL_TOKEN=<token> ./deploy.sh root@<host> relay.arunika.id
+
+# or Caddy with ports 80/443 forwarded (e.g. MikroTik dst-nat) to the container
+SSH_PORT=2222 ./deploy.sh root@<host> relay.arunika.id
+```
+
+The relay runs as the `aruni-relay` systemd service (state in `/var/lib/aruni-relay`).
+
 ## Endpoints
 
 | Path | Who | |

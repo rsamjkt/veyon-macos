@@ -10,6 +10,10 @@
 #                      simplest in an LXC container); docker: docker compose
 #   TLS=caddy          caddy:    Caddy on 80/443 gets a Let's Encrypt certificate
 #                               (ports 80+443 forwarded to this machine)
+#                      cloudflare: Cloudflare Tunnel (cloudflared) - no port forwarding,
+#                               TLS by Cloudflare; needs CF_TUNNEL_TOKEN from
+#                               Zero Trust > Networks > Tunnels (public hostname
+#                               <domain> -> http://localhost:8080)
 #                      external: an existing reverse proxy terminates TLS and
 #                               forwards the domain to this machine's port 8080
 #   RELAY_PORT=8080    plain relay port (behind Caddy or the external proxy)
@@ -21,6 +25,11 @@ SSH_PORT="${SSH_PORT:-22}"
 MODE="${MODE:-native}"
 TLS="${TLS:-caddy}"
 RELAY_PORT="${RELAY_PORT:-8080}"
+CF_TUNNEL_TOKEN="${CF_TUNNEL_TOKEN:-}"
+if [ "${TLS}" = "cloudflare" ] && [ -z "${CF_TUNNEL_TOKEN}" ]; then
+	echo "TLS=cloudflare needs CF_TUNNEL_TOKEN (Cloudflare Zero Trust > Networks > Tunnels)" >&2
+	exit 1
+fi
 REMOTE_DIR="${REMOTE_DIR:-/opt/aruni-relay}"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
@@ -75,6 +84,26 @@ UNIT
 		\$S systemctl enable --now aruni-relay
 		\$S systemctl restart aruni-relay"
 
+	if [ "${TLS}" = "cloudflare" ]; then
+		echo "==> Installing cloudflared (Cloudflare Tunnel)"
+		# the token is passed on stdin so it never shows up in a process list
+		printf '%s' "${CF_TUNNEL_TOKEN}" | "${SSH[@]}" "set -e; S=${SUDO}
+			TOKEN=\$(cat)
+			if ! command -v cloudflared >/dev/null 2>&1; then
+				if command -v apt-get >/dev/null 2>&1; then
+					\$S mkdir -p --mode=0755 /usr/share/keyrings
+					curl -fsSL https://pkg.cloudflare.com/cloudflare-main.gpg | \$S tee /usr/share/keyrings/cloudflare-main.gpg >/dev/null
+					echo 'deb [signed-by=/usr/share/keyrings/cloudflare-main.gpg] https://pkg.cloudflare.com/cloudflared any main' | \$S tee /etc/apt/sources.list.d/cloudflared.list >/dev/null
+					\$S apt-get update -qq && \$S apt-get install -y -qq cloudflared
+				else
+					echo 'Please install cloudflared manually' >&2; exit 1
+				fi
+			fi
+			\$S cloudflared service uninstall >/dev/null 2>&1 || true
+			\$S cloudflared service install \"\$TOKEN\"
+			\$S systemctl enable --now cloudflared >/dev/null 2>&1 || true"
+	fi
+
 	if [ "${TLS}" = "caddy" ]; then
 		echo "==> Installing Caddy (automatic HTTPS for ${DOMAIN})"
 		"${SSH[@]}" "set -e; S=${SUDO}
@@ -124,5 +153,9 @@ for i in $(seq 1 20); do
 	sleep 5
 done
 echo "The relay runs, but https://${DOMAIN} is not reachable yet. Check: DNS A record -> public IP," >&2
-echo "MikroTik dst-nat for TCP 80 and 443 -> this container, and firewall rules." >&2
+if [ "${TLS}" = "cloudflare" ]; then
+	echo "Cloudflare: check the tunnel is HEALTHY and its public hostname ${DOMAIN} points to http://localhost:${RELAY_PORT}." >&2
+else
+	echo "MikroTik dst-nat for TCP 80 and 443 -> this container, and firewall rules." >&2
+fi
 exit 1
