@@ -1,0 +1,11 @@
+{$RELAY_DOMAIN} {
+	encode zstd gzip
+	reverse_proxy relay:8080 {
+		# long-lived WebSocket sessions
+		flush_interval -1
+		transport http {
+			read_timeout 0
+			write_timeout 0
+		}
+	}
+}

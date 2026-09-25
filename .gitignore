@@ -27,3 +27,4 @@ plugins/extra
 # Android build tree / clangd cache
 build-android/
 .cache/
+aqtinstall.log
