@@ -74,8 +74,8 @@ if(VEYON_BUILD_ANDROID)
 		${vncclient_dir}/libvncclient.so
 		${DEPS_PREFIX}/lib/libqca-qt6.so
 		${DEPS_PREFIX}/lib/qca-qt6/crypto/libqca-ossl.so
-		${DEPS_PREFIX}/lib/libssl.so
-		${DEPS_PREFIX}/lib/libcrypto.so
+		${DEPS_PREFIX}/lib/libssl_3.so
+		${DEPS_PREFIX}/lib/libcrypto_3.so
 		)
 	foreach(plugin ${VEYON_ANDROID_PLUGINS})
 		get_target_property(plugin_dir ${plugin} BINARY_DIR)

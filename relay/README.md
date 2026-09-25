@@ -8,13 +8,13 @@ Master and gateway run an end-to-end encrypted handshake (`core/src/AruniTunnel.
 
 ## Deploy on a VPS (Docker)
 
-1. Point a DNS name at the VPS, e.g. `relay.arunika.id` (A/AAAA record).
+1. Point a DNS name at the VPS, e.g. `relay.arunihealth.id` (A/AAAA record).
 2. Open TCP 80 and 443.
 3. Copy this directory to the VPS and start it:
 
 ```bash
-RELAY_DOMAIN=relay.arunika.id docker compose up -d --build
-curl https://relay.arunika.id/healthz      # {"gateways":0,"status":"ok"}
+RELAY_DOMAIN=relay.arunihealth.id docker compose up -d --build
+curl https://relay.arunihealth.id/healthz      # {"gateways":0,"status":"ok"}
 ```
 
 Caddy obtains the Let's Encrypt certificate automatically. With the GHCR image
@@ -26,11 +26,11 @@ Caddy obtains the Let's Encrypt certificate automatically. With the GHCR image
 ```bash
 # Cloudflare Tunnel: no port forwarding, TLS by Cloudflare
 # (Zero Trust > Networks > Tunnels > create tunnel, public hostname
-#  relay.arunika.id -> http://localhost:8080, copy the token)
-SSH_PORT=2222 TLS=cloudflare CF_TUNNEL_TOKEN=<token> ./deploy.sh root@<host> relay.arunika.id
+#  relay.arunihealth.id -> http://localhost:8080, copy the token)
+SSH_PORT=2222 TLS=cloudflare CF_TUNNEL_TOKEN=<token> ./deploy.sh root@<host> relay.arunihealth.id
 
 # or Caddy with ports 80/443 forwarded (e.g. MikroTik dst-nat) to the container
-SSH_PORT=2222 ./deploy.sh root@<host> relay.arunika.id
+SSH_PORT=2222 ./deploy.sh root@<host> relay.arunihealth.id
 ```
 
 The relay runs as the `aruni-relay` systemd service (state in `/var/lib/aruni-relay`).

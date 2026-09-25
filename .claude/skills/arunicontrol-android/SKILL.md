@@ -92,7 +92,11 @@ QCA 2.3.12 + ossl provider, LZO, libjpeg-turbo, libpng). Signing keystore
 13. ApplicationWindow pads content by the safe area by default (Qt 6.9+) → set its paddings
     to 0 and pad each page with `window.safeTop/safeBottom` (edge-to-edge, Android 15).
 14. The screen image provider id is percent-encoded (`%7B…%7D`) — decode before lookup.
-15. Desktop dev build must never touch a real installation: app name "AruniControl Mobile",
+15. **Qt for Android's TLS backend dlopen()s `libssl_3.so`/`libcrypto_3.so`** - with plain
+    `libssl.so` every `wss://`/https connection fails ("No TLS backend is available"; plain
+    `ws://` tests still pass!). build-deps.sh renames + `patchelf --set-soname` them and keeps
+    `libssl.so` symlinks for linking.
+16. Desktop dev build must never touch a real installation: app name "AruniControl Mobile",
     keys/user-config/mobile.ini under AppDataLocation; key dir wipe is guarded.
 
 ## Features (mobile ↔ Veyon)
@@ -114,6 +118,13 @@ Slideshow views, QR import of VPN configs, sharing the phone's own screen.
 ```
 phone ──wss──► Aruni Relay (VPS, relay/) ◄──wss (outbound)── Aruni Gateway (client PC, plugins/gateway)──► LAN PCs :11100
 ```
+- **Production relay: `wss://relay.arunihealth.id`** (default in `GatewayState::DefaultRelayUrl`).
+  Runs on the Arunika VPS (Ubuntu 20.04 LXC behind the provider's NAT, 103.78.96.213, internal
+  10.0.2.198 - ports 80/443 are NOT forwarded) as systemd `aruni-relay` on 127.0.0.1:8080,
+  published through **Cloudflare Tunnel** `aruni-relay` (systemd `cloudflared`,
+  `/etc/cloudflared/config.yml`, zone arunihealth.id). Redeploy the binary with
+  `TLS=external ./relay/deploy.sh root@103.78.96.213 relay.arunihealth.id` style or rebuild +
+  scp + `systemctl restart aruni-relay`. HTTP 530 from the domain = tunnel/VPS down.
 - **Relay** `relay/` (Go, coder/websocket): `/v1/gateway/{id}` control socket (TOFU secret
   hash in `/data/gateways.json`), `/v1/connect/{id}` for masters, `/v1/accept/{id}/{sid}` for the
   gateway's session socket; it only copies binary messages. Docker + Caddy (`docker-compose.yml`,

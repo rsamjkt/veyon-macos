@@ -37,7 +37,7 @@
 class GatewayState
 {
 public:
-	static constexpr auto DefaultRelayUrl = "wss://relay.arunika.id";
+	static constexpr auto DefaultRelayUrl = "wss://relay.arunihealth.id";
 	static constexpr int PairingValiditySeconds = 15 * 60;
 
 	struct Device

@@ -11,6 +11,8 @@
 #   DEPS_PREFIX       ~/Android/arunicontrol-deps/arm64-v8a   (install prefix)
 set -euo pipefail
 
+command -v patchelf >/dev/null || { echo "patchelf is required (brew install patchelf / apt install patchelf)" >&2; exit 1; }
+
 ANDROID_SDK_ROOT="${ANDROID_SDK_ROOT:-$HOME/Android/sdk}"
 ANDROID_NDK_ROOT="${ANDROID_NDK_ROOT:-$ANDROID_SDK_ROOT/ndk/27.2.12479018}"
 QT_ANDROID="${QT_ANDROID:-$HOME/Qt/6.11.3/android_arm64_v8a}"
@@ -48,9 +50,11 @@ CMAKE_ANDROID=(
 	-DCMAKE_FIND_ROOT_PATH="$DEPS_PREFIX"
 )
 
-# --- OpenSSL (the android-* targets produce unversioned libcrypto.so/libssl.so,
-# which is what Android needs - it cannot package sonames like .so.3)
-if [ ! -f "$DEPS_PREFIX/lib/libssl.so" ]; then
+# --- OpenSSL. Qt for Android's TLS backend dlopen()s libssl_3.so and
+# libcrypto_3.so, so the libraries get exactly those file names and sonames
+# (via patchelf); libssl.so/libcrypto.so symlinks keep find_package(OpenSSL)
+# working and make everything linked against them record the _3 names.
+if [ ! -f "$DEPS_PREFIX/lib/libssl_3.so" ]; then
 	fetch https://github.com/openssl/openssl/releases/download/openssl-$OPENSSL_VER/openssl-$OPENSSL_VER.tar.gz $OPENSSL_SHA
 	(
 		cd openssl-$OPENSSL_VER
@@ -59,7 +63,12 @@ if [ ! -f "$DEPS_PREFIX/lib/libssl.so" ]; then
 		./Configure android-arm64 -D__ANDROID_API__=$ANDROID_API shared no-tests no-docs no-apps --prefix="$DEPS_PREFIX" --libdir=lib
 		make -j"$JOBS" build_libs
 		mkdir -p "$DEPS_PREFIX/lib" "$DEPS_PREFIX/include"
-		cp libcrypto.so libssl.so "$DEPS_PREFIX/lib/"
+		cp libcrypto.so "$DEPS_PREFIX/lib/libcrypto_3.so"
+		cp libssl.so "$DEPS_PREFIX/lib/libssl_3.so"
+		patchelf --set-soname libcrypto_3.so "$DEPS_PREFIX/lib/libcrypto_3.so"
+		patchelf --set-soname libssl_3.so --replace-needed libcrypto.so libcrypto_3.so "$DEPS_PREFIX/lib/libssl_3.so"
+		ln -sf libcrypto_3.so "$DEPS_PREFIX/lib/libcrypto.so"
+		ln -sf libssl_3.so "$DEPS_PREFIX/lib/libssl.so"
 		cp -R include/openssl "$DEPS_PREFIX/include/"
 	)
 fi

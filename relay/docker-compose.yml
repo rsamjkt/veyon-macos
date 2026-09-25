@@ -1,6 +1,6 @@
 # Aruni Relay on a VPS: Caddy terminates TLS (automatic Let's Encrypt) and
 # forwards WebSocket traffic to the relay. Point the DNS name in RELAY_DOMAIN
-# (e.g. relay.arunika.id) at the VPS, then: docker compose up -d
+# (e.g. relay.arunihealth.id) at the VPS, then: docker compose up -d
 services:
   relay:
     image: ghcr.io/rsamjkt/aruni-relay:latest
@@ -16,7 +16,7 @@ services:
       - "80:80"
       - "443:443"
     environment:
-      RELAY_DOMAIN: ${RELAY_DOMAIN:-relay.arunika.id}
+      RELAY_DOMAIN: ${RELAY_DOMAIN:-relay.arunihealth.id}
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
       - caddy-data:/data

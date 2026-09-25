@@ -1,7 +1,7 @@
 #!/bin/bash
 # Deploys the Aruni Relay to a Linux server/container over SSH.
 #
-#   SSH_PORT=2222 ./deploy.sh root@vps.example.com relay.arunika.id
+#   SSH_PORT=2222 ./deploy.sh root@vps.example.com relay.arunihealth.id
 #
 # Works on a VPS as well as a Proxmox LXC container behind a MikroTik port
 # forward. Options (environment):
