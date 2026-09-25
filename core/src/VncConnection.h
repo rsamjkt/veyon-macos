@@ -27,6 +27,9 @@
 
 #pragma once
 
+#include <atomic>
+#include <functional>
+
 #include <QElapsedTimer>
 #include <QImage>
 #include <QMutex>
@@ -81,6 +84,12 @@ public:
 	explicit VncConnection( QObject *parent = nullptr );
 
 	static void initLogging( bool debug );
+
+	// Optional hook that lets an application route connections through a tunnel:
+	// given the target host/port it may return a different (local) endpoint.
+	// Called from connection threads, so it must be thread-safe.
+	using ConnectionRedirector = std::function<bool( const QString& host, int port, QString& redirectedHost, int& redirectedPort )>;
+	static void setConnectionRedirector( const ConnectionRedirector& redirector );
 
 	QImage image();
 
@@ -145,6 +154,10 @@ public:
 	void rescaleFramebuffer();
 
 	static constexpr int VncConnectionTag = 0x590123;
+
+	static ConnectionRedirector s_connectionRedirector;
+	// connected through a tunnel (e.g. over the internet) - keep bandwidth low
+	std::atomic<bool> m_redirected{false};
 
 	static void* clientData( rfbClient* client, int tag );
 	void setClientData( int tag, void* data );

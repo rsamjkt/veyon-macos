@@ -174,6 +174,17 @@ void VncConnection::framebufferCleanup( void* framebuffer )
 
 
 
+VncConnection::ConnectionRedirector VncConnection::s_connectionRedirector;
+
+
+
+void VncConnection::setConnectionRedirector( const ConnectionRedirector& redirector )
+{
+	s_connectionRedirector = redirector;
+}
+
+
+
 VncConnection::VncConnection( QObject* parent ) :
 	QThread( parent ),
 	m_state( State::Disconnected ),
@@ -517,19 +528,33 @@ void VncConnection::establishConnection()
 
 		Q_EMIT connectionPrepared();
 
+		auto targetHost = m_host;
+		auto targetPort = m_port < 0 ? m_defaultPort : m_port;
+		if( s_connectionRedirector )
+		{
+			QString redirectedHost;
+			int redirectedPort = -1;
+			const bool redirected = s_connectionRedirector( targetHost, targetPort, redirectedHost, redirectedPort );
+			if( redirected )
+			{
+				targetHost = redirectedHost;
+				targetPort = redirectedPort;
+			}
+			if( redirected != m_redirected )
+			{
+				m_redirected = redirected;
+				m_globalMutex.lock();
+				updateEncodingSettingsFromQuality();
+				m_globalMutex.unlock();
+			}
+		}
+
 		m_globalMutex.lock();
 
-		if( m_port < 0 ) // use default port?
-		{
-			m_client->serverPort = m_defaultPort;
-		}
-		else
-		{
-			m_client->serverPort = m_port;
-		}
+		m_client->serverPort = targetPort;
 
 		free( m_client->serverHost );
-		m_client->serverHost = strdup( m_host.toUtf8().constData() );
+		m_client->serverHost = strdup( targetHost.toUtf8().constData() );
 
 		m_globalMutex.unlock();
 
@@ -827,15 +852,20 @@ int VncConnection::incrementalFramebufferUpdateTimeout() const
 
 void VncConnection::updateEncodingSettingsFromQuality()
 {
-	m_client->appData.encodingsString = m_quality == VncConnectionConfiguration::Quality::Highest ?
+	// tunnelled connections (relay over the internet / mobile data) never use
+	// more than medium quality - lossless full frames would cost megabytes per second
+	const auto quality = m_redirected && m_quality < VncConnectionConfiguration::Quality::Medium ?
+							 VncConnectionConfiguration::Quality::Medium : m_quality;
+
+	m_client->appData.encodingsString = quality == VncConnectionConfiguration::Quality::Highest ?
 											"zrle ultra copyrect hextile zlib corre rre raw" :
 											"tight zywrle zrle ultra";
 
 	m_client->appData.compressLevel =
-		m_quality == VncConnectionConfiguration::Quality::Highest ? 1 : 9;
+		quality == VncConnectionConfiguration::Quality::Highest ? 1 : 9;
 
-	m_client->appData.qualityLevel = [this] {
-		switch(m_quality)
+	m_client->appData.qualityLevel = [quality] {
+		switch(quality)
 		{
 		case VncConnectionConfiguration::Quality::Highest: return 9;
 		case VncConnectionConfiguration::Quality::High: return 7;
@@ -846,7 +876,7 @@ void VncConnection::updateEncodingSettingsFromQuality()
 		return 5;
 	}();
 
-	m_client->appData.enableJPEG = m_quality != VncConnectionConfiguration::Quality::Highest;
+	m_client->appData.enableJPEG = quality != VncConnectionConfiguration::Quality::Highest;
 }
 
 
