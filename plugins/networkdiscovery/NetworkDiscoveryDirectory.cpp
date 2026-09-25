@@ -311,6 +311,27 @@ QList<QHostAddress> NetworkDiscoveryDirectory::scanTargets() const
 {
 	QList<QHostAddress> targets;
 
+	const auto addSubnet = [&targets]( quint32 ipv4, int prefix ) {
+		// only scan reasonably sized subnets (>= /20, i.e. up to 4094 hosts)
+		if( prefix < 20 || prefix > 31 )
+		{
+			return;
+		}
+
+		const quint32 mask = ~0u << ( 32 - prefix );
+		const quint32 network = ipv4 & mask;
+		const quint32 broadcast = network | ~mask;
+
+		for( quint32 host = network + 1; host < broadcast && targets.size() < MaxHostsPerScan; ++host )
+		{
+			const QHostAddress address( host );
+			if( targets.contains( address ) == false )
+			{
+				targets.append( address );
+			}
+		}
+	};
+
 	const auto interfaces = QNetworkInterface::allInterfaces();
 	for( const auto& iface : interfaces )
 	{
@@ -325,32 +346,23 @@ QList<QHostAddress> NetworkDiscoveryDirectory::scanTargets() const
 		const auto entries = iface.addressEntries();
 		for( const auto& entry : entries )
 		{
-			const auto ip = entry.ip();
-			if( ip.protocol() != QAbstractSocket::IPv4Protocol )
+			if( entry.ip().protocol() == QAbstractSocket::IPv4Protocol )
 			{
-				continue;
+				addSubnet( entry.ip().toIPv4Address(), entry.prefixLength() );
 			}
+		}
+	}
 
-			const int prefix = entry.prefixLength();
-			// only scan reasonably sized subnets (>= /20, i.e. up to 4094 hosts)
-			if( prefix < 20 || prefix > 31 )
-			{
-				continue;
-			}
-
-			const quint32 ipv4 = ip.toIPv4Address();
-			const quint32 mask = ( prefix == 0 ) ? 0u : ( ~0u << ( 32 - prefix ) );
-			const quint32 network = ipv4 & mask;
-			const quint32 broadcast = network | ~mask;
-
-			for( quint32 host = network + 1; host < broadcast; ++host )
-			{
-				targets.append( QHostAddress( host ) );
-				if( targets.size() >= MaxHostsPerScan )
-				{
-					return targets;
-				}
-			}
+	// extra subnets that are reachable through a router or VPN (e.g. the LAN
+	// behind a WireGuard tunnel, whose interface only carries a /32 address)
+	const auto extraSubnets = VeyonCore::config().value( QStringLiteral("ExtraSubnets"),
+														 QStringLiteral("NetworkDiscovery"), {} ).toStringList();
+	for( const auto& subnet : extraSubnets )
+	{
+		const auto parsed = QHostAddress::parseSubnet( subnet.trimmed() );
+		if( parsed.first.protocol() == QAbstractSocket::IPv4Protocol )
+		{
+			addSubnet( parsed.first.toIPv4Address(), parsed.second );
 		}
 	}
 

@@ -31,7 +31,9 @@
 #include "ComputerMonitoringModel.h"
 #include "FeatureManager.h"
 #include "VeyonConfiguration.h"
+#ifndef ARUNICONTROL_MOBILE
 #include "MainWindow.h"
+#endif
 #include "ComputerManager.h"
 #include "MonitoringMode.h"
 #include "UserConfig.h"
@@ -81,7 +83,13 @@ VeyonMaster::VeyonMaster( QObject* parent ) :
 	m_computerMonitoringModel->setStateRole( ComputerControlListModel::StateRole );
 	m_computerMonitoringModel->sort( 0 );
 
+#ifdef ARUNICONTROL_MOBILE
+	// feature plugins use mainWindow() as dialog parent (and some even look up
+	// child widgets), so hand them a hidden placeholder instead of nullptr
+	m_mainWindow = new QWidget;
+#else
 	m_mainWindow = new MainWindow( *this );
+#endif
 }
 
 
@@ -163,7 +171,11 @@ Configuration::Object* VeyonMaster::userConfigurationObject()
 
 void VeyonMaster::reloadSubFeatures()
 {
+#ifdef ARUNICONTROL_MOBILE
+	Q_EMIT subFeaturesReloaded();
+#else
 	m_mainWindow->reloadSubFeatures();
+#endif
 }
 
 
@@ -177,7 +189,11 @@ const ComputerControlInterfaceList& VeyonMaster::allComputerControlInterfaces() 
 
 ComputerControlInterfaceList VeyonMaster::selectedComputerControlInterfaces() const
 {
+#ifdef ARUNICONTROL_MOBILE
+	return m_selectedComputerControlInterfaces;
+#else
 	return m_mainWindow->selectedComputerControlInterfaces();
+#endif
 }
 
 

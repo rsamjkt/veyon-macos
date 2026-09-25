@@ -94,6 +94,17 @@ public:
 
 	ComputerControlInterfaceList filteredComputerControlInterfaces() const override;
 
+#ifdef ARUNICONTROL_MOBILE
+	// the touch UI keeps its own selection and has no desktop main window
+	void setSelectedComputerControlInterfaces( const ComputerControlInterfaceList& interfaces )
+	{
+		m_selectedComputerControlInterfaces = interfaces;
+	}
+
+Q_SIGNALS:
+	void subFeaturesReloaded();
+#endif
+
 public Q_SLOTS:
 	void runFeature( const Feature& feature );
 	void enforceDesignatedMode( const QModelIndex& index );
@@ -112,7 +123,12 @@ private:
 
 	ComputerControlInterface m_localSessionControlInterface;
 
+#ifdef ARUNICONTROL_MOBILE
+	QWidget* m_mainWindow;
+	ComputerControlInterfaceList m_selectedComputerControlInterfaces;
+#else
 	MainWindow* m_mainWindow;
+#endif
 
 	Feature::Uid m_currentMode;
 

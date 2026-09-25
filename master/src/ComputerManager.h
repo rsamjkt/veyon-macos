@@ -52,6 +52,11 @@ public:
 		return m_computerTreeModel;
 	}
 
+	NetworkObjectDirectory* networkObjectDirectory() const
+	{
+		return m_networkObjectDirectory;
+	}
+
 	ComputerList selectedComputers(const QModelIndex& parent) const;
 
 	void addLocation( const QString& location );
