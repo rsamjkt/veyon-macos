@@ -1,0 +1,106 @@
+name: Windows screenshots (website)
+
+# Installs the released Windows setup on a fresh runner, starts the
+# Configurator and the Master and captures their windows for the download
+# website (website/public/img/windows-*.png).
+
+on:
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Release tag
+        default: v1.2.0
+
+permissions:
+  contents: read
+
+jobs:
+  screenshots:
+    runs-on: windows-latest
+    steps:
+      - name: Download installer
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release download ${{ inputs.tag }} --repo ${{ github.repository }} --pattern "*Setup*.exe" --output setup.exe
+
+      - name: Install
+        run: |
+          Start-Process -FilePath .\setup.exe -ArgumentList '/S' -Wait
+          Get-ChildItem "$env:ProgramFiles\AruniControl" | Select-Object -First 20
+
+      - name: Capture
+        run: |
+          Add-Type -AssemblyName System.Drawing, UIAutomationClient, UIAutomationTypes
+          Add-Type @"
+          using System;
+          using System.Runtime.InteropServices;
+          public class W {
+            [DllImport("user32.dll")] public static extern bool SetForegroundWindow(IntPtr h);
+            [DllImport("user32.dll")] public static extern bool ShowWindow(IntPtr h, int c);
+            [DllImport("user32.dll")] public static extern bool MoveWindow(IntPtr h, int x, int y, int w, int hh, bool r);
+            [DllImport("user32.dll")] public static extern bool GetWindowRect(IntPtr h, out RECT r);
+            [StructLayout(LayoutKind.Sequential)] public struct RECT { public int L, T, R, B; }
+          }
+          "@
+          $dir = "$env:ProgramFiles\AruniControl"
+          New-Item -ItemType Directory -Force shots | Out-Null
+          $bounds = [System.Windows.Forms.Screen]::PrimaryScreen.Bounds
+          Write-Host "screen $($bounds.Width)x$($bounds.Height)"
+
+          function Shot($proc, $name) {
+            $h = $proc.MainWindowHandle
+            [W]::ShowWindow($h, 1) | Out-Null
+            [W]::SetForegroundWindow($h) | Out-Null
+            Start-Sleep 2
+            $r = New-Object W+RECT
+            [W]::GetWindowRect($h, [ref]$r) | Out-Null
+            $bmp = New-Object System.Drawing.Bitmap ($r.R - $r.L), ($r.B - $r.T)
+            $g = [System.Drawing.Graphics]::FromImage($bmp)
+            $g.CopyFromScreen($r.L, $r.T, 0, 0, $bmp.Size)
+            $bmp.Save("shots\$name.png")
+            Write-Host "saved $name $($bmp.Width)x$($bmp.Height)"
+          }
+
+          function WaitWindow($proc) {
+            for ($i = 0; $i -lt 60 -and $proc.MainWindowHandle -eq 0; $i++) { Start-Sleep 1; $proc.Refresh() }
+          }
+
+          function SelectPage($proc, $title) {
+            $root = [System.Windows.Automation.AutomationElement]::FromHandle($proc.MainWindowHandle)
+            $cond = New-Object System.Windows.Automation.PropertyCondition ([System.Windows.Automation.AutomationElement]::NameProperty), $title
+            $item = $root.FindFirst([System.Windows.Automation.TreeScope]::Descendants, $cond)
+            if ($item -eq $null) { Write-Host "page '$title' not found"; return $false }
+            try { $item.GetCurrentPattern([System.Windows.Automation.SelectionItemPattern]::Pattern).Select() }
+            catch { $p = $item.GetClickablePoint(); [System.Windows.Forms.Cursor]::Position = New-Object System.Drawing.Point ([int]$p.X), ([int]$p.Y) }
+            Start-Sleep 2
+            return $true
+          }
+
+          Add-Type -AssemblyName System.Windows.Forms
+          $conf = Start-Process "$dir\veyon-configurator.exe" -PassThru
+          WaitWindow $conf
+          [W]::MoveWindow($conf.MainWindowHandle, 0, 0, 1000, 720, $true) | Out-Null
+          Start-Sleep 3
+          Shot $conf "windows-configurator"
+          foreach ($page in @("Aruni Gateway", "Service", "Layanan")) {
+            if (SelectPage $conf $page) { Shot $conf ("windows-configurator-" + ($page -replace ' ', '-').ToLower()) }
+          }
+          Stop-Process $conf
+
+          $master = Start-Process "$dir\veyon-master.exe" -PassThru
+          WaitWindow $master
+          [W]::MoveWindow($master.MainWindowHandle, 0, 0, 1000, 720, $true) | Out-Null
+          Start-Sleep 5
+          Shot $master "windows-master"
+          Stop-Process $master
+
+          # full desktop, for debugging when a window capture came out wrong
+          $bmp = New-Object System.Drawing.Bitmap $bounds.Width, $bounds.Height
+          [System.Drawing.Graphics]::FromImage($bmp).CopyFromScreen(0, 0, 0, 0, $bmp.Size)
+          $bmp.Save("shots\windows-desktop.png")
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows-screenshots
+          path: shots
+          retention-days: 3
