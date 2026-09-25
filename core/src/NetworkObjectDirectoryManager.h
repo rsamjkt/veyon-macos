@@ -43,6 +43,14 @@ public:
 
 	NetworkObjectDirectory* configuredDirectory();
 
+	// forget the cached directory so the next configuredDirectory() call
+	// creates it from the (changed) configuration; the old instance stays
+	// alive for its existing users
+	void reloadConfiguredDirectory()
+	{
+		m_configuredDirectory = nullptr;
+	}
+
 private:
 	QMap<PluginInterface *, NetworkObjectDirectoryPluginInterface *> m_directoryPluginInterfaces{};
 	NetworkObjectDirectory* m_configuredDirectory{nullptr};

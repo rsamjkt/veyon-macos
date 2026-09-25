@@ -9,3 +9,7 @@ endif()
 if(VEYON_BUILD_APPLE)
 	add_subdirectory(mac)
 endif()
+
+if(VEYON_BUILD_ANDROID)
+	add_subdirectory(android)
+endif()

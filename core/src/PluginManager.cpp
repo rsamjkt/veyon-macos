@@ -62,14 +62,14 @@ PluginManager::~PluginManager()
 
 void PluginManager::loadPlatformPlugins()
 {
-	loadPlugins( QStringLiteral("*-platform") + VeyonCore::sharedLibrarySuffix() );
+	loadPlugins( QStringLiteral(VEYON_PLUGIN_FILE_PREFIX "*-platform") + VeyonCore::sharedLibrarySuffix() );
 }
 
 
 
 void PluginManager::loadPlugins()
 {
-	loadPlugins( QStringLiteral("*") + VeyonCore::sharedLibrarySuffix() );
+	loadPlugins( QStringLiteral(VEYON_PLUGIN_FILE_PREFIX "*") + VeyonCore::sharedLibrarySuffix() );
 }
 
 

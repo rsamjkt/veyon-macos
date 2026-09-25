@@ -28,6 +28,11 @@
 #include <QJsonObject>
 #include <QRegularExpression>
 #include <QSettings>
+#ifdef Q_OS_ANDROID
+#include <QCoreApplication>
+#include <QDir>
+#include <QStandardPaths>
+#endif
 
 #include "Configuration/LocalStore.h"
 #include "Configuration/Object.h"
@@ -202,6 +207,13 @@ QSettings *LocalStore::createSettingsObject() const
 	return new QSettings(QSettings::IniFormat, QSettings::UserScope,
 						 QCoreApplication::organizationName(),
 						 QCoreApplication::applicationName());
+#elif defined(Q_OS_ANDROID)
+	// the system scope maps to /etc/xdg, which apps cannot write - keep the
+	// configuration in the app's private storage instead
+	const auto dataPath = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
+	QDir().mkpath(dataPath);
+	return new QSettings(QDir(dataPath).filePath(QCoreApplication::applicationName() + QStringLiteral(".ini")),
+						 QSettings::IniFormat);
 #elif defined(Q_OS_WIN)
 	return new QSettings(QSettings::Registry64Format,
 						 scope() == Scope::System ? QSettings::SystemScope : QSettings::UserScope,

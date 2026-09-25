@@ -12,6 +12,12 @@ if(VEYON_BUILD_WINDOWS AND VEYON_ARUNICONTROL_SKIP_LDAP)
 	list(APPEND VEYON_EXCLUDED_PLUGINS ldap)
 endif()
 
+# Android only hosts the Master: skip client-side (VNC server, WebAPI) plugins and
+# the ones without an Android backend / toolchain dependency yet
+if(VEYON_BUILD_ANDROID)
+	list(APPEND VEYON_EXCLUDED_PLUGINS ldap vncserver webapi testing arunivoice appmonitoring screenrecorder)
+endif()
+
 foreach(plugin ${plugins})
 	if(IS_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/${plugin})
 		if(plugin IN_LIST VEYON_EXCLUDED_PLUGINS)

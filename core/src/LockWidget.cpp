@@ -58,18 +58,18 @@ LockWidget::LockWidget( Mode mode, const QPixmap& background, QWidget* parent ) 
 
 	setWindowTitle( {} );
 
-#ifdef Q_OS_LINUX
+#if defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID)
 	show();
 #endif
 	move(leftMostScreen->geometry().topLeft());
-#ifndef Q_OS_LINUX
+#if !defined(Q_OS_LINUX) || defined(Q_OS_ANDROID)
 	showFullScreen();
 #endif
 	windowHandle()->setScreen(leftMostScreen);
 	setFixedSize(leftMostScreen->virtualSize());
 
 	VeyonCore::platform().coreFunctions().raiseWindow(this, true);
-#ifdef Q_OS_LINUX
+#if defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID)
 	showFullScreen();
 #endif
 

@@ -155,7 +155,7 @@ bool InternetAccessFeaturePlugin::applyInternetBlock( bool blocked )
 	runNetsh( { QStringLiteral("advfirewall"), QStringLiteral("firewall"), QStringLiteral("delete"),
 				QStringLiteral("rule"), QStringLiteral("name=") + netshRuleDhcp } );
 	return restored;
-#else
+#elif defined(Q_OS_MACOS)
 	auto& core = VeyonCore::platform().coreFunctions();
 
 	if( blocked )
@@ -181,5 +181,9 @@ bool InternetAccessFeaturePlugin::applyInternetBlock( bool blocked )
 	// restore the default macOS packet filter ruleset
 	return core.runProgramAsAdmin( QStringLiteral("/sbin/pfctl"),
 								   { QStringLiteral("-f"), QStringLiteral("/etc/pf.conf") } );
+#else
+	// no client-side implementation (e.g. Android, which only runs the Master)
+	Q_UNUSED(blocked)
+	return false;
 #endif
 }

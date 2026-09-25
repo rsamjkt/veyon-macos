@@ -22,7 +22,14 @@ function(build_veyon_plugin TARGET)
 	target_link_libraries(${TARGET} PRIVATE veyon-core)
 
 	set_default_target_properties(${TARGET})
-	set_target_properties(${TARGET} PROPERTIES PREFIX "")
+	if(VEYON_BUILD_ANDROID)
+		set_property(GLOBAL APPEND PROPERTY VEYON_ANDROID_PLUGINS ${TARGET})
+		# Android only packages and extracts native libraries named lib*.so; the
+		# common prefix also lets PluginManager tell plugins apart from Qt libraries
+		set_target_properties(${TARGET} PROPERTIES PREFIX "libveyon-plugin-")
+	else()
+		set_target_properties(${TARGET} PROPERTIES PREFIX "")
+	endif()
 	if(${TARGET}_COMPONENT)
 		install(TARGETS ${TARGET} COMPONENT ${${TARGET}_COMPONENT} LIBRARY DESTINATION ${VEYON_INSTALL_PLUGIN_DIR})
 	else()

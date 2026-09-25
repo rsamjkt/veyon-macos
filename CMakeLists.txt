@@ -17,6 +17,7 @@ option(WITH_UB_SANITIZER "Build with undefined behavior sanitizer" OFF)
 option(WITH_FUZZERS "Build LLVM fuzzer tests (implies WITH_TESTS=ON)" OFF)
 option(WITH_BUNDLED_LIBVNC "Build with bundled LibVNCServer/Client" OFF)
 option(WITH_WEBAPI "Build WebAPI plugin" ON)
+option(WITH_MOBILE "Build AruniControl Mobile (touch-friendly Master, always on for Android)" OFF)
 
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/cmake/modules ${CMAKE_MODULE_PATH})
 if(CMAKE_BUILD_TYPE STREQUAL "Debug")
@@ -131,6 +132,7 @@ else()
 endif()
 if(ANDROID)
 	set(VEYON_BUILD_ANDROID 1)
+	set(VEYON_PLUGIN_FILE_PREFIX "libveyon-plugin-")
 endif()
 
 # set up library and plugin path variables
@@ -139,8 +141,14 @@ if(VEYON_BUILD_ANDROID)
 	set(VEYON_LIB_DIR "libs/${ANDROID_ABI}")
 	set(VEYON_INSTALL_PLUGIN_DIR "${VEYON_LIB_DIR}/veyon")
 	set(VEYON_INSTALL_DATA_DIR "${CMAKE_INSTALL_DATADIR}/veyon")
-	set(VEYON_PLUGIN_DIR "")
+	# all native libraries (including plugins) end up in the app's library directory
+	set(VEYON_PLUGIN_DIR ".")
 	set(VEYON_TRANSLATIONS_DIR "/translations")
+	set(WITH_BUNDLED_LIBVNC ON)
+	set(WITH_WEBAPI OFF)
+	set(WITH_MOBILE ON)
+	set(WITH_TRANSLATIONS OFF)
+	set(WITH_LTO OFF)
 else()
 	if(CMAKE_INSTALL_LIBDIR)
 		set(VEYON_LIB_DIR "${CMAKE_INSTALL_LIBDIR}/veyon" CACHE INTERNAL "Veyon library directory")
@@ -175,6 +183,9 @@ if(WITH_QT6)
 		REQUIRED)
 	if(WITH_TRANSLATIONS)
 		find_package(Qt6 COMPONENTS LinguistTools REQUIRED)
+	endif()
+	if(WITH_MOBILE)
+		find_package(Qt6 COMPONENTS Quick QuickControls2 REQUIRED)
 	endif()
 else()
 	set(QT_MAJOR_VERSION 5)
@@ -334,7 +345,11 @@ include(cmake/CPackDefinitions.cmake)
 
 # make sub-directories
 add_subdirectory(core)
-if(NOT WITH_CORE_ONLY)
+if(VEYON_BUILD_ANDROID)
+	# Android only runs the Master side, with its own touch UI
+	add_subdirectory(plugins)
+	add_subdirectory(mobile)
+elseif(NOT WITH_CORE_ONLY)
 	add_subdirectory(server)
 	add_subdirectory(service)
 	add_subdirectory(master)
@@ -344,6 +359,9 @@ if(NOT WITH_CORE_ONLY)
 	add_subdirectory(plugins)
 	add_subdirectory(tests)
 	add_subdirectory(translations)
+	if(WITH_MOBILE)
+		add_subdirectory(mobile)
+	endif()
 endif()
 if(WITH_ADDONS)
 	add_subdirectory(addons)
@@ -382,26 +400,3 @@ message("\n"
 	"* Use precompiled headers     : ${WITH_PCH}\n"
 	"* Use unity build             : ${WITH_UNITY_BUILD}\n"
 	)
-
-if(VEYON_BUILD_ANDROID)
-	include(AndroidDeployQt)
-	set(CMAKE_ANDROID_DIR "${CMAKE_SOURCE_DIR}/android")
-	set(_CMAKE_ANDROID_DIR "${CMAKE_ANDROID_DIR}")
-	set(ANDROID_INSTALL_DIR "${CMAKE_BINARY_DIR}/install")
-	set(ANDROID_EXTRA_PLUGINS ${ANDROID_INSTALL_DIR}/${VEYON_LIB_DIR}/veyon/ ${QT_DIR}/lib/qca-qt5/crypto)
-	file(GLOB ANDROID_EXTRA_LIBS ${ANDROID_INSTALL_DIR}/${VEYON_LIB_DIR}/*.so)
-	list(APPEND ANDROID_EXTRA_LIBS "${ANDROID_SYSROOT_GENERIC}/libc++_shared.so")
-	list(APPEND ANDROID_EXTRA_LIBS "${QT_DIR}/lib/libldap.so"
-		"${QT_DIR}/lib/liblber.so"
-		"${QT_DIR}/lib/libsasl2.so")
-	androiddeployqt("veyon-master" "${ANDROID_ADDITIONAL_FIND_ROOT_PATH};${CMAKE_BINARY_DIR}/core")
-	set_target_properties(create-apk-veyon-master PROPERTIES ANDROID_APK_DIR "${CMAKE_ANDROID_DIR}")
-
-	add_custom_target(prepare-apk
-		COMMAND rm -rf ${ANDROID_INSTALL_DIR}
-		COMMAND cd ${CMAKE_BINARY_DIR}/core && make DESTDIR=${ANDROID_INSTALL_DIR} install
-		COMMAND cd ${CMAKE_BINARY_DIR}/plugins && make DESTDIR=${ANDROID_INSTALL_DIR} install
-		)
-
-	add_dependencies(create-apk-veyon-master prepare-apk)
-endif()

@@ -23,3 +23,7 @@ plugins/extra
 
 # kunci lokal (jangan pernah di-commit)
 /keygue/
+
+# Android build tree / clangd cache
+build-android/
+.cache/

@@ -423,7 +423,7 @@ void VncView::keyEventHandler( QKeyEvent* event )
 
 	const auto pressed = event->type() == QEvent::KeyPress;
 
-#ifdef Q_OS_LINUX
+#if defined(Q_OS_LINUX) && !defined(Q_OS_ANDROID)
 	// on Linux/X11 native key codes are equal to the ones used by RFB protocol
 	KeyCode key = event->nativeVirtualKey();
 

@@ -23,6 +23,11 @@
  */
 
 #include <QRandomGenerator>
+#ifdef Q_OS_ANDROID
+#include <QCoreApplication>
+#include <QDir>
+#include <QPluginLoader>
+#endif
 
 #include "CryptoCore.h"
 
@@ -30,6 +35,21 @@ CryptoCore::CryptoCore() :
 	m_qcaInitializer(),
 	m_defaultPrivateKey()
 {
+#ifdef Q_OS_ANDROID
+	// QCA looks for providers in "<library path>/crypto", but Android keeps all
+	// native libraries of an app in one flat directory - register the OpenSSL
+	// provider packaged next to the app's libraries explicitly
+	QPluginLoader providerLoader( QDir( QCoreApplication::applicationDirPath() ).filePath( QStringLiteral("libqca-ossl.so") ) );
+	if( auto plugin = qobject_cast<QCAPlugin*>( providerLoader.instance() ) )
+	{
+		QCA::insertProvider( plugin->createProvider() );
+	}
+	else
+	{
+		vCritical() << "failed to load QCA OpenSSL provider:" << providerLoader.errorString();
+	}
+#endif
+
 	const auto features = QCA::supportedFeatures();
 
 	vDebug() << "CryptoCore instance created - features supported by QCA" << qcaVersionStr() << features;
