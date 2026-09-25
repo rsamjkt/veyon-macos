@@ -22,6 +22,10 @@ import android.net.NetworkCapabilities;
 import android.net.Uri;
 import android.net.VpnService;
 
+import com.google.mlkit.vision.barcode.common.Barcode;
+import com.google.mlkit.vision.codescanner.GmsBarcodeScanner;
+import com.google.mlkit.vision.codescanner.GmsBarcodeScannerOptions;
+import com.google.mlkit.vision.codescanner.GmsBarcodeScanning;
 import com.wireguard.android.backend.GoBackend;
 import com.wireguard.android.backend.Tunnel;
 import com.wireguard.config.Config;
@@ -49,8 +53,29 @@ public final class NetworkHelper
 		}
 	};
 
-	// implemented in C++ (VpnController)
+	// implemented in C++ (VpnController / GatewayManager)
 	static native void nativeTunnelStateChanged( boolean up, String error );
+	static native void nativeQrScanned( String code, String error );
+
+	// Google's code scanner: its own camera UI, no camera permission for the app
+	public static void scanQrCode( Context context )
+	{
+		try
+		{
+			final GmsBarcodeScannerOptions options = new GmsBarcodeScannerOptions.Builder()
+				.setBarcodeFormats( Barcode.FORMAT_QR_CODE )
+				.build();
+			final GmsBarcodeScanner scanner = GmsBarcodeScanning.getClient( context, options );
+			scanner.startScan()
+				.addOnSuccessListener( barcode -> nativeQrScanned( barcode.getRawValue(), null ) )
+				.addOnCanceledListener( () -> nativeQrScanned( null, null ) )
+				.addOnFailureListener( e -> nativeQrScanned( null, e.getMessage() != null ? e.getMessage() : e.toString() ) );
+		}
+		catch( Exception e )
+		{
+			nativeQrScanned( null, e.toString() );
+		}
+	}
 
 	private NetworkHelper() {}
 

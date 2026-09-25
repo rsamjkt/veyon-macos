@@ -126,5 +126,11 @@ ApplicationWindow {
 	Connections {
 		target: App
 		function onNotify(message, kind) { window.toast(message, kind) }
+		function onGatewayAdded(name) {
+			window.toast(qsTr("Menghubungkan ke %1…").arg(name.length > 0 ? name : qsTr("lokasi baru")), "info")
+			Theme.prefs.onboardingDone = true
+			if (!(stack.currentItem instanceof HomePage))
+				window.goHome()
+		}
 	}
 }

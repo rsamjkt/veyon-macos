@@ -49,10 +49,12 @@ qt_add_qml_module(arunicontrol-mobile
 
 target_compile_definitions(arunicontrol-mobile PRIVATE ARUNICONTROL_MOBILE)
 target_include_directories(arunicontrol-mobile PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src ${MASTER_SRC})
+find_package(Qt6 REQUIRED COMPONENTS WebSockets)
 target_link_libraries(arunicontrol-mobile PRIVATE
 	veyon-core
 	Qt6::Quick
 	Qt6::QuickControls2
+	Qt6::WebSockets
 	)
 set_default_target_properties(arunicontrol-mobile)
 

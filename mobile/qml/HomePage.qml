@@ -320,8 +320,8 @@ Page {
 		AppButton {
 			visible: page.computers.totalCount === 0
 			variant: "filled"
-			text: App.vpn.hasConfig ? qsTr("Atur akses jarak jauh") : qsTr("Pakai paket data? Hubungkan VPN")
-			iconName: "vpn_lock"
+			text: App.gateways.sites.length > 0 ? qsTr("Lihat lokasi lewat internet") : qsTr("Pakai paket data? Pindai QR gateway")
+			iconName: "qr_code_scanner"
 			onClicked: window.openRemoteAccess()
 		}
 		AppButton {

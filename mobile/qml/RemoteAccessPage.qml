@@ -31,7 +31,7 @@ Page {
 			anchors.rightMargin: Theme.pad + window.safeRight
 			spacing: 6
 			IconButton { iconName: "arrow_back"; onClicked: page.StackView.view.pop() }
-			AppText { Layout.fillWidth: true; text: qsTr("Akses jarak jauh"); style: "title"; wrapMode: Text.NoWrap }
+			AppText { Layout.fillWidth: true; text: qsTr("Akses dari mana saja"); style: "title"; wrapMode: Text.NoWrap }
 		}
 	}
 
@@ -79,13 +79,88 @@ Page {
 			AppText {
 				Layout.fillWidth: true
 				Layout.leftMargin: 8
-				text: qsTr("Kendalikan komputer walau HP memakai paket data atau Wi-Fi lain, lewat VPN ke jaringan sekolah/kantor.")
+				text: qsTr("Kendalikan komputer walau HP memakai paket data atau Wi-Fi lain.")
 				muted: true
+			}
+
+			// ---------------------------------------------------- Aruni Gateway (recommended)
+			Section {
+				title: qsTr("Aruni Gateway (paling mudah)")
+				hint: qsTr("Aktifkan \"Aruni Gateway\" di AruniControl Configurator pada satu PC kantor yang selalu menyala, lalu pindai kode QR-nya. Tanpa VPN, tanpa pengaturan router.")
+
+				Repeater {
+					model: App.gateways.sites
+					delegate: RowLayout {
+						id: siteRow
+						required property var modelData
+						readonly property color tint: modelData.state === "online" ? Theme.success
+													 : (modelData.state === "connecting" ? Theme.warning
+													 : (modelData.state === "error" ? Theme.danger : Theme.textFaint))
+						Layout.fillWidth: true
+						spacing: 12
+
+						Rectangle {
+							width: 44; height: 44; radius: 14
+							color: Qt.rgba(siteRow.tint.r, siteRow.tint.g, siteRow.tint.b, Theme.dark ? 0.22 : 0.14)
+							Icon {
+								anchors.centerIn: parent
+								name: siteRow.modelData.state === "online" ? "cloud_done" : (siteRow.modelData.state === "connecting" ? "sync" : "cloud_off")
+								color: siteRow.tint
+							}
+						}
+						ColumnLayout {
+							Layout.fillWidth: true
+							spacing: 1
+							AppText { Layout.fillWidth: true; text: siteRow.modelData.name; style: "label"; font.pixelSize: Theme.fontBody; elide: Text.ElideRight; wrapMode: Text.NoWrap }
+							AppText {
+								Layout.fillWidth: true
+								style: "caption"
+								color: siteRow.modelData.state === "error" ? Theme.danger : Theme.textMuted
+								text: {
+									const s = siteRow.modelData
+									if (s.state === "online")
+										return s.onSite ? qsTr("Online · HP di jaringan yang sama, terhubung langsung")
+														: qsTr("Online · %1 komputer").arg(s.computers)
+									if (s.state === "connecting")
+										return s.pending ? qsTr("Memasangkan…") : qsTr("Menghubungkan…")
+									return s.error.length > 0 ? s.error : qsTr("Offline")
+								}
+							}
+						}
+						IconButton {
+							iconName: "more_vert"
+							onClicked: {
+								siteSheet.siteId = siteRow.modelData.id
+								siteSheet.siteName = siteRow.modelData.name
+								siteSheet.open()
+							}
+						}
+					}
+				}
+
+				RowLayout {
+					Layout.fillWidth: true
+					spacing: 10
+					AppButton {
+						visible: App.gateways.scanSupported
+						Layout.fillWidth: true
+						text: qsTr("Pindai kode QR")
+						iconName: "qr_code_scanner"
+						onClicked: App.gateways.scanQrCode()
+					}
+					AppButton {
+						Layout.fillWidth: true
+						variant: App.gateways.scanSupported ? "outline" : "filled"
+						text: qsTr("Tempel kode")
+						iconName: "content_paste"
+						onClicked: codeSheet.open()
+					}
+				}
 			}
 
 			// ---------------------------------------------------- WireGuard
 			Section {
-				title: qsTr("VPN WireGuard (bawaan aplikasi)")
+				title: qsTr("VPN WireGuard (untuk admin jaringan)")
 				hint: qsTr("Hanya AruniControl yang lewat VPN; aplikasi lain tetap memakai internet biasa. Cocok untuk MikroTik RouterOS 7 dan server WireGuard lain.")
 
 				// status
@@ -349,6 +424,79 @@ Page {
 			page.error = page.vpn.importConfigFile(selectedFile)
 			if (page.error.length === 0)
 				window.toast(qsTr("Konfigurasi VPN tersimpan"), "success")
+		}
+	}
+
+	Sheet {
+		id: codeSheet
+		title: qsTr("Tempel kode gateway")
+		subtitle: qsTr("Kode ARUNI1:… atau link arunicontrol://pair dari Configurator")
+		iconName: "content_paste"
+
+		onOpened: gatewayCode.forceActiveFocus()
+
+		InputField {
+			id: gatewayCode
+			Layout.fillWidth: true
+			placeholderText: "ARUNI1:…"
+			iconName: "hub"
+			inputMethodHints: Qt.ImhNoAutoUppercase | Qt.ImhNoPredictiveText
+			onAccepted: addGateway.clicked()
+		}
+		AppButton {
+			id: addGateway
+			Layout.fillWidth: true
+			text: qsTr("Hubungkan")
+			iconName: "cloud_done"
+			enabled: gatewayCode.text.trim().length > 0
+			onClicked: {
+				const problem = App.gateways.addFromCode(gatewayCode.text)
+				if (problem.length > 0) {
+					window.toast(problem, "error")
+				} else {
+					gatewayCode.text = ""
+					codeSheet.close()
+				}
+			}
+		}
+	}
+
+	Sheet {
+		id: siteSheet
+		property string siteId
+		property string siteName
+		title: siteName
+		iconName: "hub"
+
+		ListRow {
+			Layout.fillWidth: true
+			Layout.leftMargin: -Theme.padLarge
+			Layout.rightMargin: -Theme.padLarge
+			leftPadding: Theme.padLarge
+			rightPadding: Theme.padLarge
+			iconName: "refresh"
+			title: qsTr("Sambungkan ulang")
+			chevron: false
+			onClicked: {
+				App.gateways.reconnect(siteSheet.siteId)
+				siteSheet.close()
+			}
+		}
+		ListRow {
+			Layout.fillWidth: true
+			Layout.leftMargin: -Theme.padLarge
+			Layout.rightMargin: -Theme.padLarge
+			leftPadding: Theme.padLarge
+			rightPadding: Theme.padLarge
+			iconName: "delete"
+			iconColor: Theme.danger
+			title: qsTr("Hapus lokasi ini")
+			danger: true
+			chevron: false
+			onClicked: {
+				App.gateways.removeSite(siteSheet.siteId)
+				siteSheet.close()
+			}
 		}
 	}
 

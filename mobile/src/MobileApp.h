@@ -32,6 +32,7 @@
 #include "FeatureProviderInterface.h"
 
 #include "ComputerGridModel.h"
+#include "GatewayManager.h"
 #include "VpnController.h"
 
 class VeyonMaster;
@@ -46,6 +47,7 @@ class MobileApp : public QObject
 	Q_OBJECT
 	Q_PROPERTY(ComputerGridModel* computers READ computers CONSTANT)
 	Q_PROPERTY(VpnController* vpn READ vpn CONSTANT)
+	Q_PROPERTY(GatewayManager* gateways READ gateways CONSTANT)
 	Q_PROPERTY(bool authenticated READ isAuthenticated NOTIFY authenticationChanged)
 	Q_PROPERTY(QString authMethod READ authMethod NOTIFY authenticationChanged)
 	Q_PROPERTY(QString authName READ authName NOTIFY authenticationChanged)
@@ -71,6 +73,11 @@ public:
 	VpnController* vpn() const
 	{
 		return m_vpn;
+	}
+
+	GatewayManager* gateways() const
+	{
+		return m_gateways;
 	}
 
 	bool isAuthenticated() const;
@@ -134,6 +141,9 @@ public:
 
 	// development hooks for desktop builds (always empty on Android)
 	Q_INVOKABLE QString devOption( const QString& name ) const;
+
+	// "arunicontrol://pair?c=..." links (QDesktopServices URL handler)
+	Q_INVOKABLE void handleUrl( const QUrl& url );
 	Q_INVOKABLE bool deleteFile( const QString& path );
 
 Q_SIGNALS:
@@ -141,6 +151,7 @@ Q_SIGNALS:
 	void roomsChanged();
 	void networkChanged();
 	void notify( const QString& message, const QString& kind );
+	void gatewayAdded( const QString& name );
 
 private:
 	ComputerControlInterfaceList targets( const QStringList& uids ) const;
@@ -152,9 +163,12 @@ private:
 	void setDirectoryObjects( const QJsonArray& objects );
 
 	void saveConfiguration();
+	void publishGatewayHosts();
+	QStringList managedLocationUids() const;
 
 	VeyonMaster* m_master;
 	ComputerGridModel* m_computers;
 	VpnController* m_vpn;
+	GatewayManager* m_gateways;
 
 };

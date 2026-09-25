@@ -109,6 +109,40 @@ Screenshots saved in-app and shared via FileProvider intent.
 Not yet: Chat, AruniVoice (needs Qt Multimedia for Android), App monitoring, Spotlight/
 Slideshow views, QR import of VPN configs, sharing the phone's own screen.
 
+## Aruni Gateway + Relay (primary way to connect over the internet)
+
+```
+phone ──wss──► Aruni Relay (VPS, relay/) ◄──wss (outbound)── Aruni Gateway (client PC, plugins/gateway)──► LAN PCs :11100
+```
+- **Relay** `relay/` (Go, coder/websocket): `/v1/gateway/{id}` control socket (TOFU secret
+  hash in `/data/gateways.json`), `/v1/connect/{id}` for masters, `/v1/accept/{id}/{sid}` for the
+  gateway's session socket; it only copies binary messages. Docker + Caddy (`docker-compose.yml`,
+  `RELAY_DOMAIN`), image via `.github/workflows/relay-image.yml` → `ghcr.io/rsamjkt/aruni-relay`.
+- **Crypto** `core/src/AruniTunnel.*`: Noise-KK-style handshake (X25519 static+ephemeral both
+  sides, HKDF-SHA256, ChaCha20-Poly1305, counters), pairing token sealed to the gateway key,
+  frames `type|stream|payload` (Open/Opened/Close/Data/Hosts/Wake/Ping/Info/KeyRequest/Key).
+  Pairing code `ARUNI1:<base64url JSON>` or `arunicontrol://pair?c=…`.
+- **Gateway plugin** (ships with every client install): starts only in `veyon-server`
+  (`VeyonCore::component() == Server`), single instance per PC via `QLockFile`, state in
+  `%GLOBALAPPDATA%/gateway/gateway.json` (id, relay secret, X25519 key, paired devices,
+  one-time pairing token, optional *shared access key*), status in `status.json`. Configurator
+  page "Aruni Gateway": enable, location name, relay URL, QR (vendored `3rdparty/qrcodegen`,
+  built with `-fexceptions`), "give new phones this access key", paired phones + revoke.
+  Only private IPs and ports 11100–11199 may be opened (no open proxy); WoL on the LAN.
+- **Mobile** `mobile/src/GatewayManager.*`: sites in mobile.ini, device key, one GatewayLink
+  per site. `VncConnection::setConnectionRedirector()` (core hook) maps LAN host:port →
+  local `127.0.0.1:<listener>` streams; hosts keep their real LAN IPs (demo etc. still work).
+  Hosts are published as managed BuiltinDirectory locations (hidden in RoomsPage); skipped
+  when the phone is on the gateway's subnet ("onSite"). Tunnelled connections are capped at
+  Medium JPEG quality (measured: 241 MB/3.5 min lossless → ~34 KB/s).
+  QR via Google Code Scanner (play-services-code-scanner, no camera permission); links via
+  `AruniActivity` (intent filter `arunicontrol://pair`). Qt calls URL handlers from the
+  Android UI thread → always bounce `handleUrl()` to the main thread.
+- Test locally: `/tmp/aruni-relay -listen :8787`, write `gateway.json` `{"enabled":true,
+  "relayUrl":"ws://<mac-lan-ip>:8787","sharedKey":"<key>"}`, run `build/server/veyon-server`,
+  create a pairing code, `adb shell am start -a android.intent.action.VIEW -d 'arunicontrol://pair?c=…'`.
+  Remove the test `gateway/` dir afterwards.
+
 ## Remote access (mobile data)
 
 - Android 12+ removed L2TP/PPTP from the built-in VPN client — don't build on it.

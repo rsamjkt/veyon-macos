@@ -68,6 +68,36 @@ Page {
 				muted: true
 			}
 
+			// --- quickest: gateway QR (may also deliver the access key)
+			Card {
+				Layout.fillWidth: true
+				Layout.topMargin: 8
+				implicitHeight: qrRow.implicitHeight + 32
+				color: Theme.accentSoft
+				border.width: 0
+
+				RowLayout {
+					id: qrRow
+					anchors.fill: parent
+					anchors.margins: 16
+					spacing: 14
+					Rectangle {
+						width: 48; height: 48; radius: 16
+						color: Theme.accent
+						Icon { anchors.centerIn: parent; name: "qr_code_scanner"; color: "#FFFFFF"; size: 26 }
+					}
+					ColumnLayout {
+						Layout.fillWidth: true
+						spacing: 2
+						AppText { Layout.fillWidth: true; text: qsTr("Punya kode QR Aruni Gateway?"); style: "label"; font.pixelSize: Theme.fontBody }
+						AppText { Layout.fillWidth: true; text: qsTr("Pindai sekali: lokasi dan kunci akses terpasang otomatis, bisa dipakai dari mana saja."); style: "caption"; muted: true }
+					}
+				}
+				TapHandler {
+					onTapped: App.gateways.scanSupported ? App.gateways.scanQrCode() : window.openRemoteAccess()
+				}
+			}
+
 			// --- option: key file
 			Card {
 				Layout.fillWidth: true

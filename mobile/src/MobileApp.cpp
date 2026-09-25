@@ -24,6 +24,7 @@
 
 #include <QDateTime>
 #include <QDesktopServices>
+#include <QUuid>
 #include <QDir>
 #include <QDirIterator>
 #include <QFile>
@@ -35,8 +36,10 @@
 #include <QRegularExpression>
 #include <QSettings>
 #include <QStandardPaths>
+#include <QThread>
 
 #ifdef Q_OS_ANDROID
+#include <QJniEnvironment>
 #include <QJniObject>
 #include <QCoreApplication>
 #endif
@@ -61,9 +64,24 @@
 #include "VeyonConfiguration.h"
 #include "VeyonMaster.h"
 #include "VpnController.h"
+#include "VncConnection.h"
 
 
 namespace {
+
+#ifdef Q_OS_ANDROID
+jboolean JNICALL nativeHandleLink( JNIEnv*, jclass, jstring link )
+{
+	const auto url = QUrl( QJniObject( link ).toString() );
+	const auto app = QCoreApplication::instance();
+	if( app == nullptr )
+	{
+		return false;
+	}
+	QMetaObject::invokeMethod( app, [url]() { QDesktopServices::openUrl( url ); }, Qt::QueuedConnection );
+	return true;
+}
+#endif
 
 // uids of the directory plugins shipped in the APK
 const auto NetworkDiscoveryPluginUid = QUuid( QStringLiteral("3c5e9a14-2b7d-4e6f-8a1c-9d0f2e4b6c81") );
@@ -99,8 +117,36 @@ MobileApp::MobileApp( VeyonMaster* master, QObject* parent ) :
 	QObject( parent ),
 	m_master( master ),
 	m_computers( new ComputerGridModel( this ) ),
-	m_vpn( new VpnController( this ) )
+	m_vpn( new VpnController( this ) ),
+	m_gateways( new GatewayManager( this ) )
 {
+	// connections to computers behind a gateway go through its tunnel
+	VncConnection::setConnectionRedirector( [gateways = m_gateways]( const QString& host, int port,
+																	 QString& redirectedHost, int& redirectedPort ) {
+		return GatewayManager::instance() == gateways &&
+			   gateways->redirect( host, port, redirectedHost, redirectedPort );
+	} );
+	connect( m_gateways, &GatewayManager::remoteHostsChanged, this, &MobileApp::publishGatewayHosts );
+	connect( m_gateways, &GatewayManager::notify, this, &MobileApp::notify );
+	connect( m_gateways, &GatewayManager::siteAdded, this, &MobileApp::gatewayAdded );
+	connect( m_gateways, &GatewayManager::accessKeyReceived, this, [this]( const QString& name, const QString& pem ) {
+		const auto error = importKeyText( pem, name );
+		Q_EMIT notify( error.isEmpty() ? tr("Kunci akses \"%1\" dipasang otomatis dari gateway").arg( name ) : error,
+					   error.isEmpty() ? QStringLiteral("success") : QStringLiteral("error") );
+	} );
+	QDesktopServices::setUrlHandler( QStringLiteral("arunicontrol"), this, "handleUrl" );
+#ifdef Q_OS_ANDROID
+	{
+		QJniEnvironment env;
+		const JNINativeMethod methods[] = {
+			{ "nativeHandleLink", "(Ljava/lang/String;)Z", reinterpret_cast<void*>( nativeHandleLink ) }
+		};
+		env.registerNativeMethods( "id/arunika/arunicontrol/AruniActivity", methods, 1 );
+		// a link that started the app
+		QJniObject::callStaticMethod<void>( "id/arunika/arunicontrol/AruniActivity", "deliverPendingLink" );
+	}
+#endif
+
 	// computers behind a (new) tunnel or subnet have to be swept for
 	connect( m_vpn, &VpnController::networkRoutesChanged, this, &MobileApp::refreshComputers );
 
@@ -177,6 +223,9 @@ void MobileApp::applyDefaults()
 	config.setAuthenticationMethod( VeyonCore::AuthenticationMethod::KeyFileAuthentication );
 	config.setComputerDisplayRoleContent( ComputerListModel::DisplayRoleContent::ComputerName );
 	config.setAutoSelectCurrentLocation( false );
+	// a phone screen does not need lossless images - JPEG saves a lot of data
+	config.setRemoteAccessImageQuality( VncConnectionConfiguration::Quality::High );
+	config.setComputerMonitoringImageQuality( VncConnectionConfiguration::Quality::Medium );
 	config.setShowCurrentLocationOnly( false );
 	config.flushStore();
 
@@ -240,12 +289,13 @@ QString MobileApp::authName() const
 QVariantList MobileApp::rooms() const
 {
 	const auto objects = directoryObjects();
+	const auto managed = managedLocationUids();
 
 	QVariantList rooms;
 	for( const auto& value : objects )
 	{
 		const NetworkObject room( value.toObject() );
-		if( room.type() != NetworkObject::Type::Location )
+		if( room.type() != NetworkObject::Type::Location || managed.contains( room.uid().toString() ) )
 		{
 			continue;
 		}
@@ -672,6 +722,21 @@ void MobileApp::powerAction( const QString& action, const QStringList& uids, int
 		{ QStringLiteral("logoff"), QStringLiteral("UserLogoff") },
 	};
 
+	if( action == QStringLiteral("on") )
+	{
+		// computers behind a gateway: the magic packet has to be sent on their LAN
+		for( const auto& controlInterface : targets( uids ) )
+		{
+			const auto mac = controlInterface->computer().macAddress();
+			if( mac.isEmpty() == false )
+			{
+				m_gateways->wake( controlInterface->computer().hostAddress().toString().isEmpty() ?
+									  controlInterface->computer().hostName() :
+									  controlInterface->computer().hostAddress().toString(), mac );
+			}
+		}
+	}
+
 	QVariantMap arguments;
 	if( action == QStringLiteral("offDelayed") )
 	{
@@ -1097,4 +1162,90 @@ void MobileApp::setDirectoryObjects( const QJsonArray& objects )
 void MobileApp::saveConfiguration()
 {
 	VeyonCore::config().flushStore();
+}
+
+
+
+void MobileApp::handleUrl( const QUrl& url )
+{
+	// Qt for Android may call URL handlers from the Android UI thread
+	if( QThread::currentThread() != thread() )
+	{
+		QMetaObject::invokeMethod( this, [this, url]() { handleUrl( url ); }, Qt::QueuedConnection );
+		return;
+	}
+
+	if( url.scheme() != QStringLiteral("arunicontrol") )
+	{
+		return;
+	}
+
+	const auto error = m_gateways->addFromCode( url.toString() );
+	if( error.isEmpty() )
+	{
+		Q_EMIT gatewayAdded( AruniTunnel::PairingInfo::decode( url.toString() ).siteName );
+	}
+	else
+	{
+		Q_EMIT notify( error, QStringLiteral("error") );
+	}
+}
+
+
+
+QStringList MobileApp::managedLocationUids() const
+{
+	return mobileSettings().value( QStringLiteral("GatewayLocations") ).toStringList();
+}
+
+
+
+void MobileApp::publishGatewayHosts()
+{
+	// computers of remote sites appear as locations named after the site; they
+	// are rewritten whenever a gateway reports its computers
+	const auto previousLocations = managedLocationUids();
+
+	QJsonArray objects;
+	for( const auto& value : directoryObjects() )
+	{
+		const auto object = value.toObject();
+		if( previousLocations.contains( object[QStringLiteral("Uid")].toString() ) == false &&
+			previousLocations.contains( object[QStringLiteral("ParentUid")].toString() ) == false )
+		{
+			objects.append( object );
+		}
+	}
+
+	static const auto ns = QUuid( QStringLiteral("{6b0e3c2a-94d1-4f7e-8b25-1d9a0c7e5f31}") );
+
+	QStringList locations;
+	const auto remote = m_gateways->remoteHosts();
+	for( const auto& entry : remote )
+	{
+		const auto& site = entry.first;
+		const auto locationUid = QUuid::createUuidV5( ns, QStringLiteral("site:") + site.gatewayId );
+		locations.append( locationUid.toString() );
+
+		objects.append( NetworkObject( NetworkObject::Type::Location, site.name, {}, {}, {}, locationUid ).toJson() );
+
+		for( const auto& hostValue : entry.second )
+		{
+			const auto host = hostValue.toObject();
+			const auto address = host[QStringLiteral("host")].toString();
+			objects.append( NetworkObject( NetworkObject::Type::Host,
+										   host[QStringLiteral("name")].toString( address ),
+										   address, host[QStringLiteral("mac")].toString(), {},
+										   QUuid::createUuidV5( ns, site.gatewayId + QLatin1Char('/') + address ),
+										   locationUid ).toJson() );
+		}
+	}
+
+	auto settings = mobileSettings();
+	settings.setValue( QStringLiteral("GatewayLocations"), locations );
+
+	if( objects != directoryObjects() )
+	{
+		setDirectoryObjects( objects );
+	}
 }

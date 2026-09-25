@@ -26,6 +26,8 @@ dependencies {
     // AruniControl: embedded WireGuard tunnel (Apache-2.0) for reaching
     // computers over mobile data / from outside the school or office LAN
     implementation 'com.wireguard.android:tunnel:1.0.20260102'
+    // QR scanner UI provided by Google Play services - needs no camera permission
+    implementation 'com.google.android.gms:play-services-code-scanner:16.1.0'
 }
 
 android {

@@ -82,9 +82,9 @@ Page {
 					Layout.fillWidth: true
 					iconName: App.vpn.state === "on" ? "vpn_lock_fill" : "vpn_lock"
 					iconColor: App.vpn.state === "on" ? Theme.success : Theme.info
-					title: qsTr("Akses jarak jauh (VPN)")
-					subtitle: App.vpn.state === "on" ? qsTr("WireGuard tersambung ke %1").arg(App.vpn.endpoint)
-													 : qsTr("Kendalikan lewat paket data: WireGuard/MikroTik, ZeroTier")
+					title: qsTr("Akses dari mana saja")
+					subtitle: App.gateways.sites.length > 0 ? qsTr("%1 lokasi Aruni Gateway").arg(App.gateways.sites.length)
+															: qsTr("Kendalikan lewat paket data: pindai QR Aruni Gateway, atau VPN")
 					onClicked: window.openRemoteAccess()
 				}
 			}
