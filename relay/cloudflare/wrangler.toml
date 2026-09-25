@@ -1,0 +1,21 @@
+# Aruni Relay on Cloudflare Workers + Durable Objects (no server to maintain).
+# Deploy: npx wrangler deploy   (first: npx wrangler login)
+name = "aruni-relay"
+main = "src/index.js"
+compatibility_date = "2026-05-01"
+workers_dev = true
+
+routes = [
+  { pattern = "relay.arunihealth.id", custom_domain = true }
+]
+
+[[durable_objects.bindings]]
+name = "GATEWAYS"
+class_name = "GatewayRoom"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["GatewayRoom"]
+
+[observability]
+enabled = true

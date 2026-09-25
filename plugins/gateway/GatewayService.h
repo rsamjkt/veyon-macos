@@ -86,6 +86,7 @@ private:
 	QTimer m_reconnectTimer;
 	QTimer m_stateTimer;
 	QTimer m_directoryTimer;
+	QTimer m_keepAliveTimer;
 	int m_sessions{0};
 
 	NetworkObjectDirectory* m_directory{nullptr};

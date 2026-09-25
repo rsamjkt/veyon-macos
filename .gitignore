@@ -28,3 +28,5 @@ plugins/extra
 build-android/
 .cache/
 aqtinstall.log
+relay/cloudflare/node_modules/
+relay/cloudflare/.wrangler/

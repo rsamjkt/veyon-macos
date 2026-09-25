@@ -79,6 +79,16 @@ GatewayService::GatewayService( QObject* parent ) :
 
 	connect( &m_directoryTimer, &QTimer::timeout, this, &GatewayService::updateDirectory );
 
+	// proxies such as Cloudflare drop WebSockets idle for ~100 s - the relay
+	// answers "ping" without further processing
+	connect( &m_keepAliveTimer, &QTimer::timeout, this, [this]() {
+		if( m_connected )
+		{
+			m_control.sendTextMessage( QStringLiteral("ping") );
+		}
+	} );
+	m_keepAliveTimer.start( 30000 );
+
 	checkState();
 }
 
