@@ -118,8 +118,14 @@ Slideshow views, QR import of VPN configs, sharing the phone's own screen.
 ```
 phone ──wss──► Aruni Relay (VPS, relay/) ◄──wss (outbound)── Aruni Gateway (client PC, plugins/gateway)──► LAN PCs :11100
 ```
-- **Production relay: `wss://relay.arunihealth.id`** (default in `GatewayState::DefaultRelayUrl`).
-  Runs on the Arunika VPS (Ubuntu 20.04 LXC behind the provider's NAT, 103.78.96.213, internal
+- **Production relay = Cloudflare Worker** `relay/cloudflare/` (Durable Object `GatewayRoom`
+  per gateway id, hibernation, auto-response "ping"→"pong"; deploy `cd relay/cloudflare &&
+  npx wrangler deploy`, account randy@rsanggrekmas.com). Live at
+  `https://aruni-relay.randymandala.workers.dev`; custom domain `relay.arunihealth.id` (route in
+  wrangler.toml) needs the old tunnel DNS record deleted first (error 100117). Gateway sends a
+  text "ping" every 30 s (Cloudflare drops idle WebSockets after ~100 s). wrangler dev's workerd
+  may not support the newest compatibility_date - keep it a few months back.
+- Old path (fallback): Go relay on the Arunika VPS (Ubuntu 20.04 LXC behind the provider's NAT, 103.78.96.213, internal
   10.0.2.198 - ports 80/443 are NOT forwarded) as systemd `aruni-relay` on 127.0.0.1:8080,
   published through **Cloudflare Tunnel** `aruni-relay` (systemd `cloudflared`,
   `/etc/cloudflared/config.yml`, zone arunihealth.id). Redeploy the binary with
