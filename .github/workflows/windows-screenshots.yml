@@ -41,6 +41,9 @@ jobs:
           & $cli networkobjects add computer "PC-02" 10.0.0.102 "" "Lab Komputer 1"
           & $cli service restart
           & $cli networkobjects list
+          & $cli config get Authentication/Method
+          & $cli config get NetworkObjectDirectory/Plugin
+          reg query "HKLM\SOFTWARE\Arunika" /s | Select-Object -First 40
 
       - name: Capture
         run: |
