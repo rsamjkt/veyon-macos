@@ -13,12 +13,12 @@
 // Rilis baru: unggah file ke R2 dengan awalan tag-nya, lalu ubah RELEASE.
 
 const RELEASE = {
-	tag: "v1.2.0",
+	tag: "v1.3.0",
 	files: {
-		windows: "AruniControl-Setup-1.2.0-Clara-Windows-x64.exe",
-		"windows-zip": "AruniControl-Server-1.2.0-Clara-Windows-x64.zip",
-		macos: "AruniControl-1.2.0-Clara-macOS-arm64.zip",
-		android: "AruniControl-1.2.0-Clara-Android-arm64.apk",
+		windows: "AruniControl-Setup-1.3.0-Diana-Windows-x64.exe",
+		"windows-zip": "AruniControl-Server-1.3.0-Diana-Windows-x64.zip",
+		macos: "AruniControl-1.3.0-Diana-macOS-arm64.zip",
+		android: "AruniControl-1.3.0-Diana-Android-arm64.apk",
 		sha256: "SHA256SUMS.txt",
 	},
 };

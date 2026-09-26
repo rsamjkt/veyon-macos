@@ -35,7 +35,7 @@
 <section class="hero">
 	<div class="wrap">
 		<div>
-			<span class="eyebrow"><b>Baru</b> Versi 1.2.0 “Clara” — aplikasi Android &amp; Aruni Gateway</span>
+			<span class="eyebrow"><b>Baru</b> Versi 1.3.0 “Diana” — laptop dibawa pulang tetap terpantau</span>
 			<h1>Semua komputer lab &amp; kantor, <em>dalam genggaman.</em></h1>
 			<p class="lead">AruniControl menampilkan layar semua komputer dalam satu grid. Kunci layar, kirim pesan, tampilkan layar guru, atau ambil alih mouse &amp; keyboard — dari PC, Mac, atau HP. Bahkan lewat paket data, tanpa VPN.</p>
 			<div class="hero-cta">
@@ -73,7 +73,7 @@
 			<article class="card feature"><div class="icon"><svg><use href="#i-rocket_launch"/></svg></div><h3>Buka aplikasi &amp; website</h3><p>Jalankan program atau buka alamat web di semua komputer yang dipilih dalam satu langkah.</p></article>
 			<article class="card feature"><div class="icon"><svg><use href="#i-public_off"/></svg></div><h3>Batasi internet &amp; suara</h3><p>Matikan akses internet atau bisukan suara saat ujian, lalu nyalakan lagi dengan satu ketukan.</p></article>
 			<article class="card feature"><div class="icon"><svg><use href="#i-upload_file"/></svg></div><h3>Kirim &amp; kumpulkan file</h3><p>Bagikan materi ke semua komputer dan kumpulkan hasil kerja siswa kembali ke komputer guru.</p></article>
-			<article class="card feature"><div class="icon"><svg><use href="#i-public"/></svg></div><h3>Dari mana saja</h3><p>Dengan Aruni Gateway, HP di paket data bisa menjangkau seluruh komputer kantor. Tanpa VPN, tanpa atur router.</p></article>
+			<article class="card feature"><div class="icon"><svg><use href="#i-public"/></svg></div><h3>Dari mana saja</h3><p>Dengan Aruni Gateway, HP di paket data bisa menjangkau seluruh komputer kantor, dan laptop yang dibawa pulang tetap terpantau. Tanpa VPN, tanpa atur router.</p></article>
 		</div>
 	</div>
 </section>
@@ -93,12 +93,12 @@
 				<ul>
 					<li>Installer lengkap: Master, Configurator, Server</li>
 					<li>Layanan otomatis jalan saat komputer menyala</li>
-					<li>Aruni Gateway sudah termasuk</li>
+					<li>Aruni Gateway &amp; laptop jelajah sudah termasuk</li>
 				</ul>
 				<div class="actions">
 					<a class="btn" href="/unduh/windows"><svg><use href="#i-download"/></svg>Unduh installer (.exe)</a>
 					<a class="btn ghost small" href="/unduh/windows-zip">Versi portabel (.zip)</a>
-					<div class="meta">v1.2.0 · 60,6 MB · ZIP 89,1 MB</div>
+					<div class="meta">v1.3.0 · 60,7 MB · ZIP 89,2 MB</div>
 				</div>
 			</article>
 			<article class="card download" data-os="mac">
@@ -111,7 +111,7 @@
 				</ul>
 				<div class="actions">
 					<a class="btn" href="/unduh/macos"><svg><use href="#i-download"/></svg>Unduh untuk Mac (.zip)</a>
-					<div class="meta">v1.2.0 · 40,0 MB</div>
+					<div class="meta">v1.3.0 · 40,0 MB</div>
 				</div>
 			</article>
 			<article class="card download" data-os="android">
@@ -124,12 +124,12 @@
 				</ul>
 				<div class="actions">
 					<a class="btn" href="/unduh/android"><svg><use href="#i-download"/></svg>Unduh APK</a>
-					<div class="meta">v1.2.0 · 36,6 MB</div>
+					<div class="meta">v1.3.0 · 36,6 MB</div>
 				</div>
 			</article>
 		</div>
 		<div class="release-info">
-			<span>Versi terbaru: <b>1.2.0 “Clara”</b></span>
+			<span>Versi terbaru: <b>1.3.0 “Diana”</b></span>
 			<a href="/unduh/sha256" target="_blank" rel="noopener">Checksum SHA-256</a>
 			<a href="#bantuan">Butuh bantuan memasang?</a>
 		</div>
@@ -480,6 +480,63 @@
 			</div>
 		</div>
 
+		<div class="section-head center" id="laptop-jelajah" style="margin-top:70px">
+			<span class="kicker">Baru di 1.3.0</span>
+			<h2>Laptop dibawa pulang? Tetap terpantau.</h2>
+			<p>Laptop yang didaftarkan sebagai <b>laptop jelajah</b> menyambung sendiri ke Aruni Gateway kantor dari mana pun: Wi-Fi rumah, hotspot, atau jaringan kafe. Guru/admin tetap bisa melihat dan mengendalikannya dari HP maupun dari Master di kantor.</p>
+		</div>
+
+		<div class="card diagram">
+			<div class="node"><svg><use href="#i-computer"/></svg><b>Laptop di rumah</b><small>menyambung keluar, tanpa port forwarding</small></div>
+			<div class="link"><svg viewBox="0 0 40 20"><path d="M2 10h32m-6-6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>terenkripsi</div>
+			<div class="node"><svg><use href="#i-cloud"/></svg><b>Aruni Relay</b><small>Cloudflare</small></div>
+			<div class="link"><svg viewBox="0 0 40 20"><path d="M38 10H6m6-6-6 6 6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>24 jam</div>
+			<div class="node"><svg><use href="#i-router"/></svg><b>Aruni Gateway kantor</b><small>meneruskan ke HP &amp; Master</small></div>
+		</div>
+
+		<div class="guide-step" style="margin-top:30px">
+			<div>
+				<span class="num"><b>1</b>Di gateway kantor</span>
+				<h3>Salin kode pendaftaran laptop</h3>
+				<ol>
+					<li>Di PC gateway buka Configurator → <b>Aruni Gateway</b>. Gateway harus sudah aktif, lihat bagian atas.</li>
+					<li>Di bagian <b>Laptops outside the office</b>, klik <b>Copy</b> untuk menyalin kode pendaftaran (diawali <code>ARUNIL1:</code>).</li>
+					<li>Kode ini bisa dipakai untuk banyak laptop sekaligus. Klik <b>New code</b> kalau kode sempat tersebar; laptop yang sudah terdaftar tetap jalan.</li>
+				</ol>
+				<p>Tabel di bawahnya menampilkan semua laptop: <b>Online, away</b> (sedang di luar), <b>In the office</b>, atau <b>Offline</b>, beserta port-nya. Laptop yang hilang atau dijual cukup dipilih lalu klik <b>Remove laptop</b>.</p>
+			</div>
+			<div class="shot"><figure><div class="window"><img class="zoomable" src="/img/mac-roaming-gateway.webp" alt="Daftar laptop jelajah di gateway"></div><figcaption>Configurator (gateway) → Laptops outside the office</figcaption></figure></div>
+		</div>
+
+		<div class="guide-step flip">
+			<div>
+				<span class="num"><b>2</b>Di laptop</span>
+				<h3>Aktifkan mode laptop jelajah</h3>
+				<ol>
+					<li>Di laptop buka Configurator → <b>Aruni Gateway</b>.</li>
+					<li>Di bagian <b>This laptop outside the office</b>, tempel kode pada <b>Enrollment code</b>, lalu centang <b>Keep this laptop monitored outside the office</b>.</li>
+					<li>Tunggu sampai status menjadi <span style="color:var(--success)">● Connected to "…"</span>.</li>
+				</ol>
+				<div class="callout info"><svg><use href="#i-info"/></svg><p><b>Banyak laptop sekaligus?</b> Pasang installer dengan <code>AruniControl-Setup-….exe /S /ENROLL=ARUNIL1:…</code>, atau di laptop yang sudah terpasang jalankan <code>veyon-wcli gateway enroll ARUNIL1:…</code> sebagai administrator. Di Mac: <code>…/veyon-cli gateway enroll ARUNIL1:…</code>.</p></div>
+			</div>
+			<div class="shot"><figure><div class="window"><img class="zoomable" src="/img/mac-roaming-laptop.webp" alt="Mode laptop jelajah di laptop"></div><figcaption>Configurator (laptop) → This laptop outside the office</figcaption></figure></div>
+		</div>
+
+		<div class="guide-step">
+			<div>
+				<span class="num"><b>3</b>Pantau</span>
+				<h3>Lihat laptop dari HP atau Master kantor</h3>
+				<ul>
+					<li><b>Aplikasi HP</b> (yang sudah dipasangkan dengan gateway): laptop yang sedang di luar muncul di ruangan <b>"&lt;lokasi&gt; · Di luar kantor"</b>, lengkap dengan layar live, kontrol, kunci layar, dan pesan.</li>
+					<li><b>Master di kantor</b> (backend <i>Network discovery</i>): muncul otomatis di lokasi <b>"&lt;lokasi&gt; - outside the office"</b>. Dengan backend <i>Builtin</i>, tambahkan komputer dengan alamat <code>IP-gateway:port</code> (port ada di tabel langkah 1, mis. <code>192.168.1.10:11101</code>).</li>
+					<li>Begitu laptop kembali ke kantor, ia tampil lagi seperti komputer biasa di jaringan lokal.</li>
+				</ul>
+				<div class="callout"><svg><use href="#i-error"/></svg><p>Selama di luar kantor, <b>Demo</b> (menampilkan layar guru ke laptop) dan <b>Nyalakan (Wake-on-LAN)</b> tidak bisa dipakai, karena laptop tidak bisa dijangkau langsung. Fitur lain tetap jalan: pantau, kendalikan, kunci layar, pesan, kirim file, dan blokir internet.</p></div>
+				<p style="font-size:.9rem">Pengguna laptop sebaiknya diberi tahu bahwa laptop kantor tetap dapat dipantau di luar jam dan lokasi kantor.</p>
+			</div>
+			<div class="shot"><figure><div class="phone"><img class="zoomable" src="/img/android-roaming.webp" alt="Laptop di luar kantor di aplikasi HP"></div><figcaption>Ruangan "Di luar kantor" di aplikasi HP</figcaption></figure></div>
+		</div>
+
 		<div class="guide-step">
 			<div>
 				<span class="num"><b>+</b>Alternatif</span>
@@ -525,13 +582,24 @@
 			<details class="card"><summary>Tampilan patah-patah saat lewat paket data</summary><div>
 				<p>Lewat internet, gambar otomatis dikompres ke kualitas sedang agar hemat kuota (sekitar 35 KB/detik per layar yang dibuka). Thumbnail grid diperbarui lebih jarang. Untuk kontrol yang lebih lancar, buka satu komputer saja dalam mode layar penuh.</p>
 			</div></details>
+			<details class="card"><summary>Laptop di rumah tidak muncul</summary><div>
+				<p>Cek di laptop: Configurator → Aruni Gateway → status <b>This laptop outside the office</b>.</p>
+				<ul>
+					<li><b>"The office gateway is offline"</b>: PC gateway kantor mati atau tidak terhubung internet.</li>
+					<li><b>"The office gateway refused this laptop"</b>: laptop sudah dihapus dari daftar, atau kode diganti sebelum laptop sempat terdaftar. Masukkan kode terbaru dari gateway.</li>
+					<li>Laptop harus menyala dan terhubung internet, dan layanan AruniControl harus berjalan (Configurator → Service).</li>
+				</ul>
+				<p>Di Master kantor, laptop hanya muncul otomatis bila backend direktori adalah <i>Network discovery</i> dan port <code>11100</code>–<code>11199</code> di PC gateway tidak diblokir firewall. Installer Windows versi 1.3.0 sudah membukanya.</p>
+			</div></details>
 			<details class="card"><summary>Port apa saja yang dipakai?</summary><div>
 				<div class="table-wrap"><table class="table">
 					<tr><th>Port</th><th>Fungsi</th></tr>
 					<tr><td><code>11100</code> TCP</td><td>Koneksi Master → komputer (wajib dibuka di firewall)</td></tr>
 					<tr><td><code>11200</code> TCP</td><td>Server layar internal (hanya lokal)</td></tr>
 					<tr><td><code>11300</code> TCP</td><td>Fitur internal (hanya lokal)</td></tr>
-					<tr><td><code>443</code> keluar</td><td>Aruni Gateway → relay (tidak perlu port forwarding)</td></tr>
+					<tr><td><code>11101</code>–<code>11198</code> TCP</td><td>Di PC gateway: penerusan ke laptop jelajah (satu port per laptop)</td></tr>
+					<tr><td><code>11199</code> TCP</td><td>Di PC gateway: daftar laptop jelajah untuk Master di kantor</td></tr>
+					<tr><td><code>443</code> keluar</td><td>Aruni Gateway &amp; laptop jelajah → relay (tidak perlu port forwarding)</td></tr>
 				</table></div>
 			</div></details>
 		</div>
