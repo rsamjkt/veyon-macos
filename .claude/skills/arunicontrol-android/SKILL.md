@@ -91,6 +91,9 @@ QCA 2.3.12 + ossl provider, LZO, libjpeg-turbo, libpng). Signing keystore
     signal handlers; a *bound* `StackView.initialItem` was ignored → push in onCompleted.
 13. ApplicationWindow pads content by the safe area by default (Qt 6.9+) → set its paddings
     to 0 and pad each page with `window.safeTop/safeBottom` (edge-to-edge, Android 15).
+    The Basic `Drawer` does the same (paddings = SafeArea margins) → Sheet.qml zeroes them, else the
+    last row of every sheet is clipped by the navigation-bar height.
+    Remote page chrome auto-hides after 3.5 s: with adb, tap the screen first, then ⋮ within ~3 s.
 14. The screen image provider id is percent-encoded (`%7B…%7D`) — decode before lookup.
 15. **Qt for Android's TLS backend dlopen()s `libssl_3.so`/`libcrypto_3.so`** - with plain
     `libssl.so` every `wss://`/https connection fails ("No TLS backend is available"; plain
@@ -110,8 +113,21 @@ FileCollect (→ `collected/`). Demo "share a student's screen" via
 Remote view/control: RemoteViewItem (tap=click, long-press=right click, 1-finger drag=drag,
 pinch=zoom/pan, right-edge strip=scroll, soft keyboard via sentinel TextInput, key bar).
 Screenshots saved in-app and shared via FileProvider intent.
-Not yet: Chat, AruniVoice (needs Qt Multimedia for Android), App monitoring, Spotlight/
-Slideshow views, QR import of VPN configs, sharing the phone's own screen.
+Chat / AruniVoice / application monitoring (one computer each): `FeatureSession` subclasses
+(`ChatController`, `VoiceController`, `AppMonitorController`, exposed as `App.chat/voice/appMonitor`)
+send the plugins' FeatureMessages directly (plugin headers for the enums, feature uid by name) and get
+replies via the core signal `FeatureManager::featureMessageReceived` - the plugins' QWidget windows are
+never created (the chat plugin only pops its master window for chats started from it). Voice reuses
+`plugins/arunivoice/AudioEngine.cpp` (compiled into the app, Qt Multimedia, 16 kHz mono PCM) and asks
+for RECORD_AUDIO via `QMicrophonePermission`. UI: ChatPage (bubbles, quick replies, reply banner in
+Main.qml + unread badges on Home/card/⋮), VoiceSheet (hold-to-talk, intercom, speaker mute, levels),
+AppsPage (3 s polling, foreground app card, close-app confirm). The appmonitoring plugin builds on Android
+with `NullApplicationList.cpp` (master side only).
+Qt Multimedia for Android isn't in the base aqt install: download
+`qt.qt6.6113.addons.qtmultimedia.android_arm64_v8a/…qtmultimedia…ARM64.7z` from download.qt.io, check the
+`.sha1`, `bsdtar -xf` it into `~/Qt/6.11.3/android_arm64_v8a` (macOS bsdtar reads .7z). The manifest has no
+`%%INSERT_PERMISSIONS` marker on purpose (Qt Multimedia would add CAMERA/BLUETOOTH) - list permissions by hand.
+Not yet: Spotlight/Slideshow views, QR import of VPN configs, sharing the phone's own screen.
 
 ## Aruni Gateway + Relay (primary way to connect over the internet)
 
@@ -236,3 +252,28 @@ Laptops taken home stay monitored through the office Aruni Gateway (hub).
   sessions must be announced to **all** control sockets (fixed in `relay/cloudflare/src/index.js`). Limit raised to 1000
   sessions per gateway (each agent holds one permanently). Agent pings every 40 s.
 - Not available while away: Demo (clients connect back to the master) and Wake-on-LAN.
+
+## 1.4.0 "Elena": updates, alerts, history, Indonesian UI
+
+- **Indonesian UI**: `translations/veyon_id.ts` fully translated (incl. Qt standard buttons via `core/src/QtStandardTexts.h`,
+  context QPlatformTheme). `TranslationLoader` defaults to Indonesian when no language is configured. Builds use
+  `-DWITH_TRANSLATIONS=ON`; lupdate is no longer run by normal builds (explicit `<lang>_ts` target). Mac bundle:
+  `Contents/Resources/translations`; Windows: `translations\` next to the exes. Update strings with
+  `lupdate -locations none -no-obsolete @files.txt -ts translations/veyon_id.ts` (exclude mobile/, its source is Indonesian).
+- **Auto update** (`plugins/autoupdate`, runs in veyon-server, lock `aruni-update.lock`): reads
+  `https://arunicontrol.randymandala.workers.dev/unduh/versi.json` (Worker builds it from `RELEASE` + SHA256SUMS in R2), every
+  6 h (first after 3 min; Configurator "Periksa sekarang" drops `%GLOBALAPPDATA%/update/check-now`). Windows: runs
+  `setup.exe /S /UPDATE` (installer stops service + kills veyon-*.exe first; never `taskkill /T` — the installer is a child
+  of veyon-server). macOS: ditto-extract, swap `AruniControl.app` ↔ `.app.old`, `launchctl kickstart -k gui/$UID/<label>`.
+  Android: `mobile/src/AppUpdater` + `UpdateHelper.java` (Qt FileProvider `.qtprovider`, REQUEST_INSTALL_PACKAGES).
+  Cloudflare blocks the Python-urllib user agent — clients send `AruniControl/<ver> (<platform>)`.
+- **macOS signing**: stable self-signed identity "AruniControl Code Signing" in `~/Library/Keychains/aruni-signing.keychain-db`
+  (password + paths in `~/Library/AruniSigning/signing.env`, cert/key in `~/Library/AruniSigning/`). DR becomes
+  `certificate root = H"…"`, so TCC permissions survive updates. Losing it = users re-grant once. Keychain must be in the
+  user search list (package-macos.sh adds it).
+- **Gateway tabs** (Gateway / Laptop / Notifikasi / Riwayat): `ActivityLog` (`activity.jsonl`, 8 MB rotation, CSV export with
+  BOM + `;`, CLI `veyon-cli gateway activity [file.csv] [days]`), `Notifier` (Telegram bot; alerts: laptop offline > N h +
+  back online, refused access (max 1/10 min), new laptop), `ScreenshotScheduler` (gateway connects to agents like a Master
+  with a private key — `sharedKeyName` or the first private key — and waits for a non-uniform frame; the first updates are black).
+  Agents report the foreground app (compiled from plugins/appmonitoring platform code).
+- Configurator screenshot helpers: `ARUNI_SCREENSHOT`, `ARUNI_SCREENSHOT_PAGE`, `ARUNI_SCREENSHOT_TAB`, `ARUNI_SCREENSHOT_HEIGHT`.

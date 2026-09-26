@@ -23,8 +23,8 @@ on:
   workflow_dispatch:
 
 env:
-  APP_VERSION: 1.3.1
-  APP_CODENAME: Diana
+  APP_VERSION: 1.4.0
+  APP_CODENAME: Elena
 
 permissions:
   contents: write   # allow uploading assets to the release
@@ -90,7 +90,7 @@ jobs:
             -DCMAKE_PREFIX_PATH=/mingw64 \
             -DWITH_BUNDLED_LIBVNC=ON \
             -DWITH_WEBAPI=OFF \
-            -DWITH_TRANSLATIONS=OFF \
+            -DWITH_TRANSLATIONS=ON \
             -DWITH_TESTS=OFF \
             -DWITH_LTO=OFF \
             -DWITH_PCH=OFF \
@@ -118,6 +118,9 @@ jobs:
 
           # plugins: real plugin modules into plugins/, helper libs to the root
           find build/plugins -name '*.dll' -exec cp {} "$STAGE/plugins/" \;
+          # user interface translations (Indonesian is the default language)
+          mkdir -p "$STAGE/translations"
+          find build/translations -name '*.qm' -exec cp {} "$STAGE/translations/" \;
           ( cd "$STAGE/plugins" && for f in lib*.dll; do [ -e "$f" ] && mv "$f" "$STAGE/"; done; true )
 
           # vendored interception runtime

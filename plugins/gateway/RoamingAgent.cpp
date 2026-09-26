@@ -32,6 +32,9 @@
 #include <QSysInfo>
 
 #include "AccessControlRule.h"
+#ifdef ARUNI_HAVE_APPLICATION_LIST
+#include "ApplicationList.h"
+#endif
 #include "PlatformFilesystemFunctions.h"
 #include "PlatformUserFunctions.h"
 #include "RoamingAgent.h"
@@ -122,7 +125,14 @@ QJsonObject RoamingAgent::helloInfo()
 		}
 	}
 
+	QString application;
+#ifdef ARUNI_HAVE_APPLICATION_LIST
+	// for the activity history of the office gateway
+	application = frontmostApplication();
+#endif
+
 	return QJsonObject{
+		{ QStringLiteral("app"), application },
 		{ QStringLiteral("name"), QHostInfo::localHostName() },
 		{ QStringLiteral("os"), QSysInfo::prettyProductName() },
 		{ QStringLiteral("version"), VeyonCore::versionString() },

@@ -24,12 +24,16 @@
 
 #pragma once
 
+#include <QDateTime>
 #include <QTimer>
 
 #include "ConfigurationPage.h"
 
 class QCheckBox;
 class QComboBox;
+class QSpinBox;
+class QTabWidget;
+class Notifier;
 class QLabel;
 class QLineEdit;
 class QPushButton;
@@ -57,6 +61,14 @@ private:
 	void renewEnrollmentCode();
 	void removeSelectedLaptop();
 	void applyRoaming();
+
+	QWidget* createScreenshotBox();
+	QWidget* createNotificationsTab();
+	QWidget* createActivityTab();
+	void refreshActivity();
+	void exportActivity();
+	void detectTelegramChat();
+	void sendTestNotification();
 
 	QCheckBox* m_enabled;
 	QLineEdit* m_siteName;
@@ -88,6 +100,31 @@ private:
 	QCheckBox* m_roamingEnabled;
 	QLineEdit* m_roamingCode;
 	QLabel* m_roamingStatus;
+
+	QTabWidget* m_tabs;
+	int m_laptopsTabIndex{-1};
+	int m_notificationsTabIndex{-1};
+	int m_activityTabIndex{-1};
+
+	// screenshots
+	QComboBox* m_screenshotInterval;
+	QSpinBox* m_screenshotRetention;
+	QCheckBox* m_screenshotInOffice;
+	QLabel* m_screenshotStatus;
+
+	// notifications
+	QLineEdit* m_telegramToken;
+	QLineEdit* m_telegramChatId;
+	QSpinBox* m_offlineAlertHours;
+	QCheckBox* m_notifyRefused;
+	QCheckBox* m_notifyNewLaptop;
+	QLabel* m_notificationStatus;
+	Notifier* m_notifier;
+
+	// activity
+	QComboBox* m_activityRange;
+	QTableWidget* m_activity;
+	QDateTime m_activityModified;
 
 	QTimer m_refreshTimer;
 

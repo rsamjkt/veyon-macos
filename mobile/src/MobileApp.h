@@ -31,8 +31,12 @@
 #include "ComputerControlInterface.h"
 #include "FeatureProviderInterface.h"
 
+#include "AppMonitorController.h"
+#include "AppUpdater.h"
+#include "ChatController.h"
 #include "ComputerGridModel.h"
 #include "GatewayManager.h"
+#include "VoiceController.h"
 #include "VpnController.h"
 
 class VeyonMaster;
@@ -48,6 +52,10 @@ class MobileApp : public QObject
 	Q_PROPERTY(ComputerGridModel* computers READ computers CONSTANT)
 	Q_PROPERTY(VpnController* vpn READ vpn CONSTANT)
 	Q_PROPERTY(GatewayManager* gateways READ gateways CONSTANT)
+	Q_PROPERTY(ChatController* chat READ chat CONSTANT)
+	Q_PROPERTY(VoiceController* voice READ voice CONSTANT)
+	Q_PROPERTY(AppMonitorController* appMonitor READ appMonitor CONSTANT)
+	Q_PROPERTY(AppUpdater* updater READ updater CONSTANT)
 	Q_PROPERTY(bool authenticated READ isAuthenticated NOTIFY authenticationChanged)
 	Q_PROPERTY(QString authMethod READ authMethod NOTIFY authenticationChanged)
 	Q_PROPERTY(QString authName READ authName NOTIFY authenticationChanged)
@@ -75,9 +83,29 @@ public:
 		return m_vpn;
 	}
 
+	AppUpdater* updater() const
+	{
+		return m_updater;
+	}
+
 	GatewayManager* gateways() const
 	{
 		return m_gateways;
+	}
+
+	ChatController* chat() const
+	{
+		return m_chat;
+	}
+
+	VoiceController* voice() const
+	{
+		return m_voice;
+	}
+
+	AppMonitorController* appMonitor() const
+	{
+		return m_appMonitor;
 	}
 
 	bool isAuthenticated() const;
@@ -170,5 +198,9 @@ private:
 	ComputerGridModel* m_computers;
 	VpnController* m_vpn;
 	GatewayManager* m_gateways;
+	AppUpdater* m_updater;
+	ChatController* m_chat;
+	VoiceController* m_voice;
+	AppMonitorController* m_appMonitor;
 
 };

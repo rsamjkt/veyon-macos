@@ -48,6 +48,12 @@ bool TranslationLoader::load( const QString& resourceName )
 	{
 		configuredLocale = QLocale( configuredLocaleMatch.captured( 1 ) );
 	}
+	else
+	{
+		// AruniControl speaks Indonesian unless another language is chosen in
+		// the Configurator (General → Language)
+		configuredLocale = QLocale( QLocale::Indonesian, QLocale::Indonesia );
+	}
 
 	if( configuredLocale.language() != QLocale::English &&
 		VeyonCore::instance()->findChild<QTranslator *>( resourceName ) == nullptr )

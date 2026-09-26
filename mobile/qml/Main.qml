@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Controls.Basic
+import QtQuick.Layouts
 import QtQuick.Window
 
 ApplicationWindow {
@@ -49,6 +50,19 @@ ApplicationWindow {
 	function openScreenshots() { stack.push(Qt.resolvedUrl("ScreenshotsPage.qml")) }
 	function openRemoteAccess() { stack.push(Qt.resolvedUrl("RemoteAccessPage.qml")) }
 	function openCollected() { stack.push(Qt.resolvedUrl("CollectedFilesPage.qml")) }
+
+	// per-computer tools (Chat, AruniVoice, application monitoring)
+	function openChat(uid) {
+		const current = stack.currentItem
+		if (current && current.objectName === "chatPage") {
+			if (current.computerUid === uid)
+				return
+			stack.pop(StackView.Immediate)
+		}
+		stack.push(Qt.resolvedUrl("ChatPage.qml"), { computerUid: uid, objectName: "chatPage" })
+	}
+	function openApps(uid) { stack.push(Qt.resolvedUrl("AppsPage.qml"), { computerUid: uid }) }
+	function openVoice(uid) { voiceSheet.start(uid) }
 
 	function goHome() {
 		stack.replace(null, Qt.resolvedUrl("HomePage.qml"))
@@ -121,6 +135,85 @@ ApplicationWindow {
 	Toast {
 		id: toastItem
 		bottomInset: window.safeBottom
+	}
+
+	VoiceSheet { id: voiceSheet }
+
+	// in-app notification for chat replies that arrive while that chat is closed
+	Rectangle {
+		id: replyBanner
+		property string uid
+		property string heading
+		property string body
+
+		function show(uid, computerName, sender, text) {
+			replyBanner.uid = uid
+			heading = sender.length > 0 ? qsTr("%1 · %2").arg(sender).arg(computerName) : computerName
+			body = text
+			bannerTimer.restart()
+			shown = true
+		}
+		property bool shown: false
+
+		z: 1001
+		anchors.horizontalCenter: parent.horizontalCenter
+		width: Math.min(parent.width - 2 * Theme.pad, 520)
+		height: bannerRow.implicitHeight + 24
+		y: shown ? window.safeTop + 8 : -height - 8
+		radius: 20
+		color: Theme.surface
+		border.width: 1
+		border.color: Theme.border
+		Behavior on y { NumberAnimation { duration: Theme.normal; easing.type: Easing.OutCubic } }
+
+		Rectangle {
+			z: -1
+			anchors.fill: parent
+			anchors.topMargin: 4
+			anchors.bottomMargin: -6
+			radius: parent.radius
+			color: "#000000"
+			opacity: Theme.dark ? 0.4 : 0.1
+		}
+
+		Timer { id: bannerTimer; interval: 6000; onTriggered: replyBanner.shown = false }
+
+		RowLayout {
+			id: bannerRow
+			anchors.fill: parent
+			anchors.margins: 12
+			spacing: 12
+			Rectangle {
+				width: 40; height: 40; radius: 20
+				color: Theme.accentSoft
+				Icon { anchors.centerIn: parent; name: "forum_fill"; color: Theme.accent; size: 22 }
+			}
+			ColumnLayout {
+				Layout.fillWidth: true
+				spacing: 1
+				AppText { Layout.fillWidth: true; text: replyBanner.heading; style: "label"; elide: Text.ElideRight; wrapMode: Text.NoWrap }
+				AppText { Layout.fillWidth: true; text: replyBanner.body; style: "caption"; muted: true; elide: Text.ElideRight; maximumLineCount: 2 }
+			}
+			AppText { text: qsTr("Balas"); style: "label"; color: Theme.accent }
+		}
+
+		TapHandler {
+			onTapped: {
+				replyBanner.shown = false
+				window.openChat(replyBanner.uid)
+			}
+		}
+		DragHandler {
+			target: null
+			yAxis.enabled: true
+			xAxis.enabled: false
+			onActiveChanged: if (!active && translation.y < -10) replyBanner.shown = false
+		}
+	}
+
+	Connections {
+		target: App.chat
+		function onReplyReceived(uid, computerName, sender, text) { replyBanner.show(uid, computerName, sender, text) }
 	}
 
 	Connections {

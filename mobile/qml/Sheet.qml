@@ -22,6 +22,13 @@ T.Drawer {
 	dim: true
 	interactive: true
 	dragMargin: 0
+	// the Basic style pads drawers by the safe area (Qt 6.9+); the sheet sizes
+	// itself from its content and adds the bottom inset itself, so the extra
+	// padding would clip the last row
+	topPadding: 0
+	bottomPadding: 0
+	leftPadding: 0
+	rightPadding: 0
 
 	T.Overlay.modal: Rectangle { color: Theme.scrim }
 

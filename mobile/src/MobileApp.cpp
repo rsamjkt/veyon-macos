@@ -118,7 +118,11 @@ MobileApp::MobileApp( VeyonMaster* master, QObject* parent ) :
 	m_master( master ),
 	m_computers( new ComputerGridModel( this ) ),
 	m_vpn( new VpnController( this ) ),
-	m_gateways( new GatewayManager( this ) )
+	m_gateways( new GatewayManager( this ) ),
+	m_updater( new AppUpdater( this ) ),
+	m_chat( new ChatController( m_computers, this ) ),
+	m_voice( new VoiceController( m_computers, this ) ),
+	m_appMonitor( new AppMonitorController( m_computers, this ) )
 {
 	// connections to computers behind a gateway go through its tunnel
 	VncConnection::setConnectionRedirector( [gateways = m_gateways]( const QString& host, int port,

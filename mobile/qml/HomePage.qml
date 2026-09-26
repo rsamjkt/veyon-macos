@@ -83,6 +83,18 @@ Page {
 				TapHandler { onTapped: window.openRemoteAccess() }
 			}
 			IconButton {
+				visible: App.chat.unreadTotal > 0
+				iconName: "forum"
+				tooltip: qsTr("Balasan chat")
+				onClicked: window.openChat(App.chat.nextUnreadUid())
+				Badge {
+					anchors.right: parent.right
+					anchors.top: parent.top
+					count: App.chat.unreadTotal
+					ringColor: Theme.background
+				}
+			}
+			IconButton {
 				iconName: "refresh"
 				tooltip: qsTr("Muat ulang")
 				onClicked: {
@@ -239,6 +251,69 @@ Page {
 					iconName: "close"
 					text: page.computers.filter === 1 ? qsTr("Hanya online") : qsTr("Ada pengguna")
 					onClicked: page.computers.filter = 0
+				}
+			}
+
+			// new app version (AppUpdater)
+			Rectangle {
+				readonly property var updater: App.updater
+				visible: updater.available && !updater.dismissed
+				Layout.fillWidth: true
+				Layout.leftMargin: 8
+				Layout.rightMargin: 8
+				implicitHeight: updateColumn.implicitHeight + 24
+				radius: Theme.radius
+				color: Theme.accentSoft
+				ColumnLayout {
+					id: updateColumn
+					anchors.fill: parent
+					anchors.margins: 12
+					spacing: 10
+					RowLayout {
+						Layout.fillWidth: true
+						spacing: 12
+						Icon { name: "download"; color: Theme.accent; size: 24 }
+						ColumnLayout {
+							Layout.fillWidth: true
+							spacing: 0
+							AppText {
+								Layout.fillWidth: true
+								text: qsTr("Versi %1 tersedia").arg(App.updater.version)
+								style: "label"
+							}
+							AppText {
+								Layout.fillWidth: true
+								style: "caption"
+								muted: true
+								color: App.updater.state === "error" ? Theme.danger : Theme.textMuted
+								text: App.updater.state === "downloading" ? qsTr("Mengunduh… %1%").arg(Math.round(App.updater.progress * 100))
+									: App.updater.state === "installing" ? qsTr("Ikuti petunjuk pemasangan Android.")
+									: App.updater.state === "error" ? App.updater.error
+									: qsTr("Perbaikan dan fitur baru. Data dan pengaturan tetap aman.")
+							}
+						}
+					}
+					Rectangle {
+						visible: App.updater.state === "downloading"
+						Layout.fillWidth: true
+						implicitHeight: 4
+						radius: 2
+						color: Theme.surfaceHigh
+						Rectangle {
+							width: parent.width * App.updater.progress
+							height: parent.height
+							radius: 2
+							color: Theme.accent
+						}
+					}
+					RowLayout {
+						Layout.fillWidth: true
+						visible: App.updater.state !== "downloading"
+						spacing: 8
+						Item { Layout.fillWidth: true }
+						AppButton { compact: true; variant: "ghost"; text: qsTr("Nanti"); onClicked: App.updater.dismiss() }
+						AppButton { compact: true; text: qsTr("Perbarui"); onClicked: App.updater.update() }
+					}
 				}
 			}
 

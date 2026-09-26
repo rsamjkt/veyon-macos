@@ -1,6 +1,7 @@
 # Application monitoring: lists running GUI apps on the client.
-# Implemented on macOS (NSWorkspace) and Windows (Win32 EnumWindows).
-if(VEYON_BUILD_APPLE OR VEYON_BUILD_WINDOWS)
+# Implemented on macOS (NSWorkspace) and Windows (Win32 EnumWindows); Android
+# (AruniControl Mobile) only needs the master side.
+if(VEYON_BUILD_APPLE OR VEYON_BUILD_WINDOWS OR VEYON_BUILD_ANDROID)
 
 include(BuildVeyonPlugin)
 
@@ -9,6 +10,8 @@ if(VEYON_BUILD_APPLE)
 	set(appmonitoring_platform_sources MacApplicationList.mm)
 elseif(VEYON_BUILD_WINDOWS)
 	set(appmonitoring_platform_sources WinApplicationList.cpp)
+else()
+	set(appmonitoring_platform_sources NullApplicationList.cpp)
 endif()
 
 build_veyon_plugin(appmonitoring

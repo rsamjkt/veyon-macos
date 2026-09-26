@@ -100,7 +100,7 @@ ported to the Win32 API and a Windows build is produced by CI:
 
 The Windows package is built natively with the **MSYS2 mingw-w64** toolchain via
 `.github/workflows/windows-build.yml` (the same compiler family Veyon uses
-upstream through MXE) and published as `AruniControl-Server-1.3.1-Diana-Windows-x64.zip`
+upstream through MXE) and published as `AruniControl-Server-1.4.0-Elena-Windows-x64.zip`
 on the GitHub release. It is a self-contained folder (Qt6, QCA + the `crypto/`
 providers for RSA auth, OpenSSL, the Interception runtime, the UltraVNC screen
 server, the Windows platform plugin and all add-ons).

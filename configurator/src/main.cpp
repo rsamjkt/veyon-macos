@@ -24,6 +24,7 @@
 
 #include <QApplication>
 #include <QListWidget>
+#include <QTabWidget>
 #include <QTimer>
 #include <QMessageBox>
 
@@ -90,6 +91,18 @@ int main( int argc, char **argv )
 		if( items.isEmpty() == false )
 		{
 			pageSelector->setCurrentItem( items.first() );
+		}
+		// ARUNI_SCREENSHOT_TAB selects a tab of the page, e.g. "Riwayat"
+		const auto tabName = qEnvironmentVariable( "ARUNI_SCREENSHOT_TAB" );
+		for( auto tabs : mainWindow->findChildren<QTabWidget *>() )
+		{
+			for( int i = 0; tabName.isEmpty() == false && i < tabs->count(); ++i )
+			{
+				if( tabs->tabText( i ) == tabName )
+				{
+					tabs->setCurrentIndex( i );
+				}
+			}
 		}
 		const auto height = qEnvironmentVariableIntValue( "ARUNI_SCREENSHOT_HEIGHT" );
 		if( height > 0 )

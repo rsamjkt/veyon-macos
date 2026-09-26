@@ -21,6 +21,8 @@ Page {
 	readonly property real viewWidth: fb.width * fitScale * zoom
 	readonly property real viewHeight: fb.height * fitScale * zoom
 	readonly property string computerName: App.computers.nameOf(computerUid)
+	// unread chat replies from this computer (re-evaluated on every change)
+	readonly property int unreadChat: App.chat.unreadTotal >= 0 ? App.chat.unreadCount(computerUid) : 0
 
 	function clampPan() {
 		const maxX = Math.max(0, (viewWidth - stage.width) / 2)
@@ -347,6 +349,12 @@ Page {
 				iconName: "more_vert"
 				iconColor: "#FFFFFF"
 				onClicked: moreSheet.open()
+				Badge {
+					anchors.right: parent.right
+					anchors.top: parent.top
+					count: page.unreadChat
+					ringColor: "#1A1714"
+				}
 			}
 		}
 	}
@@ -627,6 +635,9 @@ Page {
 				{ key: "lock", icon: "lock", label: qsTr("Kunci layar") },
 				{ key: "unlock", icon: "lock_open", label: qsTr("Buka kunci layar") },
 				{ key: "message", icon: "chat", label: qsTr("Kirim pesan") },
+				{ key: "chat", icon: "forum", label: qsTr("Chat dengan pengguna"), feature: "Chat" },
+				{ key: "voice", icon: "record_voice_over", label: qsTr("Bicara (AruniVoice)"), feature: "AruniVoice" },
+				{ key: "apps", icon: "apps", label: qsTr("Aplikasi yang berjalan"), feature: "ApplicationMonitoring" },
 				{ key: "share", icon: "screen_share", label: qsTr("Tampilkan layar ini ke semua") },
 				{ key: "inputLock", icon: "keyboard_off", label: qsTr("Kunci keyboard & mouse") },
 				{ key: "inputUnlock", icon: "keyboard", label: qsTr("Buka keyboard & mouse") },
@@ -634,7 +645,7 @@ Page {
 				{ key: "fit", icon: "fullscreen_exit", label: qsTr("Tampilkan layar penuh (reset zoom)") },
 				{ key: "reboot", icon: "restart_alt", label: qsTr("Mulai ulang"), danger: true },
 				{ key: "off", icon: "power_settings_new", label: qsTr("Matikan"), danger: true }
-			]
+			].filter(a => !a.feature || App.hasFeature(a.feature))
 			delegate: ListRow {
 				required property var modelData
 				Layout.fillWidth: true
@@ -647,6 +658,7 @@ Page {
 				title: modelData.label
 				danger: !!modelData.danger
 				chevron: false
+				value: modelData.key === "chat" && page.unreadChat > 0 ? qsTr("%1 baru").arg(page.unreadChat) : ""
 				onClicked: {
 					moreSheet.close()
 					const uids = [page.computerUid]
@@ -658,6 +670,9 @@ Page {
 						messageSheet.targetLabel = page.computerName
 						messageSheet.open()
 						break
+					case "chat": window.openChat(page.computerUid); break
+					case "voice": window.openVoice(page.computerUid); break
+					case "apps": window.openApps(page.computerUid); break
 					case "screenshot": page.takeScreenshot(); break
 					case "share":
 						shareSheet.sourceUid = page.computerUid

@@ -18,7 +18,7 @@ FRAMEWORKS_DIR="${CONTENTS}/Frameworks"
 PLUGIN_DIR="${CONTENTS}/lib/veyon"
 RES_DIR="${CONTENTS}/Resources"
 
-VERSION="1.3.1"
+VERSION="1.4.0"
 BUNDLE_ID="id.arunika.arunicontrol"
 
 if ! command -v brew >/dev/null 2>&1; then echo "error: Homebrew required" >&2; exit 1; fi
@@ -104,6 +104,10 @@ done
 echo "==> Running macdeployqt (bundling Qt + dependencies)"
 "${MACDEPLOYQT}" "${APP}" "${EXECUTABLE_ARGS[@]}" -verbose=1 || true
 
+echo "==> Copying translations"
+mkdir -p "${RES_DIR}/translations"
+find "${BUILD_DIR}/translations" -name '*.qm' -exec cp {} "${RES_DIR}/translations/" \;
+
 echo "==> Bundling QCA crypto provider plugins"
 # QCA loads its crypto providers from its build-time plugin dir inside Homebrew,
 # so they have to be bundled to be found on a machine without Homebrew. Only the
@@ -183,12 +187,33 @@ while IFS= read -r -d '' f; do
 	add_rpath "$f" "@executable_path/../Frameworks"
 done < <(find "${MACOS_DIR}" "${PLUGIN_DIR}" "${FRAMEWORKS_DIR}" "${CONTENTS}/PlugIns" -type f -print0 2>/dev/null)
 
-echo "==> Ad-hoc code signing (must be the final step)"
+# A stable signing identity keeps the macOS permissions (Screen Recording,
+# Accessibility) across updates: they are bound to the code's designated
+# requirement, which for ad-hoc signatures is the hash of each build. The
+# self-signed "AruniControl Code Signing" certificate lives in its own
+# keychain (see ~/Library/AruniSigning/signing.env); without it the bundle is
+# signed ad hoc as before.
+SIGN_ID="-"
+SIGN_ENV="${ARUNI_SIGNING_ENV:-$HOME/Library/AruniSigning/signing.env}"
+if [ -f "$SIGN_ENV" ]; then
+	# shellcheck disable=SC1090
+	. "$SIGN_ENV"
+	if security unlock-keychain -p "$ARUNI_SIGN_KEYCHAIN_PASS" "$ARUNI_SIGN_KEYCHAIN" 2>/dev/null; then
+		case "$(security list-keychains -d user)" in
+			*aruni-signing*) ;;
+			*) security list-keychains -d user -s $(security list-keychains -d user | tr -d '"') "$ARUNI_SIGN_KEYCHAIN" ;;
+		esac
+		SIGN_ID="$ARUNI_SIGN_IDENTITY"
+	fi
+fi
+
+echo "==> Code signing with identity '${SIGN_ID}' (must be the final step)"
 # sign nested code first (deepest first), then the bundle
-find "${APP}" \( -name '*.dylib' -o -name '*.so' \) -exec codesign --force --timestamp=none --sign - {} \; 2>/dev/null || true
-find "${FRAMEWORKS_DIR}" -name '*.framework' -maxdepth 1 -exec codesign --force --timestamp=none --sign - {} \; 2>/dev/null || true
-for exe in "${MACOS_DIR}"/*; do codesign --force --timestamp=none --sign - "$exe" 2>/dev/null || true; done
-codesign --force --timestamp=none --sign - "${APP}" 2>/dev/null || true
+find "${APP}" \( -name '*.dylib' -o -name '*.so' \) -exec codesign --force --timestamp=none --sign "${SIGN_ID}" {} \; 2>/dev/null || true
+find "${FRAMEWORKS_DIR}" -name '*.framework' -maxdepth 1 -exec codesign --force --timestamp=none --sign "${SIGN_ID}" {} \; 2>/dev/null || true
+for exe in "${MACOS_DIR}"/*; do codesign --force --timestamp=none --sign "${SIGN_ID}" "$exe" 2>/dev/null || true; done
+codesign --force --timestamp=none --sign "${SIGN_ID}" "${APP}" 2>/dev/null || true
+codesign -d -r- "${MACOS_DIR}/veyon-server" 2>&1 | sed -n 's/^designated => /    designated requirement: /p'
 
 echo "==> Verifying no Homebrew paths leak into the bundle"
 # Contents/PlugIns has to be part of this: a crypto provider or Qt plugin that

@@ -33,12 +33,15 @@
 #include <QSet>
 #include <QUdpSocket>
 
+#include "ActivityLog.h"
 #include "Filesystem.h"
 #include "GatewayService.h"
 #include "GatewaySession.h"
 #include "NetworkObjectDirectory.h"
 #include "NetworkObjectDirectoryManager.h"
+#include "Notifier.h"
 #include "PlatformFilesystemFunctions.h"
+#include "ScreenshotScheduler.h"
 #include "VeyonConfiguration.h"
 #include "VeyonCore.h"
 
@@ -103,6 +106,12 @@ GatewayService::GatewayService( QObject* parent ) :
 		}
 	} );
 
+	m_notifier = new Notifier( this );
+	m_screenshots = new ScreenshotScheduler( this );
+
+	connect( &m_alertTimer, &QTimer::timeout, this, &GatewayService::checkOfflineAlerts );
+	m_alertTimer.start( 60 * 1000 );
+
 	checkState();
 }
 
@@ -158,6 +167,7 @@ bool GatewayService::authorizeDevice( const QByteArray& deviceKey, const QByteAr
 		m_state.devices.append( device );
 		m_state.pairingToken.clear();
 		vInfo() << "Aruni Gateway: paired new device" << device.name;
+		ActivityLog::append( QStringLiteral("phone.paired"), device.name );
 	}
 
 	return saved;
@@ -325,6 +335,11 @@ bool GatewayService::authorizeAgent( const QByteArray& agentKey, const QByteArra
 	}
 
 	m_state.agents.append( agent );
+	ActivityLog::append( QStringLiteral("laptop.registered"), agent.name );
+	if( m_state.notifyNewLaptop )
+	{
+		notify( tr( "🆕 New roaming laptop registered: %1" ).arg( agent.name ) );
+	}
 	vInfo() << "Aruni Gateway: registered roaming laptop" << agent.name << "on port" << GatewayState::agentPort( agent.slot );
 	return true;
 }
@@ -385,6 +400,13 @@ void GatewayService::agentConnected( GatewaySession* session )
 	online.since = QDateTime::currentDateTimeUtc();
 	m_onlineAgents.insert( key, online );
 
+	// logged once the first hello tells where the laptop is (agentHello)
+	if( agent->alerted )
+	{
+		notify( tr( "✅ %1 is online again" ).arg( agent->name ) );
+		setAgentAlerted( key, false );
+	}
+
 	writeStatus();
 }
 
@@ -400,7 +422,15 @@ void GatewayService::agentDisconnected( GatewaySession* session )
 	}
 
 	delete it->server;
+	const auto since = it->since;
+	const bool helloSeen = it->hello.isEmpty() == false;
 	m_onlineAgents.erase( it );
+
+	if( helloSeen )
+	{
+		ActivityLog::append( QStringLiteral("laptop.offline"), agentName( key ),
+							 { { QStringLiteral("seconds"), since.secsTo( QDateTime::currentDateTimeUtc() ) } } );
+	}
 
 	GatewayState::update( [&key]( GatewayState& state ) {
 		for( auto& agent : state.agents )
@@ -420,11 +450,45 @@ void GatewayService::agentDisconnected( GatewaySession* session )
 void GatewayService::agentHello( const QByteArray& agentKey, const QJsonObject& hello )
 {
 	const auto it = m_onlineAgents.find( agentKey );
-	if( it != m_onlineAgents.end() )
+	if( it == m_onlineAgents.end() )
 	{
-		it->hello = hello;
-		writeStatus();
+		return;
 	}
+
+	const auto name = agentName( agentKey );
+	const auto user = hello[QStringLiteral("user")].toString();
+	const auto where = hello[QStringLiteral("local")].toBool() ? QStringLiteral("office") : QStringLiteral("away");
+	const auto app = hello[QStringLiteral("app")].toString();
+
+	const auto previous = it->hello;
+	it->hello = hello;
+
+	if( previous.isEmpty() )
+	{
+		ActivityLog::append( QStringLiteral("laptop.online"), name, {
+			{ QStringLiteral("user"), user },
+			{ QStringLiteral("where"), where },
+			{ QStringLiteral("os"), hello[QStringLiteral("os")].toString() },
+		} );
+	}
+	else
+	{
+		if( previous[QStringLiteral("local")].toBool() != hello[QStringLiteral("local")].toBool() )
+		{
+			ActivityLog::append( QStringLiteral("laptop.location"), name, { { QStringLiteral("where"), where } } );
+		}
+		if( previous[QStringLiteral("user")].toString() != user )
+		{
+			ActivityLog::append( QStringLiteral("laptop.user"), name, { { QStringLiteral("user"), user } } );
+		}
+	}
+
+	if( app.isEmpty() == false && app != previous[QStringLiteral("app")].toString() )
+	{
+		ActivityLog::append( QStringLiteral("laptop.app"), name, { { QStringLiteral("app"), app }, { QStringLiteral("user"), user } } );
+	}
+
+	writeStatus();
 }
 
 
@@ -510,6 +574,8 @@ void GatewayService::dropRemovedAgents()
 		if( findAgent( key ) == nullptr )
 		{
 			vInfo() << "Aruni Gateway: disconnecting removed roaming laptop";
+			ActivityLog::append( QStringLiteral("laptop.removed"),
+								 m_onlineAgents.value( key ).hello[QStringLiteral("name")].toString() );
 			dropAgent( key );
 		}
 	}
@@ -557,6 +623,124 @@ QByteArray GatewayService::roamingDirectoryJson() const
 		{ QStringLiteral("site"), m_state.siteName },
 		{ QStringLiteral("laptops"), laptops },
 	} ).toJson( QJsonDocument::Compact );
+}
+
+
+
+void GatewayService::phoneConnected( const QByteArray& deviceKey )
+{
+	const auto now = QDateTime::currentDateTimeUtc();
+	const auto last = m_phoneLogged.value( deviceKey );
+	if( last.isValid() == false || last.secsTo( now ) >= 3600 )
+	{
+		m_phoneLogged[deviceKey] = now;
+		ActivityLog::append( QStringLiteral("phone.connected"), deviceName( deviceKey ) );
+	}
+}
+
+
+
+void GatewayService::sessionRefused( bool agent )
+{
+	ActivityLog::append( agent ? QStringLiteral("laptop.rejected") : QStringLiteral("phone.rejected"), {} );
+
+	// at most one alert per 10 minutes - a misconfigured device retries often
+	const auto now = QDateTime::currentDateTimeUtc();
+	if( m_state.notifyRefused && ( m_lastRefusedAlert.isValid() == false || m_lastRefusedAlert.secsTo( now ) > 600 ) )
+	{
+		m_lastRefusedAlert = now;
+		notify( agent ? tr( "⛔ A laptop was refused by the gateway \"%1\" (removed, or an old enrollment code)" ).arg( m_state.siteName )
+					  : tr( "⛔ Refused access attempt at the gateway \"%1\" (unknown phone or invalid pairing code)" ).arg( m_state.siteName ) );
+	}
+}
+
+
+
+QList<GatewayService::OnlineLaptop> GatewayService::onlineLaptops() const
+{
+	QList<OnlineLaptop> laptops;
+	for( auto it = m_onlineAgents.cbegin(); it != m_onlineAgents.cend(); ++it )
+	{
+		const auto agent = findAgent( it.key() );
+		// the laptop reported itself (and where it is) at least once
+		if( agent && it->hello.isEmpty() == false )
+		{
+			laptops.append( { it.key(), agent->name, GatewayState::agentPort( agent->slot ), isAgentLocal( it.value() ) } );
+		}
+	}
+	return laptops;
+}
+
+
+
+void GatewayService::setScreenshotError( const QString& error )
+{
+	if( error != m_screenshotError )
+	{
+		m_screenshotError = error;
+		if( error.isEmpty() == false )
+		{
+			vWarning() << "Aruni Gateway screenshots:" << error;
+		}
+		writeStatus();
+	}
+}
+
+
+
+void GatewayService::notify( const QString& text )
+{
+	if( m_state.isTelegramConfigured() )
+	{
+		m_notifier->send( m_state.telegramToken, m_state.telegramChatId,
+						  QStringLiteral("%1\n— %2").arg( text, m_state.siteName ) );
+	}
+}
+
+
+
+void GatewayService::checkOfflineAlerts()
+{
+	if( m_haveLock == false || m_state.enabled == false || m_state.offlineAlertHours <= 0 )
+	{
+		return;
+	}
+
+	const auto now = QDateTime::currentDateTimeUtc();
+	for( const auto& agent : std::as_const( m_state.agents ) )
+	{
+		if( agent.alerted || m_onlineAgents.contains( agent.publicKey ) || agent.lastSeen.isValid() == false ||
+			agent.lastSeen.secsTo( now ) < m_state.offlineAlertHours * 3600 )
+		{
+			continue;
+		}
+
+		notify( tr( "⚠️ %1 has been offline since %2" ).arg( agent.name, QLocale().toString( agent.lastSeen.toLocalTime(), QLocale::ShortFormat ) ) );
+		setAgentAlerted( agent.publicKey, true );
+	}
+}
+
+
+
+void GatewayService::setAgentAlerted( const QByteArray& agentKey, bool alerted )
+{
+	for( auto& agent : m_state.agents )
+	{
+		if( agent.publicKey == agentKey )
+		{
+			agent.alerted = alerted;
+		}
+	}
+
+	GatewayState::update( [&agentKey, alerted]( GatewayState& state ) {
+		for( auto& agent : state.agents )
+		{
+			if( agent.publicKey == agentKey )
+			{
+				agent.alerted = alerted;
+			}
+		}
+	} );
 }
 
 
@@ -770,6 +954,7 @@ void GatewayService::writeStatus()
 
 	GatewayState::writeStatus( {
 		{ QStringLiteral("agents"), agents },
+		{ QStringLiteral("screenshotError"), m_screenshotError },
 		{ QStringLiteral("running"), true },
 		{ QStringLiteral("enabled"), m_state.enabled },
 		{ QStringLiteral("connected"), m_connected },

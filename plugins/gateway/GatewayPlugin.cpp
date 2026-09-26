@@ -26,6 +26,7 @@
 #include <QJsonArray>
 #include <QTimer>
 
+#include "ActivityLog.h"
 #include "GatewayConfigurationPage.h"
 #include "GatewayPlugin.h"
 #include "GatewayService.h"
@@ -41,6 +42,7 @@ GatewayPlugin::GatewayPlugin( QObject* parent ) :
 		{ QStringLiteral("leave"), tr( "Stop the roaming laptop mode" ) },
 		{ QStringLiteral("enrollmentcode"), tr( "Print the enrollment code for roaming laptops (on the office gateway)" ) },
 		{ QStringLiteral("runroaming"), tr( "Run the roaming laptop connection in the foreground (for testing)" ) },
+		{ QStringLiteral("activity"), tr( "Show the activity history of the gateway, or export it: activity <file.csv> [days]" ) },
 	} )
 {
 	// the gateway and the roaming laptop mode live in the always-running
@@ -194,4 +196,32 @@ CommandLinePluginInterface::RunResult GatewayPlugin::handle_runroaming( const QS
 ConfigurationPage* GatewayPlugin::createConfigurationPage()
 {
 	return new GatewayConfigurationPage;
+}
+
+
+
+
+CommandLinePluginInterface::RunResult GatewayPlugin::handle_activity( const QStringList& arguments )
+{
+	const auto days = arguments.value( 1 ).toInt();
+	const auto since = days > 0 ? QDateTime::currentDateTimeUtc().addDays( -days ) : QDateTime{};
+
+	if( arguments.isEmpty() == false )
+	{
+		if( ActivityLog::exportCsv( arguments.first(), since ) == false )
+		{
+			error( tr( "Could not write %1." ).arg( arguments.first() ) );
+			return Failed;
+		}
+		info( tr( "Activity exported to %1" ).arg( arguments.first() ) );
+		return Successful;
+	}
+
+	const auto entries = ActivityLog::read( 50 );
+	for( auto it = entries.crbegin(); it != entries.crend(); ++it )
+	{
+		print( QStringLiteral("%1  %2  %3  %4").arg( it->time.toLocalTime().toString( QStringLiteral("yyyy-MM-dd HH:mm") ),
+													  ActivityLog::eventName( it->event ), it->subject, ActivityLog::describe( *it ) ) );
+	}
+	return NoResult;
 }

@@ -27,7 +27,11 @@
 #include <QClipboard>
 #include <QComboBox>
 #include <QFileInfo>
+#include <QDesktopServices>
 #include <QDir>
+#include <QFileDialog>
+#include <QSpinBox>
+#include <QTabWidget>
 #include <QFormLayout>
 #include <QGroupBox>
 #include <QHBoxLayout>
@@ -46,7 +50,10 @@
 
 #include "qrcodegen.hpp"
 
+#include "ActivityLog.h"
 #include "GatewayConfigurationPage.h"
+#include "Notifier.h"
+#include "ScreenshotScheduler.h"
 #include "Filesystem.h"
 #include "GatewayState.h"
 #include "RoamingAgent.h"
@@ -58,9 +65,21 @@ GatewayConfigurationPage::GatewayConfigurationPage( QWidget* parent ) :
 	ConfigurationPage( parent )
 {
 	setWindowTitle( tr( "Aruni Gateway" ) );
+	m_notifier = new Notifier( this );
 	setWindowIcon( QIcon( QStringLiteral(":/core/application-x-pem-key.png") ) );
 
-	auto layout = new QVBoxLayout( this );
+	auto pageLayout = new QVBoxLayout( this );
+	pageLayout->setContentsMargins( 0, 0, 0, 0 );
+	m_tabs = new QTabWidget;
+	pageLayout->addWidget( m_tabs );
+
+	auto gatewayTab = new QWidget;
+	auto layout = new QVBoxLayout( gatewayTab );
+	m_tabs->addTab( gatewayTab, tr( "Gateway" ) );
+
+	auto laptopsTab = new QWidget;
+	auto laptopsTabLayout = new QVBoxLayout( laptopsTab );
+	m_laptopsTabIndex = m_tabs->addTab( laptopsTab, tr( "Laptops" ) );
 
 	// --- general
 	auto generalBox = new QGroupBox( tr( "Access from the AruniControl app over the internet" ) );
@@ -185,7 +204,11 @@ GatewayConfigurationPage::GatewayConfigurationPage( QWidget* parent ) :
 	laptopsLayout->addWidget( m_laptops );
 	m_removeLaptopButton = new QPushButton( tr( "Remove laptop" ) );
 	laptopsLayout->addWidget( m_removeLaptopButton, 0, Qt::AlignLeft );
-	layout->addWidget( laptopsBox, 1 );
+	laptopsTabLayout->addWidget( laptopsBox, 1 );
+	laptopsTabLayout->addWidget( createScreenshotBox() );
+
+	m_notificationsTabIndex = m_tabs->addTab( createNotificationsTab(), tr( "Notifications" ) );
+	m_activityTabIndex = m_tabs->addTab( createActivityTab(), tr( "Activity" ) );
 
 	// --- this computer as roaming laptop
 	auto roamingBox = new QGroupBox( tr( "This laptop outside the office" ) );
@@ -239,6 +262,16 @@ GatewayConfigurationPage::GatewayConfigurationPage( QWidget* parent ) :
 		refreshStatus();
 		refreshDevices();
 		refreshRoaming();
+		if( m_tabs->currentIndex() == m_activityTabIndex )
+		{
+			refreshActivity();
+		}
+	} );
+	connect( m_tabs, &QTabWidget::currentChanged, this, [this]( int index ) {
+		if( index == m_activityTabIndex )
+		{
+			refreshActivity();
+		}
 	} );
 	m_refreshTimer.start( 2000 );
 }
@@ -271,6 +304,15 @@ void GatewayConfigurationPage::resetWidgets()
 	}
 	m_sharedKey->setCurrentIndex( qMax( 0, m_sharedKey->findData( state.sharedKeyName ) ) );
 
+	m_screenshotInterval->setCurrentIndex( qMax( 0, m_screenshotInterval->findData( state.screenshotInterval ) ) );
+	m_screenshotRetention->setValue( state.screenshotRetentionDays );
+	m_screenshotInOffice->setChecked( state.screenshotInOffice );
+	m_telegramToken->setText( state.telegramToken );
+	m_telegramChatId->setText( state.telegramChatId );
+	m_offlineAlertHours->setValue( state.offlineAlertHours );
+	m_notifyRefused->setChecked( state.notifyRefused );
+	m_notifyNewLaptop->setChecked( state.notifyNewLaptop );
+
 	const QSignalBlocker roamingBlocker( m_roamingEnabled );
 	m_roamingEnabled->setChecked( state.roamingEnabled );
 	m_roamingCode->setText( state.roamingHub.gatewayId.isEmpty() ? QString{} : state.roamingHub.encode() );
@@ -287,6 +329,14 @@ void GatewayConfigurationPage::connectWidgetsToProperties()
 	connect( m_siteName, &QLineEdit::textChanged, this, &ConfigurationPage::widgetsChanged );
 	connect( m_relayUrl, &QLineEdit::textChanged, this, &ConfigurationPage::widgetsChanged );
 	connect( m_sharedKey, &QComboBox::currentIndexChanged, this, &ConfigurationPage::widgetsChanged );
+	connect( m_screenshotInterval, &QComboBox::currentIndexChanged, this, &ConfigurationPage::widgetsChanged );
+	connect( m_screenshotRetention, &QSpinBox::valueChanged, this, &ConfigurationPage::widgetsChanged );
+	connect( m_screenshotInOffice, &QCheckBox::toggled, this, &ConfigurationPage::widgetsChanged );
+	connect( m_telegramToken, &QLineEdit::textChanged, this, &ConfigurationPage::widgetsChanged );
+	connect( m_telegramChatId, &QLineEdit::textChanged, this, &ConfigurationPage::widgetsChanged );
+	connect( m_offlineAlertHours, &QSpinBox::valueChanged, this, &ConfigurationPage::widgetsChanged );
+	connect( m_notifyRefused, &QCheckBox::toggled, this, &ConfigurationPage::widgetsChanged );
+	connect( m_notifyNewLaptop, &QCheckBox::toggled, this, &ConfigurationPage::widgetsChanged );
 }
 
 
@@ -297,8 +347,24 @@ void GatewayConfigurationPage::applyConfiguration()
 	const auto siteName = m_siteName->text().trimmed();
 	const auto relayUrl = m_relayUrl->text().trimmed();
 	const auto sharedKey = m_sharedKey->currentData().toString();
+	const auto screenshotInterval = m_screenshotInterval->currentData().toInt();
+	const auto screenshotRetention = m_screenshotRetention->value();
+	const auto screenshotInOffice = m_screenshotInOffice->isChecked();
+	const auto telegramToken = m_telegramToken->text().trimmed();
+	const auto telegramChatId = m_telegramChatId->text().trimmed();
+	const auto offlineAlertHours = m_offlineAlertHours->value();
+	const auto notifyRefused = m_notifyRefused->isChecked();
+	const auto notifyNewLaptop = m_notifyNewLaptop->isChecked();
 
 	if( GatewayState::update( [=]( GatewayState& state ) {
+			state.screenshotInterval = screenshotInterval;
+			state.screenshotRetentionDays = screenshotRetention;
+			state.screenshotInOffice = screenshotInOffice;
+			state.telegramToken = telegramToken;
+			state.telegramChatId = telegramChatId;
+			state.offlineAlertHours = offlineAlertHours;
+			state.notifyRefused = notifyRefused;
+			state.notifyNewLaptop = notifyNewLaptop;
 			state.enabled = enabled;
 			if( siteName.isEmpty() == false )
 			{
@@ -476,6 +542,9 @@ void GatewayConfigurationPage::refreshRoaming()
 
 	// a computer is either the office gateway or a roaming laptop
 	m_laptopsBox->setVisible( state.enabled );
+	m_tabs->setTabVisible( m_laptopsTabIndex, state.enabled );
+	m_tabs->setTabVisible( m_notificationsTabIndex, state.enabled );
+	m_tabs->setTabVisible( m_activityTabIndex, state.enabled );
 	m_pairBox->setVisible( state.enabled );
 	m_devicesBox->setVisible( state.enabled );
 	m_roamingBox->setVisible( state.enabled == false );
@@ -524,6 +593,30 @@ void GatewayConfigurationPage::refreshRoaming()
 		}
 		m_laptops->setCurrentCell( qMin( selected, m_laptops->rowCount() - 1 ), 0 );
 		m_removeLaptopButton->setEnabled( m_laptops->rowCount() > 0 );
+	}
+
+	if( state.enabled )
+	{
+		const auto keyName = ScreenshotScheduler::availableKeyName( state.sharedKeyName );
+		const auto error = GatewayState::readStatus()[QStringLiteral("screenshotError")].toString();
+		if( m_screenshotInterval->currentData().toInt() <= 0 )
+		{
+			m_screenshotStatus->setText( tr( "Off" ) );
+		}
+		else if( keyName.isEmpty() )
+		{
+			m_screenshotStatus->setText( QStringLiteral("<span style='color:#dc3b3f'>●</span> %1").arg(
+				tr( "This computer needs a private authentication key (Authentication keys) to connect to the laptops" ).toHtmlEscaped() ) );
+		}
+		else if( error.isEmpty() == false )
+		{
+			m_screenshotStatus->setText( QStringLiteral("<span style='color:#dc3b3f'>●</span> %1").arg( error.toHtmlEscaped() ) );
+		}
+		else
+		{
+			m_screenshotStatus->setText( QStringLiteral("<span style='color:#1f9d55'>●</span> %1").arg(
+				tr( "Active, using the key \"%1\"" ).arg( keyName ).toHtmlEscaped() ) );
+		}
 	}
 
 	QString text;
@@ -648,4 +741,230 @@ void GatewayConfigurationPage::applyRoaming()
 	}
 
 	refreshRoaming();
+}
+
+
+
+QWidget* GatewayConfigurationPage::createScreenshotBox()
+{
+	auto box = new QGroupBox( tr( "Scheduled screenshots" ) );
+	auto layout = new QVBoxLayout( box );
+
+	auto intro = new QLabel( tr( "Keeps a screenshot of every roaming laptop at regular intervals as an audit trail. "
+								 "This computer connects to the laptops like a Master, so it needs a private "
+								 "authentication key whose public key is installed on the laptops." ) );
+	intro->setWordWrap( true );
+	layout->addWidget( intro );
+
+	auto form = new QFormLayout;
+	m_screenshotInterval = new QComboBox;
+	m_screenshotInterval->addItem( tr( "Off" ), 0 );
+	for( const auto minutes : { 5, 10, 15, 30, 60 } )
+	{
+		m_screenshotInterval->addItem( tr( "Every %1 minutes" ).arg( minutes ), minutes );
+	}
+	form->addRow( tr( "Take a screenshot" ), m_screenshotInterval );
+
+	m_screenshotRetention = new QSpinBox;
+	m_screenshotRetention->setRange( 1, 365 );
+	m_screenshotRetention->setSuffix( tr( " days" ) );
+	form->addRow( tr( "Keep screenshots for" ), m_screenshotRetention );
+
+	m_screenshotInOffice = new QCheckBox( tr( "Also while the laptop is in the office" ) );
+	form->addRow( QString{}, m_screenshotInOffice );
+
+	m_screenshotStatus = new QLabel;
+	m_screenshotStatus->setTextFormat( Qt::RichText );
+	m_screenshotStatus->setWordWrap( true );
+	form->addRow( tr( "Status" ), m_screenshotStatus );
+	layout->addLayout( form );
+
+	auto openButton = new QPushButton( tr( "Open screenshots folder" ) );
+	connect( openButton, &QPushButton::clicked, this, []() {
+		QDir().mkpath( ScreenshotScheduler::directory() );
+		QDesktopServices::openUrl( QUrl::fromLocalFile( ScreenshotScheduler::directory() ) );
+	} );
+	layout->addWidget( openButton, 0, Qt::AlignLeft );
+
+	return box;
+}
+
+
+
+QWidget* GatewayConfigurationPage::createNotificationsTab()
+{
+	auto tab = new QWidget;
+	auto layout = new QVBoxLayout( tab );
+
+	auto telegramBox = new QGroupBox( tr( "Alerts to your phone (Telegram)" ) );
+	auto telegramLayout = new QVBoxLayout( telegramBox );
+	auto intro = new QLabel( tr( "1. In Telegram, open @BotFather, send /newbot and follow the steps. Copy the bot token.\n"
+								 "2. Paste the token below, then open your new bot in Telegram and send /start.\n"
+								 "3. Click \"Detect\" to fill in the chat ID, click \"Send test\" and then Apply.\n"
+								 "Tip: add the bot to a group and send /start there to alert the whole IT team." ) );
+	intro->setWordWrap( true );
+	intro->setTextFormat( Qt::PlainText );
+	telegramLayout->addWidget( intro );
+
+	auto form = new QFormLayout;
+	m_telegramToken = new QLineEdit;
+	m_telegramToken->setPlaceholderText( QStringLiteral("123456789:AA…") );
+	form->addRow( tr( "Bot token" ), m_telegramToken );
+
+	auto chatRow = new QHBoxLayout;
+	m_telegramChatId = new QLineEdit;
+	chatRow->addWidget( m_telegramChatId, 1 );
+	auto detectButton = new QPushButton( tr( "Detect" ) );
+	chatRow->addWidget( detectButton );
+	form->addRow( tr( "Chat ID" ), chatRow );
+	telegramLayout->addLayout( form );
+
+	auto testRow = new QHBoxLayout;
+	auto testButton = new QPushButton( tr( "Send test" ) );
+	testRow->addWidget( testButton );
+	m_notificationStatus = new QLabel;
+	m_notificationStatus->setWordWrap( true );
+	testRow->addWidget( m_notificationStatus, 1 );
+	telegramLayout->addLayout( testRow );
+	layout->addWidget( telegramBox );
+
+	auto eventsBox = new QGroupBox( tr( "Send an alert when" ) );
+	auto eventsLayout = new QFormLayout( eventsBox );
+	m_offlineAlertHours = new QSpinBox;
+	m_offlineAlertHours->setRange( 0, 24 * 30 );
+	m_offlineAlertHours->setSuffix( tr( " hours" ) );
+	m_offlineAlertHours->setSpecialValueText( tr( "never" ) );
+	eventsLayout->addRow( tr( "a roaming laptop is offline longer than" ), m_offlineAlertHours );
+	m_notifyRefused = new QCheckBox( tr( "an access attempt is refused (unknown phone or laptop)" ) );
+	eventsLayout->addRow( QString{}, m_notifyRefused );
+	m_notifyNewLaptop = new QCheckBox( tr( "a new roaming laptop registers" ) );
+	eventsLayout->addRow( QString{}, m_notifyNewLaptop );
+	layout->addWidget( eventsBox );
+	layout->addStretch( 1 );
+
+	connect( detectButton, &QPushButton::clicked, this, &GatewayConfigurationPage::detectTelegramChat );
+	connect( testButton, &QPushButton::clicked, this, &GatewayConfigurationPage::sendTestNotification );
+
+	return tab;
+}
+
+
+
+QWidget* GatewayConfigurationPage::createActivityTab()
+{
+	auto tab = new QWidget;
+	auto layout = new QVBoxLayout( tab );
+
+	auto row = new QHBoxLayout;
+	row->addWidget( new QLabel( tr( "Show" ) ) );
+	m_activityRange = new QComboBox;
+	m_activityRange->addItem( tr( "Last 24 hours" ), 1 );
+	m_activityRange->addItem( tr( "Last 7 days" ), 7 );
+	m_activityRange->addItem( tr( "Last 30 days" ), 30 );
+	m_activityRange->addItem( tr( "Everything" ), 0 );
+	m_activityRange->setCurrentIndex( 1 );
+	row->addWidget( m_activityRange );
+	row->addStretch( 1 );
+	auto exportButton = new QPushButton( tr( "Export to Excel (CSV)…" ) );
+	row->addWidget( exportButton );
+	layout->addLayout( row );
+
+	m_activity = new QTableWidget( 0, 4 );
+	m_activity->setHorizontalHeaderLabels( { tr( "Time" ), tr( "Event" ), tr( "Laptop / phone" ), tr( "Details" ) } );
+	m_activity->horizontalHeader()->setSectionResizeMode( 0, QHeaderView::ResizeToContents );
+	m_activity->horizontalHeader()->setSectionResizeMode( 1, QHeaderView::ResizeToContents );
+	m_activity->horizontalHeader()->setSectionResizeMode( 2, QHeaderView::Interactive );
+	m_activity->horizontalHeader()->resizeSection( 2, 160 );
+	m_activity->horizontalHeader()->setSectionResizeMode( 3, QHeaderView::Stretch );
+	m_activity->setWordWrap( false );
+	m_activity->setTextElideMode( Qt::ElideMiddle );
+	m_activity->verticalHeader()->hide();
+	m_activity->setSelectionBehavior( QAbstractItemView::SelectRows );
+	m_activity->setEditTriggers( QAbstractItemView::NoEditTriggers );
+	m_activity->setMinimumHeight( 300 );
+	layout->addWidget( m_activity, 1 );
+
+	connect( m_activityRange, &QComboBox::currentIndexChanged, this, [this]() {
+		m_activityModified = {};
+		refreshActivity();
+	} );
+	connect( exportButton, &QPushButton::clicked, this, &GatewayConfigurationPage::exportActivity );
+
+	return tab;
+}
+
+
+
+void GatewayConfigurationPage::refreshActivity()
+{
+	const auto modified = QFileInfo( ActivityLog::logPath() ).lastModified();
+	if( modified == m_activityModified && m_activity->rowCount() > 0 )
+	{
+		return;
+	}
+	m_activityModified = modified;
+
+	const auto days = m_activityRange->currentData().toInt();
+	const auto since = days > 0 ? QDateTime::currentDateTimeUtc().addDays( -days ) : QDateTime{};
+	const auto entries = ActivityLog::read( 2000, since );
+
+	m_activity->setRowCount( int( entries.size() ) );
+	int row = 0;
+	for( const auto& entry : entries )
+	{
+		m_activity->setItem( row, 0, new QTableWidgetItem( QLocale().toString( entry.time.toLocalTime(), QLocale::ShortFormat ) ) );
+		m_activity->setItem( row, 1, new QTableWidgetItem( ActivityLog::eventName( entry.event ) ) );
+		m_activity->setItem( row, 2, new QTableWidgetItem( entry.subject ) );
+		auto details = new QTableWidgetItem( ActivityLog::describe( entry ) );
+		details->setToolTip( details->text() );
+		m_activity->setItem( row, 3, details );
+		++row;
+	}
+}
+
+
+
+void GatewayConfigurationPage::exportActivity()
+{
+	const auto fileName = QFileDialog::getSaveFileName( this, tr( "Export activity" ),
+		QDir::home().filePath( QStringLiteral("aruni-activity-%1.csv").arg( QDate::currentDate().toString( Qt::ISODate ) ) ),
+		tr( "CSV files (*.csv)" ) );
+	if( fileName.isEmpty() )
+	{
+		return;
+	}
+
+	const auto days = m_activityRange->currentData().toInt();
+	if( ActivityLog::exportCsv( fileName, days > 0 ? QDateTime::currentDateTimeUtc().addDays( -days ) : QDateTime{} ) == false )
+	{
+		QMessageBox::critical( this, tr( "Export activity" ), tr( "Could not write %1." ).arg( fileName ) );
+	}
+}
+
+
+
+void GatewayConfigurationPage::detectTelegramChat()
+{
+	m_notificationStatus->setText( tr( "Detecting…" ) );
+	m_notifier->detectChatId( m_telegramToken->text().trimmed(), [this]( const QString& chatId, const QString& error ) {
+		if( chatId.isEmpty() )
+		{
+			m_notificationStatus->setText( error );
+			return;
+		}
+		m_telegramChatId->setText( chatId );
+		m_notificationStatus->setText( tr( "Chat found. Click \"Send test\"." ) );
+	} );
+}
+
+
+
+void GatewayConfigurationPage::sendTestNotification()
+{
+	m_notificationStatus->setText( tr( "Sending…" ) );
+	m_notifier->send( m_telegramToken->text().trimmed(), m_telegramChatId->text().trimmed(),
+					  tr( "✅ AruniControl alerts work. Location: %1" ).arg( m_siteName->text() ),
+					  [this]( bool ok, const QString& error ) {
+		m_notificationStatus->setText( ok ? tr( "Sent - check Telegram, then click Apply." ) : error );
+	} );
 }

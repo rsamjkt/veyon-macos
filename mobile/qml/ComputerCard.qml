@@ -99,6 +99,33 @@ Item {
 				}
 			}
 
+			// unread chat replies
+			Rectangle {
+				readonly property int unread: App.chat.unreadTotal >= 0 ? App.chat.unreadCount(card.uid) : 0
+				visible: unread > 0
+				anchors.right: parent.right
+				anchors.top: parent.top
+				anchors.margins: 8
+				height: 26
+				width: unreadRow.implicitWidth + 16
+				radius: 13
+				color: Theme.accent
+				Row {
+					id: unreadRow
+					anchors.centerIn: parent
+					spacing: 4
+					Icon { name: "forum_fill"; size: 14; color: "#FFFFFF"; anchors.verticalCenter: parent.verticalCenter }
+					Text {
+						text: parent.parent.unread
+						color: "#FFFFFF"
+						font.family: Theme.fontFamily
+						font.pixelSize: 12
+						font.weight: Font.Bold
+						anchors.verticalCenter: parent.verticalCenter
+					}
+				}
+			}
+
 			// status dot
 			Rectangle {
 				anchors.left: parent.left

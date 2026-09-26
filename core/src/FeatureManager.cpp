@@ -217,6 +217,8 @@ void FeatureManager::handleFeatureMessage(ComputerControlInterface::Pointer comp
 	{
 		featureInterface->handleFeatureMessage(computerControlInterface, message);
 	}
+
+	Q_EMIT const_cast<FeatureManager *>( this )->featureMessageReceived( computerControlInterface, message );
 }
 
 

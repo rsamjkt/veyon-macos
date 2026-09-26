@@ -58,6 +58,8 @@ public:
 		int slot{0};
 		QDateTime added;
 		QDateTime lastSeen;
+		// an "offline for too long" alert went out and "back online" is due
+		bool alerted{false};
 
 		// short, stable host name under which the app lists the laptop
 		QString id() const;
@@ -79,6 +81,23 @@ public:
 	// hub side: laptops enroll with this (reusable) token until it is renewed
 	QByteArray enrollmentToken;
 	QList<Agent> agents;
+
+	// alerts to the admin's phone through a Telegram bot
+	QString telegramToken;
+	QString telegramChatId;
+	int offlineAlertHours{0};		// 0 = no alert
+	bool notifyRefused{true};
+	bool notifyNewLaptop{true};
+
+	// periodic screenshots of the roaming laptops
+	int screenshotInterval{0};		// minutes, 0 = off
+	int screenshotRetentionDays{30};
+	bool screenshotInOffice{false};	// also while the laptop is in the office
+
+	bool isTelegramConfigured() const
+	{
+		return telegramToken.isEmpty() == false && telegramChatId.isEmpty() == false;
+	}
 
 	// agent side: this computer is a roaming laptop of the given office gateway
 	bool roamingEnabled{false};

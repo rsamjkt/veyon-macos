@@ -7,7 +7,7 @@
 **Kendalikan banyak komputer dari satu layar — lintas macOS dan Windows.**
 
 [![Lisensi](https://img.shields.io/badge/lisensi-GPLv2-green.svg)](COPYING)
-[![Versi](https://img.shields.io/badge/versi-1.3.1_"Diana"-F2812F.svg)](https://github.com/rsamjkt/veyon-macos/releases)
+[![Versi](https://img.shields.io/badge/versi-1.4.0_"Elena"-F2812F.svg)](https://github.com/rsamjkt/veyon-macos/releases)
 [![Platform](https://img.shields.io/badge/platform-macOS_•_Windows-blue.svg)](#-platform-yang-didukung)
 
 </div>
@@ -50,7 +50,10 @@ AruniControl adalah bagian dari keluarga produk **Arunika** (AruniHealth, Arunik
 | 💬 **Chat** | Obrolan dua arah Master ↔ pengguna | macOS & Windows |
 | 🎙️ **AruniVoice** | Suara **dua arah** (push-to-talk / intercom) 1:1 dengan satu client | macOS & Windows |
 | 🌐 **Aruni Gateway** | Akses semua komputer kantor dari aplikasi HP lewat internet/paket data, tanpa VPN | macOS & Windows |
-| 🏠 **Laptop Jelajah** *(baru 1.3.0)* | Laptop yang dibawa pulang tetap terpantau dari HP & Master kantor, lewat Aruni Gateway | macOS & Windows |
+| 🏠 **Laptop Jelajah** | Laptop yang dibawa pulang tetap terpantau dari HP & Master kantor, lewat Aruni Gateway | macOS & Windows |
+| 🔄 **Pembaruan otomatis** *(baru 1.4.0)* | Versi baru terpasang sendiri di semua komputer (cek tiap 6 jam, terverifikasi SHA-256) | macOS & Windows |
+| 🔔 **Notifikasi Telegram** *(baru 1.4.0)* | Peringatan ke HP admin: laptop offline terlalu lama, akses ditolak, laptop baru | Gateway |
+| 📜 **Riwayat & tangkapan layar terjadwal** *(baru 1.4.0)* | Catatan laptop (lokasi, pengguna, aplikasi aktif) + ekspor Excel; tangkapan layar berkala | Gateway |
 
 ---
 
@@ -67,14 +70,14 @@ AruniControl adalah bagian dari keluarga produk **Arunika** (AruniHealth, Arunik
 
 ## 📥 Download
 
-Ambil rilis terbaru di **[halaman Releases](https://github.com/rsamjkt/veyon-macos/releases/tag/v1.3.1)** — versi **1.3.1 "Diana"**:
+Ambil rilis terbaru di **[halaman Releases](https://github.com/rsamjkt/veyon-macos/releases/tag/v1.4.0)** — versi **1.4.0 "Elena"**:
 
 | Paket | Untuk |
 |-------|-------|
-| `AruniControl-1.3.1-Diana-macOS-arm64.zip` | Master & Configurator di **macOS** (Apple Silicon) |
-| `AruniControl-Setup-1.3.1-Diana-Windows-x64.exe` | Installer client **Windows** sekali klik |
-| `AruniControl-Server-1.3.1-Diana-Windows-x64.zip` | Client **Windows** lengkap (mandiri) |
-| `AruniControl-1.3.1-Diana-Android-arm64.apk` | **AruniControl Mobile**: Master di HP Android (layar live, kontrol sentuh, semua fitur) |
+| `AruniControl-1.4.0-Elena-macOS-arm64.zip` | Master & Configurator di **macOS** (Apple Silicon) |
+| `AruniControl-Setup-1.4.0-Elena-Windows-x64.exe` | Installer client **Windows** sekali klik |
+| `AruniControl-Server-1.4.0-Elena-Windows-x64.zip` | Client **Windows** lengkap (mandiri) |
+| `AruniControl-1.4.0-Elena-Android-arm64.apk` | **AruniControl Mobile**: Master di HP Android (layar live, kontrol sentuh, semua fitur) |
 
 ---
 

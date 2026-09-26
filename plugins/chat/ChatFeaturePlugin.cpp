@@ -136,6 +136,13 @@ bool ChatFeaturePlugin::handleFeatureMessage( ComputerControlInterface::Pointer 
 		return false;
 	}
 
+	// replies only belong to chats started from this plugin's windows - other
+	// frontends (AruniControl Mobile) handle their own conversations
+	if( m_masterChats.value( computerControlInterface.data() ).isNull() )
+	{
+		return false;
+	}
+
 	// a reply coming back from a client - show it in that computer's chat window
 	auto chat = masterChatFor( computerControlInterface );
 	chat->appendMessage( message.argument( Argument::Sender ).toString(),

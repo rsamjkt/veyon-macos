@@ -31,6 +31,14 @@ Sheet {
 			]
 		},
 		{
+			title: qsTr("Komunikasi & pantau (satu komputer)"),
+			actions: [
+				{ key: "chat", icon: "forum", label: qsTr("Chat"), feature: "Chat" },
+				{ key: "voice", icon: "record_voice_over", label: qsTr("Bicara"), feature: "AruniVoice" },
+				{ key: "apps", icon: "apps", label: qsTr("Aplikasi berjalan"), feature: "ApplicationMonitoring" }
+			]
+		},
+		{
 			title: qsTr("Demo & file"),
 			actions: [
 				{ key: "share", icon: "screen_share", label: qsTr("Tampilkan layar siswa"), feature: "ShareUserScreenFullScreen" },
@@ -90,6 +98,21 @@ Sheet {
 			shareSheet.sourceUid = uids[0]
 			shareSheet.open()
 			break
+		case "chat":
+		case "voice":
+		case "apps":
+			if (uids.length !== 1) {
+				window.toast(qsTr("Tahan kartu satu komputer untuk memilihnya dulu"), "info")
+				break
+			}
+			sheet.close()
+			if (key === "chat")
+				window.openChat(uids[0])
+			else if (key === "voice")
+				window.openVoice(uids[0])
+			else
+				window.openApps(uids[0])
+			return
 		case "stopDemo": App.stopDemo([]); break
 		case "sendFiles":
 			filesDialog.targetUids = uids

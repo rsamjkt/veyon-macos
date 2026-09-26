@@ -82,6 +82,13 @@ public:
 
 	FeatureUidList activeFeatures( VeyonServerInterface& server ) const;
 
+Q_SIGNALS:
+	// emitted for every feature message a computer sends to the master, after
+	// the plugins handled it - lets non-plugin code (e.g. AruniControl Mobile)
+	// talk to a feature without the plugin's desktop widgets
+	void featureMessageReceived( ComputerControlInterface::Pointer computerControlInterface,
+								 const FeatureMessage& message );
+
 private:
 	FeatureList m_features;
 	FeatureUidList m_disabledFeaturesUids{};

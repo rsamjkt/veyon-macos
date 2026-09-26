@@ -8,12 +8,14 @@
 //   /unduh/macos              macOS Apple Silicon (.zip)
 //   /unduh/android            Android (.apk)
 //   /unduh/sha256             daftar checksum SHA-256
+//   /unduh/versi.json         versi terbaru + URL + SHA-256 (update otomatis)
 //   /unduh/<tag>/<file>       file tertentu dari rilis mana pun
 //
 // Rilis baru: unggah file ke R2 dengan awalan tag-nya, lalu ubah RELEASE.
 
 const RELEASE = {
 	tag: "v1.3.1",
+	codename: "Diana",
 	files: {
 		windows: "AruniControl-Setup-1.3.1-Diana-Windows-x64.exe",
 		"windows-zip": "AruniControl-Server-1.3.1-Diana-Windows-x64.zip",
@@ -22,6 +24,47 @@ const RELEASE = {
 		sha256: "SHA256SUMS.txt",
 	},
 };
+
+// Read by the AruniControl updater (Windows service, macOS server, Android
+// app). The checksums come from SHA256SUMS.txt of the release in R2, so a
+// release is only offered once all its files are uploaded.
+async function manifest(env, origin) {
+	const sums = await env.FILES.get(`${RELEASE.tag}/${RELEASE.files.sha256}`);
+	if (sums === null) {
+		return new Response("manifest not available", { status: 503 });
+	}
+	const checksums = {};
+	for (const line of (await sums.text()).split("\n")) {
+		const [hash, name] = line.trim().split(/\s+/);
+		if (hash && name) {
+			checksums[name] = hash.toLowerCase();
+		}
+	}
+
+	const files = {};
+	for (const [platform, name] of Object.entries(RELEASE.files)) {
+		if (platform === "sha256" || !checksums[name]) {
+			continue;
+		}
+		const head = await env.FILES.head(`${RELEASE.tag}/${name}`);
+		if (head === null) {
+			continue;
+		}
+		files[platform] = {
+			url: `${origin}/unduh/${RELEASE.tag}/${name}`,
+			name,
+			sha256: checksums[name],
+			size: head.size,
+		};
+	}
+
+	return Response.json({
+		version: RELEASE.tag.replace(/^v/, ""),
+		codename: RELEASE.codename,
+		tag: RELEASE.tag,
+		files,
+	}, { headers: { "Cache-Control": "public, max-age=300" } });
+}
 
 const CONTENT_TYPES = {
 	apk: "application/vnd.android.package-archive",
@@ -41,6 +84,9 @@ export default {
 		}
 
 		const path = decodeURIComponent(url.pathname.slice("/unduh/".length));
+		if (path === "versi.json") {
+			return manifest(env, url.origin);
+		}
 		let key;
 		if (RELEASE.files[path]) {
 			key = `${RELEASE.tag}/${RELEASE.files[path]}`;

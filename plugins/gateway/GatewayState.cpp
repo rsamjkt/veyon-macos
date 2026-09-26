@@ -111,11 +111,24 @@ GatewayState GatewayState::load()
 			agent.slot = object[QStringLiteral("slot")].toInt();
 			agent.added = QDateTime::fromString( object[QStringLiteral("added")].toString(), Qt::ISODate );
 			agent.lastSeen = QDateTime::fromString( object[QStringLiteral("lastSeen")].toString(), Qt::ISODate );
+			agent.alerted = object[QStringLiteral("alerted")].toBool();
 			if( agent.publicKey.size() == AruniTunnel::KeySize && agent.slot > 0 && agent.slot <= MaxAgentSlot )
 			{
 				state.agents.append( agent );
 			}
 		}
+
+		const auto notify = json[QStringLiteral("notify")].toObject();
+		state.telegramToken = notify[QStringLiteral("telegramToken")].toString();
+		state.telegramChatId = notify[QStringLiteral("telegramChatId")].toString();
+		state.offlineAlertHours = notify[QStringLiteral("offlineHours")].toInt();
+		state.notifyRefused = notify[QStringLiteral("refused")].toBool( true );
+		state.notifyNewLaptop = notify[QStringLiteral("newLaptop")].toBool( true );
+
+		const auto screenshots = json[QStringLiteral("screenshots")].toObject();
+		state.screenshotInterval = screenshots[QStringLiteral("interval")].toInt();
+		state.screenshotRetentionDays = screenshots[QStringLiteral("retentionDays")].toInt( 30 );
+		state.screenshotInOffice = screenshots[QStringLiteral("inOffice")].toBool();
 
 		const auto roaming = json[QStringLiteral("roaming")].toObject();
 		state.roamingEnabled = roaming[QStringLiteral("enabled")].toBool();
@@ -191,6 +204,7 @@ bool GatewayState::save() const
 			{ QStringLiteral("slot"), agent.slot },
 			{ QStringLiteral("added"), agent.added.toString( Qt::ISODate ) },
 			{ QStringLiteral("lastSeen"), agent.lastSeen.toString( Qt::ISODate ) },
+			{ QStringLiteral("alerted"), agent.alerted },
 		} );
 	}
 
@@ -207,6 +221,18 @@ bool GatewayState::save() const
 		{ QStringLiteral("devices"), deviceArray },
 		{ QStringLiteral("enrollmentToken"), AruniTunnel::toBase64Url( enrollmentToken ) },
 		{ QStringLiteral("agents"), agentArray },
+		{ QStringLiteral("notify"), QJsonObject{
+			{ QStringLiteral("telegramToken"), telegramToken },
+			{ QStringLiteral("telegramChatId"), telegramChatId },
+			{ QStringLiteral("offlineHours"), offlineAlertHours },
+			{ QStringLiteral("refused"), notifyRefused },
+			{ QStringLiteral("newLaptop"), notifyNewLaptop },
+		} },
+		{ QStringLiteral("screenshots"), QJsonObject{
+			{ QStringLiteral("interval"), screenshotInterval },
+			{ QStringLiteral("retentionDays"), screenshotRetentionDays },
+			{ QStringLiteral("inOffice"), screenshotInOffice },
+		} },
 		{ QStringLiteral("roaming"), QJsonObject{
 			{ QStringLiteral("enabled"), roamingEnabled },
 			{ QStringLiteral("code"), roamingHub.gatewayId.isEmpty() ? QString{} : roamingHub.encode() },

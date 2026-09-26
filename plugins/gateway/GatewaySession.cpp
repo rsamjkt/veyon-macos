@@ -27,6 +27,7 @@
 #include <QNetworkRequest>
 #include <QtEndian>
 
+#include "ActivityLog.h"
 #include "GatewayService.h"
 #include "GatewaySession.h"
 #include "VeyonConfiguration.h"
@@ -103,6 +104,7 @@ void GatewaySession::onBinaryMessage( const QByteArray& message )
 		if( m_handshake.processFirstMessage( message, authorizer, m_service->gatewayInfo(), reply, m_channel ) == false )
 		{
 			vWarning() << "gateway session" << m_sessionId << "rejected (unknown device or invalid pairing code)";
+			m_service->sessionRefused( m_handshake.isAgent() );
 			finish();
 			return;
 		}
@@ -121,6 +123,7 @@ void GatewaySession::onBinaryMessage( const QByteArray& message )
 		else
 		{
 			vInfo() << "gateway session" << m_sessionId << "established for" << m_service->deviceName( m_deviceKey );
+			m_service->phoneConnected( m_deviceKey );
 		}
 		return;
 	}

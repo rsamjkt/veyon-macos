@@ -39,6 +39,8 @@
 
 class GatewaySession;
 class NetworkObjectDirectory;
+class Notifier;
+class ScreenshotScheduler;
 
 // Keeps an outbound control connection to the Aruni Relay, accepts Master
 // sessions announced by the relay and lists the computers of this LAN.
@@ -79,6 +81,28 @@ public:
 	// port forwarding to the laptop listed as host, 0 if unknown or offline
 	quint16 agentPort( const QString& host ) const;
 
+	// logged at most hourly - phones reconnect whenever their network changes
+	void phoneConnected( const QByteArray& deviceKey );
+
+	// a phone or laptop whose handshake was refused
+	void sessionRefused( bool agent );
+
+	const GatewayState& state() const
+	{
+		return m_state;
+	}
+
+	struct OnlineLaptop
+	{
+		QByteArray key;
+		QString name;
+		quint16 port;
+		bool local;
+	};
+	QList<OnlineLaptop> onlineLaptops() const;
+
+	void setScreenshotError( const QString& error );
+
 private:
 	struct OnlineAgent
 	{
@@ -95,6 +119,9 @@ private:
 	void dropRemovedAgents();
 	void updateDirectoryServer();
 	QByteArray roamingDirectoryJson() const;
+	void notify( const QString& text );
+	void checkOfflineAlerts();
+	void setAgentAlerted( const QByteArray& agentKey, bool alerted );
 
 	void checkState();
 	void connectToRelay();
@@ -133,5 +160,12 @@ public:
 
 	QHash<QByteArray, OnlineAgent> m_onlineAgents;
 	QTcpServer m_directoryServer;
+
+	Notifier* m_notifier;
+	ScreenshotScheduler* m_screenshots;
+	QString m_screenshotError;
+	QTimer m_alertTimer;
+	QDateTime m_lastRefusedAlert;
+	QHash<QByteArray, QDateTime> m_phoneLogged;
 
 };

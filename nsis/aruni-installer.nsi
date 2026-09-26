@@ -6,7 +6,7 @@
 ;   OUTFILE  - output installer path
 ;   ICON     - .ico used for the installer/uninstaller
 ; Optional:
-;   VERSION  - product version string (default 1.3.1)
+;   VERSION  - product version string (default 1.4.0)
 ;
 ; Command line of the installer (besides /S for a silent install):
 ;   /ENROLL=<code> - make this laptop a roaming laptop of the office gateway
@@ -17,7 +17,7 @@ Unicode true
 !define PRODUCT "AruniControl"
 !define PUBLISHER "Arunika"
 !ifndef VERSION
-  !define VERSION "1.3.1"
+  !define VERSION "1.4.0"
 !endif
 !ifndef ICON
   !define ICON "installer.ico"
@@ -59,6 +59,18 @@ SetCompressor /SOLID lzma
 Section "AruniControl Server" SecMain
   SectionIn RO
   SetOutPath "$INSTDIR"
+
+  ; updating an existing installation (e.g. the automatic update running
+  ; "setup.exe /S /UPDATE"): stop the service and all AruniControl programs
+  ; first, their files are in use otherwise
+  ${If} ${FileExists} "$INSTDIR\veyon-wcli.exe"
+    DetailPrint "Menghentikan AruniControl versi lama..."
+    nsExec::ExecToLog '"$INSTDIR\veyon-wcli.exe" service stop'
+    ; no /T - this installer itself may have been started by veyon-server
+    nsExec::ExecToLog 'taskkill /F /IM veyon-service.exe'
+    nsExec::ExecToLog 'taskkill /F /IM veyon-server.exe /IM veyon-worker.exe /IM veyon-master.exe /IM veyon-configurator.exe'
+    Sleep 2000
+  ${EndIf}
 
   ; payload (self-contained server + plugins + Qt/QCA/OpenSSL/Interception)
   File /r "${SRC}\*.*"

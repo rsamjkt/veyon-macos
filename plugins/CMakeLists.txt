@@ -13,9 +13,10 @@ if(VEYON_BUILD_WINDOWS AND VEYON_ARUNICONTROL_SKIP_LDAP)
 endif()
 
 # Android only hosts the Master: skip client-side (VNC server, WebAPI) plugins and
-# the ones without an Android backend / toolchain dependency yet
+# the ones without an Android backend / toolchain dependency yet (AruniVoice
+# needs Qt Multimedia for Android, appmonitoring only builds its master side)
 if(VEYON_BUILD_ANDROID)
-	list(APPEND VEYON_EXCLUDED_PLUGINS ldap vncserver webapi testing arunivoice appmonitoring screenrecorder gateway)
+	list(APPEND VEYON_EXCLUDED_PLUGINS ldap vncserver webapi testing screenrecorder gateway autoupdate)
 endif()
 
 foreach(plugin ${plugins})

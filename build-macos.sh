@@ -38,7 +38,7 @@ fi
 cmake -S "${SCRIPT_DIR}" -B "${BUILD_DIR}" -G "${GENERATOR}" \
 	-DCMAKE_BUILD_TYPE=Release \
 	-DCMAKE_PREFIX_PATH="${prefix_path}" \
-	-DWITH_TRANSLATIONS=OFF \
+	-DWITH_TRANSLATIONS=ON \
 	-DWITH_PCH=OFF \
 	"$@"
 

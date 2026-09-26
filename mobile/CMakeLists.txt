@@ -23,6 +23,14 @@ set(mobile_MASTER_SOURCES
 	)
 
 file(GLOB mobile_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp ${CMAKE_CURRENT_SOURCE_DIR}/src/*.h)
+
+# chat, AruniVoice and application monitoring are driven with the plugins'
+# feature messages (their headers) - AruniVoice's audio engine is shared as is
+set(PLUGINS_SRC ${CMAKE_SOURCE_DIR}/plugins)
+set(mobile_PLUGIN_SOURCES
+	${PLUGINS_SRC}/arunivoice/AudioEngine.cpp
+	${PLUGINS_SRC}/arunivoice/AudioEngine.h
+	)
 file(GLOB mobile_QML RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/qml/*.qml)
 file(GLOB mobile_ICONS RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/icons/*.svg)
 set_source_files_properties(qml/Theme.qml PROPERTIES QT_QML_SINGLETON_TYPE TRUE)
@@ -35,10 +43,11 @@ endforeach()
 qt_add_executable(arunicontrol-mobile
 	${mobile_SOURCES}
 	${mobile_MASTER_SOURCES}
+	${mobile_PLUGIN_SOURCES}
 	${CMAKE_SOURCE_DIR}/master/resources/master.qrc
 	)
 
-set_source_files_properties(${mobile_MASTER_SOURCES} PROPERTIES SKIP_UNITY_BUILD_INCLUSION TRUE)
+set_source_files_properties(${mobile_MASTER_SOURCES} ${mobile_PLUGIN_SOURCES} PROPERTIES SKIP_UNITY_BUILD_INCLUSION TRUE)
 
 qt_add_qml_module(arunicontrol-mobile
 	URI AruniControl
@@ -48,13 +57,15 @@ qt_add_qml_module(arunicontrol-mobile
 	)
 
 target_compile_definitions(arunicontrol-mobile PRIVATE ARUNICONTROL_MOBILE)
-target_include_directories(arunicontrol-mobile PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src ${MASTER_SRC})
-find_package(Qt6 REQUIRED COMPONENTS WebSockets)
+target_include_directories(arunicontrol-mobile PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src ${MASTER_SRC}
+	${PLUGINS_SRC}/chat ${PLUGINS_SRC}/arunivoice ${PLUGINS_SRC}/appmonitoring)
+find_package(Qt6 REQUIRED COMPONENTS WebSockets Multimedia)
 target_link_libraries(arunicontrol-mobile PRIVATE
 	veyon-core
 	Qt6::Quick
 	Qt6::QuickControls2
 	Qt6::WebSockets
+	Qt6::Multimedia
 	)
 set_default_target_properties(arunicontrol-mobile)
 

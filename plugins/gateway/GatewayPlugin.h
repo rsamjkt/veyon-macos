@@ -93,6 +93,7 @@ public Q_SLOTS:
 	CommandLinePluginInterface::RunResult handle_leave( const QStringList& arguments );
 	CommandLinePluginInterface::RunResult handle_enrollmentcode( const QStringList& arguments );
 	CommandLinePluginInterface::RunResult handle_runroaming( const QStringList& arguments );
+	CommandLinePluginInterface::RunResult handle_activity( const QStringList& arguments );
 
 private:
 	GatewayService* m_service{nullptr};
