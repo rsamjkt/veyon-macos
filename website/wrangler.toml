@@ -1,0 +1,20 @@
+# Website unduhan resmi AruniControl (Cloudflare Workers + static assets).
+#
+#   npx wrangler deploy
+#
+# Halaman statis ada di public/, file installer ada di bucket R2
+# "arunicontrol-unduhan" dengan pola <tag>/<nama file> (lihat src/worker.js).
+
+name = "arunicontrol"
+main = "src/worker.js"
+compatibility_date = "2026-05-01"
+
+[assets]
+directory = "./public"
+binding = "ASSETS"
+not_found_handling = "404-page"
+run_worker_first = ["/unduh/*"]
+
+[[r2_buckets]]
+binding = "FILES"
+bucket_name = "arunicontrol-unduhan"

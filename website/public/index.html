@@ -1,0 +1,593 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AruniControl — Kendalikan semua komputer lab & kantor dari satu layar</title>
+<meta name="description" content="Unduh AruniControl untuk Windows, macOS dan Android. Pantau layar, kunci, kirim pesan, dan kendalikan komputer di lab atau kantor — bahkan dari HP lewat paket data.">
+<meta name="theme-color" content="#F7F4F0">
+<meta property="og:title" content="AruniControl — Unduh untuk Windows, macOS & Android">
+<meta property="og:description" content="Pantau dan kendalikan semua komputer di ruang kelas atau kantor, langsung dari laptop atau HP.">
+<meta property="og:type" content="website">
+<link rel="icon" href="/img/logo.svg" type="image/svg+xml">
+<link rel="preload" href="/fonts/PlusJakartaSans.ttf" as="font" type="font/ttf" crossorigin>
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><symbol id="i-cast_for_education" viewBox="0 -960 960 960"><path fill="currentColor" d="m610-499 110-64q10-6 10-17t-10-17l-110-64q-9-5-20-5t-20 5l-110 64q-10 6-10 17t10 17l110 64q9 5 20 5t20-5Zm0 121 70-40q9-5 14.5-14.5T700-453v-61l-90 52q-9 5-20 5t-20-5l-90-52v61q0 11 5.5 20.5T500-418l70 40q9 5 20 5t20-5ZM480-480Zm400-240v480q0 33-23.5 56.5T800-160H638q-17 0-28.5-11.5T598-200q0-17 11.5-28.5T638-240h162v-480H160v6q0 17-11.5 28.5T120-674q-17 0-28.5-11.5T80-714v-6q0-33 23.5-56.5T160-800h640q33 0 56.5 23.5T880-720ZM320-160q-16 0-28-9.5T277-195q-11-63-56.5-107T112-357q-15-2-23.5-14.5T80-400q0-17 11-28.5t26-9.5q94 12 160.5 79T357-198q2 16-9 27t-28 11Zm160 0q-17 0-28.5-11T438-199q-14-128-104.5-217T115-518q-16-2-25.5-14T80-560q0-17 10.5-29t25.5-10q161 13 274 125t128 273q2 17-9.5 29T480-160Zm-350 0q-21 0-35.5-14.5T80-210q0-21 14.5-35.5T130-260q21 0 35.5 14.5T180-210q0 21-14.5 35.5T130-160Z"/></symbol><symbol id="i-chat" viewBox="0 -960 960 960"><path fill="currentColor" d="m240-240-92 92q-19 19-43.5 8.5T80-177v-623q0-33 23.5-56.5T160-880h640q33 0 56.5 23.5T880-800v480q0 33-23.5 56.5T800-240H240Zm-34-80h594v-480H160v525l46-45Zm-46 0v-480 480Zm120-80h240q17 0 28.5-11.5T560-440q0-17-11.5-28.5T520-480H280q-17 0-28.5 11.5T240-440q0 17 11.5 28.5T280-400Zm0-120h400q17 0 28.5-11.5T720-560q0-17-11.5-28.5T680-600H280q-17 0-28.5 11.5T240-560q0 17 11.5 28.5T280-520Zm0-120h400q17 0 28.5-11.5T720-680q0-17-11.5-28.5T680-720H280q-17 0-28.5 11.5T240-680q0 17 11.5 28.5T280-640Z"/></symbol><symbol id="i-cloud" viewBox="0 -960 960 960"><path fill="currentColor" d="M260-160q-91 0-155.5-63T40-377q0-78 47-139t123-78q25-92 100-149t170-57q117 0 198.5 81.5T760-520q69 8 114.5 59.5T920-340q0 75-52.5 127.5T740-160H260Zm0-80h480q42 0 71-29t29-71q0-42-29-71t-71-29h-60v-80q0-83-58.5-141.5T480-720q-83 0-141.5 58.5T280-520h-20q-58 0-99 41t-41 99q0 58 41 99t99 41Zm220-240Z"/></symbol><symbol id="i-computer" viewBox="0 -960 960 960"><path fill="currentColor" d="M80-120q-17 0-28.5-11.5T40-160q0-17 11.5-28.5T80-200h800q17 0 28.5 11.5T920-160q0 17-11.5 28.5T880-120H80Zm80-120q-33 0-56.5-23.5T80-320v-440q0-33 23.5-56.5T160-840h640q33 0 56.5 23.5T880-760v440q0 33-23.5 56.5T800-240H160Zm0-80h640v-440H160v440Zm0 0v-440 440Z"/></symbol><symbol id="i-download" viewBox="0 -960 960 960"><path fill="currentColor" d="M480-337q-8 0-15-2.5t-13-8.5L308-492q-12-12-11.5-28t11.5-28q12-12 28.5-12.5T365-549l75 75v-286q0-17 11.5-28.5T480-800q17 0 28.5 11.5T520-760v286l75-75q12-12 28.5-11.5T652-548q11 12 11.5 28T652-492L508-348q-6 6-13 8.5t-15 2.5ZM240-160q-33 0-56.5-23.5T160-240v-80q0-17 11.5-28.5T200-360q17 0 28.5 11.5T240-320v80h480v-80q0-17 11.5-28.5T760-360q17 0 28.5 11.5T800-320v80q0 33-23.5 56.5T720-160H240Z"/></symbol><symbol id="i-error" viewBox="0 -960 960 960"><path fill="currentColor" d="M480-280q17 0 28.5-11.5T520-320q0-17-11.5-28.5T480-360q-17 0-28.5 11.5T440-320q0 17 11.5 28.5T480-280Zm0-160q17 0 28.5-11.5T520-480v-160q0-17-11.5-28.5T480-680q-17 0-28.5 11.5T440-640v160q0 17 11.5 28.5T480-440Zm0 360q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-80q134 0 227-93t93-227q0-134-93-227t-227-93q-134 0-227 93t-93 227q0 134 93 227t227 93Zm0-320Z"/></symbol><symbol id="i-grid_view" viewBox="0 -960 960 960"><path fill="currentColor" d="M200-520q-33 0-56.5-23.5T120-600v-160q0-33 23.5-56.5T200-840h160q33 0 56.5 23.5T440-760v160q0 33-23.5 56.5T360-520H200Zm0 400q-33 0-56.5-23.5T120-200v-160q0-33 23.5-56.5T200-440h160q33 0 56.5 23.5T440-360v160q0 33-23.5 56.5T360-120H200Zm400-400q-33 0-56.5-23.5T520-600v-160q0-33 23.5-56.5T600-840h160q33 0 56.5 23.5T840-760v160q0 33-23.5 56.5T760-520H600Zm0 400q-33 0-56.5-23.5T520-200v-160q0-33 23.5-56.5T600-440h160q33 0 56.5 23.5T840-360v160q0 33-23.5 56.5T760-120H600ZM200-600h160v-160H200v160Zm400 0h160v-160H600v160Zm0 400h160v-160H600v160Zm-400 0h160v-160H200v160Zm400-400Zm0 240Zm-240 0Zm0-240Z"/></symbol><symbol id="i-info" viewBox="0 -960 960 960"><path fill="currentColor" d="M480-280q17 0 28.5-11.5T520-320v-160q0-17-11.5-28.5T480-520q-17 0-28.5 11.5T440-480v160q0 17 11.5 28.5T480-280Zm0-320q17 0 28.5-11.5T520-640q0-17-11.5-28.5T480-680q-17 0-28.5 11.5T440-640q0 17 11.5 28.5T480-600Zm0 520q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm0-80q134 0 227-93t93-227q0-134-93-227t-227-93q-134 0-227 93t-93 227q0 134 93 227t227 93Zm0-320Z"/></symbol><symbol id="i-key" viewBox="0 -960 960 960"><path fill="currentColor" d="M280-400q-33 0-56.5-23.5T200-480q0-33 23.5-56.5T280-560q33 0 56.5 23.5T360-480q0 33-23.5 56.5T280-400Zm0 160q-100 0-170-70T40-480q0-100 70-170t170-70q67 0 121.5 33t86.5 87h335q8 0 15.5 3t13.5 9l80 80q6 6 8.5 13t2.5 15q0 8-2.5 15t-8.5 13L805-325q-5 5-12 8t-14 4q-7 1-14-1t-13-7l-52-39-57 43q-5 4-11 6t-12 2q-6 0-12.5-2t-11.5-6l-61-43h-47q-32 54-86.5 87T280-240Zm0-80q56 0 98.5-34t56.5-86h125l58 41v.5-.5l82-61 71 55 75-75h-.5.5l-40-40v-.5.5H435q-14-52-56.5-86T280-640q-66 0-113 47t-47 113q0 66 47 113t113 47Z"/></symbol><symbol id="i-lock" viewBox="0 -960 960 960"><path fill="currentColor" d="M240-80q-33 0-56.5-23.5T160-160v-400q0-33 23.5-56.5T240-640h40v-80q0-83 58.5-141.5T480-920q83 0 141.5 58.5T680-720v80h40q33 0 56.5 23.5T800-560v400q0 33-23.5 56.5T720-80H240Zm0-80h480v-400H240v400Zm240-120q33 0 56.5-23.5T560-360q0-33-23.5-56.5T480-440q-33 0-56.5 23.5T400-360q0 33 23.5 56.5T480-280ZM360-640h240v-80q0-50-35-85t-85-35q-50 0-85 35t-35 85v80ZM240-160v-400 400Z"/></symbol><symbol id="i-public" viewBox="0 -960 960 960"><path fill="currentColor" d="M480-80q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-83 31.5-156T197-763q54-54 127-85.5T480-880q83 0 156 31.5T763-763q54 54 85.5 127T880-480q0 83-31.5 156T763-197q-54 54-127 85.5T480-80Zm-40-82v-78q-33 0-56.5-23.5T360-320v-40L168-552q-3 18-5.5 36t-2.5 36q0 121 79.5 212T440-162Zm276-102q20-22 36-47.5t26.5-53q10.5-27.5 16-56.5t5.5-59q0-98-54.5-179T600-776v16q0 33-23.5 56.5T520-680h-80v80q0 17-11.5 28.5T400-560h-80v80h240q17 0 28.5 11.5T600-440v120h40q26 0 47 15.5t29 40.5Z"/></symbol><symbol id="i-public_off" viewBox="0 -960 960 960"><path fill="currentColor" d="M480-80q-83 0-156-31.5T197-197q-54-54-85.5-127T80-480q0-62 17-117.5T146-701l-91-91q-12-12-12-28.5T55-849q12-12 28.5-12t28.5 12l736 736q12 12 12 28t-12 28q-12 12-28.5 12T791-57l-90-89q-48 32-103.5 49T480-80Zm-40-82v-78q-33 0-56.5-23.5T360-320v-40L168-552q-3 18-5.5 36t-2.5 36q0 121 79.5 212T440-162Zm440-318q0 45-10 86.5T843-314q-7 14-22.5 18.5T791-299q-14-8-19.5-24t1.5-31q13-30 20-61.5t7-64.5q0-98-54.5-179T600-776v16q0 33-23.5 56.5T520-680h-60v17q0 14-12 19t-22-5L308-767q-18-18-14.5-43t26.5-36q37-17 77-25.5t83-8.5q83 0 156 31.5T763-763q54 54 85.5 127T880-480Z"/></symbol><symbol id="i-rocket_launch" viewBox="0 -960 960 960"><path fill="currentColor" d="M284-506q14-28 29-54t33-52l-56-11-84 84 78 33Zm482-275q-70 2-149.5 41T472-636q-42 42-75 90t-49 90l114 113q42-16 90-49t90-75q65-65 104-144t41-149q0-4-1.5-8t-4.5-7q-3-3-7-4.5t-8-1.5ZM546-541q-23-23-23-56.5t23-56.5q23-23 57-23t57 23q23 23 23 56.5T660-541q-23 23-57 23t-57-23Zm-34 262 33 79 84-84-11-56q-26 18-52 32.5T512-279Zm351-534q8 110-36 214.5T688-399l20 99q4 20-2 39t-20 33L560-102q-15 15-36 11.5T495-114l-61-143-171-171-143-61q-20-8-24-29t11-36l126-126q14-14 33.5-20t39.5-2l99 20q95-95 199.5-139T819-857q8 1 16 4.5t14 9.5q6 6 9.5 14t4.5 16ZM157-321q35-35 85.5-35.5T328-322q35 35 34.5 85.5T327-151q-48 48-113.5 57T82-76q9-66 18-131.5T157-321Zm57 56q-17 17-23.5 41T180-175q25-4 49-10t41-23q12-12 13-29t-11-29q-12-12-29-11.5T214-265Z"/></symbol><symbol id="i-router" viewBox="0 -960 960 960"><path fill="currentColor" d="M200-120q-33 0-56.5-23.5T120-200v-160q0-33 23.5-56.5T200-440h400v-120q0-17 11.5-28.5T640-600q17 0 28.5 11.5T680-560v120h80q33 0 56.5 23.5T840-360v160q0 33-23.5 56.5T760-120H200Zm0-80h560v-160H200v160Zm80-40q17 0 28.5-11.5T320-280q0-17-11.5-28.5T280-320q-17 0-28.5 11.5T240-280q0 17 11.5 28.5T280-240Zm140 0q17 0 28.5-11.5T460-280q0-17-11.5-28.5T420-320q-17 0-28.5 11.5T380-280q0 17 11.5 28.5T420-240Zm140 0q17 0 28.5-11.5T600-280q0-17-11.5-28.5T560-320q-17 0-28.5 11.5T520-280q0 17 11.5 28.5T560-240Zm80-420q-11 0-20 2t-18 6q-16 7-32.5 6T541-659q-12-12-11.5-29t14.5-25q21-13 45.5-20t50.5-7q27 0 51 7t45 20q14 8 14.5 25T739-659q-12 12-29 13t-33-6q-8-4-17.5-6t-19.5-2Zm0-140q-39 0-74.5 11.5T500-755q-14 10-30.5 9T442-758q-12-12-12-28t13-26q41-32 91-50t106-18q56 0 106 18t91 50q13 10 13 26t-12 28q-11 11-27.5 12t-30.5-9q-30-22-65.5-33.5T640-800ZM200-200v-160 160Z"/></symbol><symbol id="i-shield" viewBox="0 -960 960 960"><path fill="currentColor" d="M480-84q-7 0-13-1t-12-3q-135-45-215-166.5T160-516v-189q0-25 14.5-45t37.5-29l240-90q14-5 28-5t28 5l240 90q23 9 37.5 29t14.5 45v189q0 140-80 261.5T505-88q-6 2-12 3t-13 1Zm0-80q104-33 172-132t68-220v-189l-240-90-240 90v189q0 121 68 220t172 132Zm0-316Z"/></symbol><symbol id="i-touch_app" viewBox="0 -960 960 960"><path fill="currentColor" d="M419-80q-28 0-52.5-12T325-126L124-381q-8-9-7-21.5t9-20.5q20-21 48-25t52 11l74 45v-328q0-17 11.5-28.5T340-760q17 0 29 11.5t12 28.5v400q0 23-20.5 34.5T320-286l-36-22 104 133q6 7 14 11t17 4h221q33 0 56.5-23.5T720-240v-160q0-17-11.5-28.5T680-440H501q-17 0-28.5-11.5T461-480q0-17 11.5-28.5T501-520h179q50 0 85 35t35 85v160q0 66-47 113T640-80H419Zm83-260Zm-23-260q-17 0-28.5-11.5T439-640q0-2 5-20 8-14 12-28.5t4-31.5q0-50-35-85t-85-35q-50 0-85 35t-35 85q0 17 4 31.5t12 28.5q3 5 4 10t1 10q0 17-11 28.5T202-600q-11 0-20.5-6T167-621q-13-22-20-47t-7-52q0-83 58.5-141.5T340-920q83 0 141.5 58.5T540-720q0 27-7 52t-20 47q-5 9-14 15t-20 6Z"/></symbol><symbol id="i-upload_file" viewBox="0 -960 960 960"><path fill="currentColor" d="M440-367v127q0 17 11.5 28.5T480-200q17 0 28.5-11.5T520-240v-127l36 36q6 6 13.5 9t15 2.5q7.5-.5 14.5-3.5t13-9q11-12 11.5-28T612-388L508-492q-6-6-13-8.5t-15-2.5q-8 0-15 2.5t-13 8.5L348-388q-12 12-11.5 28t12.5 28q12 11 28 11.5t28-11.5l35-35ZM240-80q-33 0-56.5-23.5T160-160v-640q0-33 23.5-56.5T240-880h287q16 0 30.5 6t25.5 17l194 194q11 11 17 25.5t6 30.5v447q0 33-23.5 56.5T720-80H240Zm280-560v-160H240v640h480v-440H560q-17 0-28.5-11.5T520-640ZM240-800v200-200 640-640Z"/></symbol><symbol id="os-windows" viewBox="0 0 24 24"><path fill="currentColor" d="M3 5.5 10.5 4.4v7.1H3zm0 13 7.5 1.1v-7H3zm8.4 1.2L21 21v-8.4h-9.6zm0-15.4v7.2H21V3z"/></symbol><symbol id="os-apple" viewBox="0 0 24 24"><path fill="currentColor" d="M16.4 12.7c0-2.5 2.1-3.7 2.2-3.8-1.2-1.7-3-2-3.7-2-1.6-.2-3 .9-3.8.9s-2-.9-3.3-.9C6.1 7 4.5 8 3.6 9.6c-1.8 3.1-.5 7.8 1.3 10.3.9 1.2 1.9 2.6 3.2 2.6 1.3-.1 1.8-.8 3.3-.8s2 .8 3.3.8c1.4 0 2.2-1.3 3.1-2.5 1-1.4 1.4-2.8 1.4-2.9 0 0-2.8-1.1-2.8-4.4zM13.9 5.3c.7-.9 1.2-2 1-3.2-1 0-2.3.7-3 1.6-.7.8-1.2 2-1.1 3.1 1.2.1 2.3-.6 3.1-1.5z"/></symbol><symbol id="os-android" viewBox="0 0 24 24"><path fill="currentColor" d="M17.6 9.5 19.4 6.4a.4.4 0 0 0-.7-.4l-1.9 3.2A11.2 11.2 0 0 0 12 8.2c-1.7 0-3.3.4-4.8 1L5.3 6a.4.4 0 1 0-.7.4l1.8 3.1A10.5 10.5 0 0 0 1 18h22a10.5 10.5 0 0 0-5.4-8.5zM7 15.3a1 1 0 1 1 0-2 1 1 0 0 1 0 2zm10 0a1 1 0 1 1 0-2 1 1 0 0 1 0 2z"/></symbol></svg>
+
+<header class="nav" id="nav">
+	<div class="wrap">
+		<a class="brand" href="#"><img src="/img/logo.svg" alt="">AruniControl</a>
+		<nav class="nav-links">
+			<a href="#fitur">Fitur</a>
+			<a href="#unduh">Unduh</a>
+			<a href="#panduan">Panduan</a>
+			<a href="#jarak-jauh">Akses jarak jauh</a>
+			<a href="#bantuan">Bantuan</a>
+		</nav>
+		<a class="btn small" href="#unduh"><svg><use href="#i-download"/></svg>Unduh</a>
+	</div>
+</header>
+
+<main>
+<!-- ================= HERO ================= -->
+<section class="hero">
+	<div class="wrap">
+		<div>
+			<span class="eyebrow"><b>Baru</b> Versi 1.2.0 “Clara” — aplikasi Android &amp; Aruni Gateway</span>
+			<h1>Semua komputer lab &amp; kantor, <em>dalam genggaman.</em></h1>
+			<p class="lead">AruniControl menampilkan layar semua komputer dalam satu grid. Kunci layar, kirim pesan, tampilkan layar guru, atau ambil alih mouse &amp; keyboard — dari PC, Mac, atau HP. Bahkan lewat paket data, tanpa VPN.</p>
+			<div class="hero-cta">
+				<a class="btn" id="hero-download" href="#unduh"><svg><use href="#i-download"/></svg><span>Unduh gratis</span></a>
+				<a class="btn ghost" href="#panduan">Lihat panduan</a>
+			</div>
+			<p class="hero-note" id="hero-note">Gratis · Tanpa iklan · Berbasis Veyon (sumber terbuka, GPL)</p>
+			<div class="platforms">
+				<span><svg><use href="#os-windows"/></svg>Windows 10/11</span>
+				<span><svg><use href="#os-apple"/></svg>macOS (Apple Silicon)</span>
+				<span><svg><use href="#os-android"/></svg>Android 9+</span>
+			</div>
+		</div>
+		<div class="hero-visual">
+			<div class="desktop"><div class="window-bar"><i></i><i></i><i></i></div><img src="/img/windows-master.webp" alt="AruniControl Master di Windows" onerror="this.src='/img/windows-configurator.webp'"></div>
+			<div class="phone"><img src="/img/android-home.webp" alt="Aplikasi AruniControl di Android menampilkan grid komputer"></div>
+		</div>
+	</div>
+</section>
+
+<!-- ================= FITUR ================= -->
+<section id="fitur">
+	<div class="wrap">
+		<div class="section-head center">
+			<span class="kicker">Fitur</span>
+			<h2>Semua yang dibutuhkan guru &amp; admin IT</h2>
+			<p>Semua fitur ada di tiga versi. Di HP pun tetap lengkap, bukan versi “lite”.</p>
+		</div>
+		<div class="features">
+			<article class="card feature"><div class="icon"><svg><use href="#i-grid_view"/></svg></div><h3>Pantau semua layar</h3><p>Thumbnail langsung dari setiap komputer, dikelompokkan per ruangan. Siapa yang login juga terlihat.</p></article>
+			<article class="card feature"><div class="icon"><svg><use href="#i-touch_app"/></svg></div><h3>Kendalikan dari jauh</h3><p>Lihat layar penuh dan ambil alih mouse &amp; keyboard. Di HP: ketuk untuk klik, cubit untuk zoom.</p></article>
+			<article class="card feature"><div class="icon"><svg><use href="#i-lock"/></svg></div><h3>Kunci layar sekaligus</h3><p>Satu ketukan untuk mengunci semua komputer, misalnya saat Anda sedang menjelaskan di depan kelas.</p></article>
+			<article class="card feature"><div class="icon"><svg><use href="#i-cast_for_education"/></svg></div><h3>Demo layar guru</h3><p>Tampilkan layar guru (atau layar satu siswa) di semua komputer, layar penuh atau jendela.</p></article>
+			<article class="card feature"><div class="icon"><svg><use href="#i-chat"/></svg></div><h3>Pesan &amp; chat</h3><p>Kirim pengumuman ke semua layar atau chat dua arah dengan pengguna tertentu.</p></article>
+			<article class="card feature"><div class="icon"><svg><use href="#i-rocket_launch"/></svg></div><h3>Buka aplikasi &amp; website</h3><p>Jalankan program atau buka alamat web di semua komputer yang dipilih dalam satu langkah.</p></article>
+			<article class="card feature"><div class="icon"><svg><use href="#i-public_off"/></svg></div><h3>Batasi internet &amp; suara</h3><p>Matikan akses internet atau bisukan suara saat ujian, lalu nyalakan lagi dengan satu ketukan.</p></article>
+			<article class="card feature"><div class="icon"><svg><use href="#i-upload_file"/></svg></div><h3>Kirim &amp; kumpulkan file</h3><p>Bagikan materi ke semua komputer dan kumpulkan hasil kerja siswa kembali ke komputer guru.</p></article>
+			<article class="card feature"><div class="icon"><svg><use href="#i-public"/></svg></div><h3>Dari mana saja</h3><p>Dengan Aruni Gateway, HP di paket data bisa menjangkau seluruh komputer kantor. Tanpa VPN, tanpa atur router.</p></article>
+		</div>
+	</div>
+</section>
+
+<!-- ================= UNDUH ================= -->
+<section id="unduh">
+	<div class="wrap">
+		<div class="section-head center">
+			<span class="kicker">Unduh</span>
+			<h2>Pilih versi untuk perangkat Anda</h2>
+			<p>Satu paket berisi semuanya: <b>Server</b> (agar komputer bisa dipantau), <b>Master</b> (untuk guru/admin) dan <b>Configurator</b> (pengaturan).</p>
+		</div>
+		<div class="downloads">
+			<article class="card download" data-os="windows">
+				<span class="badge">Cocok untuk perangkat Anda</span>
+				<div class="os"><div class="logo"><svg><use href="#os-windows"/></svg></div><div><h3>Windows</h3><small>Windows 10 &amp; 11 · 64-bit</small></div></div>
+				<ul>
+					<li>Installer lengkap: Master, Configurator, Server</li>
+					<li>Layanan otomatis jalan saat komputer menyala</li>
+					<li>Aruni Gateway sudah termasuk</li>
+				</ul>
+				<div class="actions">
+					<a class="btn" href="/unduh/windows"><svg><use href="#i-download"/></svg>Unduh installer (.exe)</a>
+					<a class="btn ghost small" href="/unduh/windows-zip">Versi portabel (.zip)</a>
+					<div class="meta">v1.2.0 · 60,6 MB · ZIP 89,1 MB</div>
+				</div>
+			</article>
+			<article class="card download" data-os="mac">
+				<span class="badge">Cocok untuk perangkat Anda</span>
+				<div class="os"><div class="logo"><svg><use href="#os-apple"/></svg></div><div><h3>macOS</h3><small>Apple Silicon (M1 ke atas) · macOS 14+</small></div></div>
+				<ul>
+					<li>Aplikasi mandiri, tanpa Homebrew</li>
+					<li>Tidak perlu password admin</li>
+					<li>Mac bisa jadi Master maupun yang dipantau</li>
+				</ul>
+				<div class="actions">
+					<a class="btn" href="/unduh/macos"><svg><use href="#i-download"/></svg>Unduh untuk Mac (.zip)</a>
+					<div class="meta">v1.2.0 · 40,0 MB</div>
+				</div>
+			</article>
+			<article class="card download" data-os="android">
+				<span class="badge">Cocok untuk perangkat Anda</span>
+				<div class="os"><div class="logo"><svg><use href="#os-android"/></svg></div><div><h3>Android</h3><small>Android 9 ke atas · ARM 64-bit</small></div></div>
+				<ul>
+					<li>Master versi layar sentuh, bahasa Indonesia</li>
+					<li>Pindai QR Aruni Gateway untuk akses dari mana saja</li>
+					<li>WireGuard (MikroTik) &amp; ZeroTier bawaan</li>
+				</ul>
+				<div class="actions">
+					<a class="btn" href="/unduh/android"><svg><use href="#i-download"/></svg>Unduh APK</a>
+					<div class="meta">v1.2.0 · 36,6 MB</div>
+				</div>
+			</article>
+		</div>
+		<div class="release-info">
+			<span>Versi terbaru: <b>1.2.0 “Clara”</b></span>
+			<a href="/unduh/sha256" target="_blank" rel="noopener">Checksum SHA-256</a>
+			<a href="#bantuan">Butuh bantuan memasang?</a>
+		</div>
+	</div>
+</section>
+
+<!-- ================= CARA KERJA ================= -->
+<section id="cara-kerja" style="padding-top:0">
+	<div class="wrap">
+		<div class="section-head center">
+			<span class="kicker">Gambaran singkat</span>
+			<h2>Empat langkah sampai siap dipakai</h2>
+		</div>
+		<div class="flow">
+			<div class="card step"><h3>Pasang di semua komputer</h3><p>Instal AruniControl di setiap komputer yang ingin dipantau (komputer siswa/karyawan).</p></div>
+			<div class="card step"><h3>Buat kunci akses</h3><p>Di komputer guru/admin buat sepasang kunci. Kunci publik dipasang di semua komputer.</p></div>
+			<div class="card step"><h3>Buka Master</h3><p>Komputer di jaringan yang sama langsung ditemukan. Atur ruangan bila perlu.</p></div>
+			<div class="card step"><h3>Tambah HP (opsional)</h3><p>Pasang APK, lalu pindai QR dari Aruni Gateway supaya bisa dipakai dari mana saja.</p></div>
+		</div>
+	</div>
+</section>
+
+<!-- ================= PANDUAN ================= -->
+<section id="panduan" style="padding-top:0">
+	<div class="wrap">
+		<div class="section-head center">
+			<span class="kicker">Panduan lengkap</span>
+			<h2>Cara memasang &amp; memakai</h2>
+			<p>Pilih perangkat Anda. Setiap langkah dilengkapi gambar. Klik gambar untuk memperbesar.</p>
+		</div>
+
+		<div class="tabs" role="tablist">
+			<button role="tab" aria-selected="true" aria-controls="p-windows" id="t-windows"><svg><use href="#os-windows"/></svg>Windows</button>
+			<button role="tab" aria-selected="false" aria-controls="p-mac" id="t-mac"><svg><use href="#os-apple"/></svg>macOS</button>
+			<button role="tab" aria-selected="false" aria-controls="p-android" id="t-android"><svg><use href="#os-android"/></svg>Android</button>
+			<button role="tab" aria-selected="false" aria-controls="p-kunci" id="t-kunci"><svg><use href="#i-key"/></svg>Kunci akses</button>
+		</div>
+
+		<!-- ---------- WINDOWS ---------- -->
+		<div class="panel" role="tabpanel" id="p-windows" aria-labelledby="t-windows">
+			<div class="guide-step">
+				<div>
+					<span class="num"><b>1</b>Instal</span>
+					<h3>Jalankan installer</h3>
+					<ol>
+						<li>Unduh <b>AruniControl-Setup-…-Windows-x64.exe</b> dari bagian <a href="#unduh">Unduh</a>.</li>
+						<li>Klik dua kali file tersebut, lalu pilih <b>Yes</b> saat Windows meminta izin administrator.</li>
+						<li>Jika muncul layar biru <i>“Windows protected your PC”</i>, klik <b>More info</b> → <b>Run anyway</b>. Ini normal karena installer belum ditandatangani sertifikat berbayar.</li>
+						<li>Klik <b>Install</b>. Installer otomatis mendaftarkan layanan <b>AruniControl</b> dan membuka firewall untuk port <code>11100</code>.</li>
+						<li>Setelah selesai, <b>AruniControl Configurator</b> terbuka otomatis.</li>
+					</ol>
+					<div class="callout info"><svg><use href="#i-info"/></svg><p>Lakukan langkah ini di <b>setiap</b> komputer, termasuk komputer guru. Untuk banyak komputer sekaligus, installer bisa dijalankan senyap: <code>AruniControl-Setup-….exe /S</code></p></div>
+				</div>
+				<div class="shot"><figure><div class="window"><img class="zoomable" src="/img/windows-configurator.webp" alt="AruniControl Configurator di Windows" ></div><figcaption>AruniControl Configurator di Windows</figcaption></figure></div>
+			</div>
+
+			<div class="guide-step flip">
+				<div>
+					<span class="num"><b>2</b>Layanan</span>
+					<h3>Pastikan layanan berjalan</h3>
+					<p>Di Configurator buka halaman <b>Service</b>. Status harus <b>Running</b>. Jika belum, klik <b>Start service</b>.</p>
+					<p>Layanan ini yang membuat komputer bisa dipantau. Ia berjalan otomatis setiap kali Windows menyala, juga sebelum ada yang login.</p>
+				</div>
+				<div class="shot"><figure><div class="window"><img class="zoomable" src="/img/windows-configurator-service.webp" alt="Halaman Service" ></div><figcaption>Configurator → Service</figcaption></figure></div>
+			</div>
+
+			<div class="guide-step">
+				<div>
+					<span class="num"><b>3</b>Kunci</span>
+					<h3>Pasang kunci akses</h3>
+					<p>Komputer hanya menuruti perintah dari Master yang memegang kunci yang cocok. Ikuti tab <a href="#panduan" data-tab="t-kunci">Kunci akses</a>. Cukup sekali untuk satu sekolah atau kantor.</p>
+				</div>
+				<div class="shot"><figure><div class="window"><img class="zoomable" src="/img/windows-configurator-authentication.webp" alt="Authentication keys di Windows"></div><figcaption>Configurator → Authentication keys</figcaption></figure></div>
+			</div>
+
+			<div class="guide-step flip">
+				<div>
+					<span class="num"><b>4</b>Master</span>
+					<h3>Buka AruniControl Master di komputer guru</h3>
+					<ol>
+						<li>Start menu → <b>AruniControl</b> → <b>AruniControl Master</b>.</li>
+						<li>Komputer di jaringan yang sama ditemukan otomatis (<i>Network discovery</i>) dan tampil sebagai thumbnail.</li>
+						<li>Pilih satu, beberapa, atau semua komputer, lalu pakai tombol di toolbar: <b>Monitoring</b>, <b>Demo</b>, <b>Lock</b>, <b>Remote view/control</b>, <b>Text message</b>, <b>Power on/off</b>, dan lainnya.</li>
+						<li>Ingin mengelompokkan per ruangan? Buka Configurator → <b>Locations &amp; computers</b>, buat lokasi lalu tambahkan nama/IP komputer.</li>
+					</ol>
+				</div>
+				<div class="shot"><figure><div class="window"><img class="zoomable" src="/img/windows-master.webp" alt="AruniControl Master" onerror="this.src='/img/mac-configurator-master.webp'"></div><figcaption>AruniControl Master</figcaption></figure></div>
+			</div>
+		</div>
+
+		<!-- ---------- macOS ---------- -->
+		<div class="panel" role="tabpanel" id="p-mac" aria-labelledby="t-mac" hidden>
+			<div class="guide-step">
+				<div>
+					<span class="num"><b>1</b>Instal</span>
+					<h3>Pindahkan ke Applications</h3>
+					<ol>
+						<li>Unduh <b>AruniControl-…-macOS-arm64.zip</b>, lalu klik dua kali untuk mengekstrak.</li>
+						<li>Seret <b>AruniControl.app</b> ke folder <b>Applications</b>.</li>
+						<li>Buka aplikasinya. Jika macOS menolak (<i>“cannot be opened because the developer cannot be verified”</i>), buka <b>System Settings → Privacy &amp; Security</b>, gulir ke bawah, lalu klik <b>Open Anyway</b>.</li>
+					</ol>
+					<div class="callout info"><svg><use href="#i-info"/></svg><p>Cara cepat lewat Terminal: <code>xattr -dr com.apple.quarantine /Applications/AruniControl.app</code></p></div>
+					<p>Tidak perlu password admin. Semua pengaturan tersimpan per pengguna.</p>
+				</div>
+				<div class="shot"><figure><div class="window"><img class="zoomable" src="/img/mac-configurator-general.webp" alt="Configurator di macOS"></div><figcaption>AruniControl Configurator di macOS</figcaption></figure></div>
+			</div>
+
+			<div class="guide-step flip">
+				<div>
+					<span class="num"><b>2</b>Aplikasi</span>
+					<h3>Master &amp; Configurator</h3>
+					<ul>
+						<li><b>AruniControl.app</b> membuka <b>Master</b> (untuk memantau komputer lain).</li>
+						<li><b>Configurator</b> ada di dalam paket aplikasi: klik kanan <b>AruniControl.app</b> → <b>Show Package Contents</b> → <b>Contents</b> → <b>MacOS</b> → klik dua kali <b>veyon-configurator</b>.<br>Atau lewat Terminal: <code>/Applications/AruniControl.app/Contents/MacOS/veyon-configurator</code></li>
+					</ul>
+				</div>
+				<div class="shot"><figure><div class="window"><img class="zoomable" src="/img/mac-configurator-master.webp" alt="Pengaturan Master di macOS"></div><figcaption>Configurator → Master</figcaption></figure></div>
+			</div>
+
+			<div class="guide-step">
+				<div>
+					<span class="num"><b>3</b>Agar Mac bisa dipantau</span>
+					<h3>Nyalakan layanan &amp; beri 2 izin</h3>
+					<ol>
+						<li>Di Configurator buka <b>Service</b>, lalu klik <b>Start service</b>. Layanan jalan otomatis setiap login (LaunchAgent, tanpa admin).</li>
+						<li>Buka <b>System Settings → Privacy &amp; Security → Screen Recording</b>. Klik <b>+</b>, tekan <kbd>⌘</kbd><kbd>⇧</kbd><kbd>G</kbd>, ketik <code>/Applications/AruniControl.app/Contents/MacOS/veyon-server</code>, lalu nyalakan.</li>
+						<li>Ulangi di <b>Accessibility</b> untuk file yang sama. Izin ini yang membuat klik &amp; ketikan dari Master/HP bisa masuk.</li>
+						<li>Kembali ke Configurator → Service → <b>Stop service</b> lalu <b>Start service</b> agar izin baru terbaca.</li>
+					</ol>
+					<div class="callout"><svg><use href="#i-error"/></svg><p><b>Layar hitam?</b> Izin Screen Recording belum aktif. <b>Bisa lihat tapi tidak bisa klik?</b> Izin Accessibility belum aktif. Setelah mengubah izin, selalu restart layanan.</p></div>
+				</div>
+				<div class="shot"><figure><div class="window"><img class="zoomable" src="/img/mac-configurator-service.webp" alt="Halaman Service di macOS"></div><figcaption>Configurator → Service</figcaption></figure></div>
+			</div>
+
+			<div class="guide-step flip">
+				<div>
+					<span class="num"><b>4</b>Kunci</span>
+					<h3>Pasang kunci akses</h3>
+					<p>Sama seperti di Windows: ikuti tab <a href="#panduan" data-tab="t-kunci">Kunci akses</a>. Mac dan Windows bisa saling memantau selama kuncinya sama.</p>
+				</div>
+				<div class="shot"><figure><div class="window"><img class="zoomable" src="/img/mac-configurator-aruni-gateway.webp" alt="Aruni Gateway di macOS"></div><figcaption>Configurator → Aruni Gateway</figcaption></figure></div>
+			</div>
+		</div>
+
+		<!-- ---------- ANDROID ---------- -->
+		<div class="panel" role="tabpanel" id="p-android" aria-labelledby="t-android" hidden>
+			<div class="guide-step">
+				<div>
+					<span class="num"><b>1</b>Instal</span>
+					<h3>Pasang APK</h3>
+					<ol>
+						<li>Buka halaman ini di HP, lalu ketuk <a href="/unduh/android">Unduh APK</a>.</li>
+						<li>Setelah selesai, ketuk file <b>AruniControl-…-Android-arm64.apk</b>.</li>
+						<li>Jika muncul <i>“Untuk keamanan, HP Anda tidak diizinkan menginstal aplikasi tidak dikenal”</i>, ketuk <b>Setelan</b> → aktifkan <b>Izinkan dari sumber ini</b> → kembali → <b>Instal</b>.</li>
+						<li>Jika Play Protect memberi peringatan, pilih <b>Detail lainnya → Tetap instal</b>.</li>
+					</ol>
+				</div>
+				<div class="shot"><figure><div class="phone"><img class="zoomable" src="/img/android-welcome.webp" alt="Layar sambutan"></div><figcaption>Layar pertama saat aplikasi dibuka</figcaption></figure></div>
+			</div>
+
+			<div class="guide-step flip">
+				<div>
+					<span class="num"><b>2</b>Akses</span>
+					<h3>Hubungkan akses</h3>
+					<p>Ketuk <b>Mulai</b>, lalu pilih salah satu cara berikut:</p>
+					<ul>
+						<li><b>Punya kode QR Aruni Gateway?</b> Ini paling mudah. Sekali pindai, lokasi dan kunci akses terpasang otomatis dan bisa dipakai dari mana saja. Lihat <a href="#jarak-jauh">Akses jarak jauh</a>.</li>
+						<li><b>Kunci akses</b>: pilih file <code>…_private_key.pem</code> yang diekspor dari Configurator (tab <a href="#panduan" data-tab="t-kunci">Kunci akses</a>, langkah 4). Nama kunci harus sama persis dengan nama di komputer.</li>
+						<li><b>Akun komputer</b>: nama pengguna &amp; kata sandi yang terdaftar di komputer siswa, jika sekolah memakai metode login.</li>
+					</ul>
+					<div class="callout ok"><svg><use href="#i-shield"/></svg><p>Kunci dan kata sandi hanya disimpan di HP ini dan tidak pernah dikirim ke internet.</p></div>
+				</div>
+				<div class="shot"><figure><div class="phone"><img class="zoomable" src="/img/android-auth.webp" alt="Hubungkan akses"></div><figcaption>Pilih cara menghubungkan akses</figcaption></figure></div>
+			</div>
+
+			<div class="guide-step">
+				<div>
+					<span class="num"><b>3</b>Pantau</span>
+					<h3>Semua komputer dalam satu grid</h3>
+					<ul>
+						<li>Jika HP satu Wi-Fi dengan komputer, komputer ditemukan otomatis. Ketuk <b>↻</b> untuk memperbarui daftar.</li>
+						<li>Geser chip di atas untuk memilih <b>ruangan</b>. Pakai kotak cari untuk mencari nama komputer atau pengguna.</li>
+						<li>Titik warna menunjukkan status: <span style="color:var(--success)">●</span> online, <span style="color:var(--warning)">●</span> sedang menghubungkan, <span style="color:var(--danger)">●</span> kunci ditolak, <span style="color:var(--faint)">●</span> mati.</li>
+						<li>Tombol bawah: <b>Kunci</b>, <b>Buka</b>, <b>Pesan</b>, dan <b>Semua</b> untuk seluruh aksi.</li>
+					</ul>
+				</div>
+				<div class="shot"><figure><div class="phone"><img class="zoomable" src="/img/android-home.webp" alt="Grid komputer"></div><figcaption>Beranda: grid semua komputer</figcaption></figure></div>
+			</div>
+
+			<div class="guide-step flip">
+				<div>
+					<span class="num"><b>4</b>Aksi</span>
+					<h3>Satu ketuk untuk semua</h3>
+					<p>Ketuk <b>Semua</b> untuk semua komputer yang tampil, atau tahan satu kartu untuk mulai memilih beberapa komputer lalu ketuk aksinya. Aksi yang tersedia:</p>
+					<ul>
+						<li><b>Kelas</b>: kunci/buka layar, kirim pesan, tangkap layar, buka website, jalankan aplikasi, kunci keyboard &amp; mouse.</li>
+						<li><b>Demo &amp; file</b>: tampilkan layar siswa ke semua, hentikan demo, kirim file, kumpulkan file.</li>
+						<li><b>Pembatasan</b>: blokir/buka internet, bisukan/nyalakan suara.</li>
+						<li><b>Daya &amp; sesi</b>: nyalakan (Wake-on-LAN), login pengguna, mulai ulang, matikan, keluarkan pengguna.</li>
+					</ul>
+				</div>
+				<div class="shot"><figure><div class="phone"><img class="zoomable" src="/img/android-actions.webp" alt="Lembar aksi"></div><figcaption>Lembar aksi</figcaption></figure></div>
+			</div>
+
+			<div class="guide-step">
+				<div>
+					<span class="num"><b>5</b>Kendalikan</span>
+					<h3>Lihat &amp; kendalikan dari jauh</h3>
+					<ul>
+						<li>Ketuk satu kartu untuk membuka layar penuh. Mode <b>Lihat</b> hanya menonton.</li>
+						<li>Ketuk <b>Kendalikan</b> atau pilih <b>Kontrol</b> untuk mengambil alih: ketuk = klik, ketuk dua kali = klik ganda, tahan = klik kanan, geser satu jari = menyeret, dua jari = zoom &amp; geser layar, strip di kanan = scroll.</li>
+						<li>Baris tombol di bawah: keyboard HP, <kbd>Esc</kbd> <kbd>Tab</kbd> <kbd>Enter</kbd>, serta pintasan seperti <kbd>Ctrl+Alt+Del</kbd>, <kbd>Win</kbd>, <kbd>Alt+Tab</kbd>, <kbd>Alt+F4</kbd>, <kbd>Ctrl+C</kbd>.</li>
+						<li>Ikon kamera menyimpan tangkapan layar ke HP.</li>
+					</ul>
+				</div>
+				<div class="shot"><figure><div class="phone"><img class="zoomable" src="/img/android-remote.webp" alt="Layar jarak jauh"></div><figcaption>Layar jarak jauh (isi layar disamarkan)</figcaption></figure></div>
+			</div>
+
+			<div class="guide-step flip">
+				<div>
+					<span class="num"><b>6</b>Pengaturan</span>
+					<h3>Ruangan, tema &amp; lainnya</h3>
+					<p>Ketuk ikon ⚙ di kanan atas untuk:</p>
+					<ul>
+						<li>Mengganti atau menghapus kunci akses.</li>
+						<li><b>Akses dari mana saja</b>: Aruni Gateway, VPN WireGuard, ZeroTier.</li>
+						<li><b>Ruangan &amp; komputer</b>: menambah komputer lewat alamat IP dan mengelompokkannya.</li>
+						<li>Melihat file terkumpul &amp; tangkapan layar, memilih tema terang/gelap, dan ukuran kartu.</li>
+					</ul>
+				</div>
+				<div class="shot"><figure><div class="phone"><img class="zoomable" src="/img/android-settings.webp" alt="Pengaturan"></div><figcaption>Pengaturan</figcaption></figure></div>
+			</div>
+		</div>
+
+		<!-- ---------- KUNCI AKSES ---------- -->
+		<div class="panel" role="tabpanel" id="p-kunci" aria-labelledby="t-kunci" hidden>
+			<div class="guide-step">
+				<div>
+					<span class="num"><b>1</b>Konsep</span>
+					<h3>Kenapa perlu kunci?</h3>
+					<p>Agar tidak sembarang orang bisa mengendalikan komputer. Kunci terdiri dari dua bagian:</p>
+					<ul>
+						<li><b>Kunci private</b>: hanya dipegang komputer guru/admin (dan HP guru). Jangan dibagikan.</li>
+						<li><b>Kunci publik</b>: dipasang di <b>semua</b> komputer yang dipantau.</li>
+					</ul>
+					<p>Komputer hanya menerima perintah dari Master yang memegang kunci private pasangan dari kunci publiknya.</p>
+				</div>
+				<div class="shot"><figure><div class="window"><img class="zoomable" src="/img/mac-configurator-general.webp" alt="Metode autentikasi"></div><figcaption>General → Authentication → <i>Key file authentication</i></figcaption></figure></div>
+			</div>
+			<div class="guide-step flip">
+				<div>
+					<span class="num"><b>2</b>Buat</span>
+					<h3>Buat pasangan kunci (sekali saja)</h3>
+					<ol>
+						<li>Di <b>komputer guru/admin</b>, buka Configurator → <b>Authentication keys</b>.</li>
+						<li>Klik <b>Create key pair</b> dan beri nama, misalnya <code>sekolah</code> atau <code>lab1</code>.</li>
+						<li>Klik <b>Apply</b>.</li>
+					</ol>
+				</div>
+				<div class="shot"><figure><div class="window"><img class="zoomable" src="/img/mac-configurator-authentication.webp" alt="Authentication keys"></div><figcaption>Configurator → Authentication keys</figcaption></figure></div>
+			</div>
+			<div class="guide-step">
+				<div>
+					<span class="num"><b>3</b>Sebarkan</span>
+					<h3>Pasang kunci publik di semua komputer</h3>
+					<ol>
+						<li>Di komputer guru: pilih kunci bertipe <b>public</b> → <b>Export key</b>. Simpan file <code>sekolah_public_key.pem</code> ke flashdisk atau folder bersama.</li>
+						<li>Di setiap komputer siswa: Configurator → <b>Authentication keys</b> → <b>Import key</b> → pilih file tadi → isi nama yang <b>sama persis</b> (<code>sekolah</code>) → <b>Apply</b>.</li>
+					</ol>
+					<div class="callout info"><svg><use href="#i-info"/></svg><p>Untuk banyak komputer, pakai perintah: <code>veyon-cli authkeys import sekolah/public sekolah_public_key.pem</code> (di Windows: <code>veyon-wcli.exe</code> dari folder instalasi).</p></div>
+				</div>
+				<div class="shot"><figure><div class="window"><img class="zoomable" src="/img/mac-configurator-authentication.webp" alt="Import dan export kunci"></div><figcaption>Nama kunci harus sama di semua komputer</figcaption></figure></div>
+			</div>
+			<div class="guide-step flip">
+				<div>
+					<span class="num"><b>4</b>HP guru</span>
+					<h3>Kunci untuk aplikasi Android</h3>
+					<p><b>Cara termudah:</b> pakai Aruni Gateway dan pilih kunci di kolom <i>“Give new phones this access key”</i>. HP akan menerima kuncinya otomatis saat memindai QR. Lihat <a href="#jarak-jauh">Akses jarak jauh</a>.</p>
+					<p><b>Cara manual:</b> di komputer guru pilih kunci bertipe <b>private</b> → <b>Export key</b>. Kirim file <code>.pem</code> ke HP (kabel USB, Drive, WhatsApp ke diri sendiri), lalu di aplikasi pilih <b>Kunci akses → Pilih file kunci</b> dan isi nama kunci yang sama.</p>
+				</div>
+				<div class="shot"><figure><div class="phone"><img class="zoomable" src="/img/android-auth.webp" alt="Pasang kunci di HP"></div><figcaption>Pasang kunci di aplikasi</figcaption></figure></div>
+			</div>
+		</div>
+	</div>
+</section>
+
+<!-- ================= JARAK JAUH ================= -->
+<section id="jarak-jauh" style="padding-top:0">
+	<div class="wrap">
+		<div class="section-head center">
+			<span class="kicker">Akses jarak jauh</span>
+			<h2>Pakai paket data? Tetap bisa.</h2>
+			<p><b>Aruni Gateway</b> menghubungkan HP Anda ke semua komputer kantor lewat internet. Tidak perlu VPN, tidak perlu mengatur router atau port forwarding.</p>
+		</div>
+
+		<div class="card diagram">
+			<div class="node"><svg><use href="#i-computer"/></svg><b>HP guru</b><small>Wi-Fi atau paket data</small></div>
+			<div class="link"><svg viewBox="0 0 40 20"><path d="M2 10h32m-6-6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>terenkripsi</div>
+			<div class="node"><svg><use href="#i-cloud"/></svg><b>Aruni Relay</b><small>Cloudflare, hanya meneruskan data</small></div>
+			<div class="link"><svg viewBox="0 0 40 20"><path d="M38 10H6m6-6-6 6 6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>koneksi keluar</div>
+			<div class="node"><svg><use href="#i-router"/></svg><b>PC Gateway di kantor</b><small>meneruskan ke semua komputer LAN</small></div>
+		</div>
+		<p style="text-align:center;color:var(--muted);font-size:.92rem;margin-top:14px">Data dienkripsi dari HP sampai PC gateway (X25519 + ChaCha20-Poly1305), sehingga relay tidak bisa membaca isinya. Gateway hanya meneruskan ke alamat jaringan lokal di port AruniControl.</p>
+
+		<div class="guide-step" style="margin-top:30px">
+			<div>
+				<span class="num"><b>1</b>Di kantor</span>
+				<h3>Aktifkan Aruni Gateway di satu PC</h3>
+				<ol>
+					<li>Pilih satu PC yang <b>selalu menyala</b> dan terhubung ke jaringan kantor/lab. Boleh komputer guru, server, atau PC mana saja yang sudah terpasang AruniControl.</li>
+					<li>Buka Configurator → <b>Aruni Gateway</b>.</li>
+					<li>Centang <b>Use this computer as Aruni Gateway</b>, isi <b>Location name</b> (mis. <i>Lab Komputer 1</i>), lalu klik <b>Apply</b>.</li>
+					<li>Tunggu sampai <b>Status</b> menjadi <span style="color:var(--success)">● Online</span>.</li>
+					<li>Di <b>Give new phones this access key</b>, pilih kunci (mis. <code>sekolah</code>) agar HP langsung mendapat kunci akses.</li>
+				</ol>
+				<div class="callout info"><svg><use href="#i-info"/></svg><p>Relay server bawaan sudah terisi. Biarkan saja kecuali Anda menjalankan relay sendiri.</p></div>
+			</div>
+			<div class="shot"><figure><div class="window"><img class="zoomable" src="/img/mac-configurator-aruni-gateway.webp" alt="Aruni Gateway aktif"></div><figcaption>Configurator → Aruni Gateway</figcaption></figure></div>
+		</div>
+
+		<div class="guide-step flip">
+			<div>
+				<span class="num"><b>2</b>Di HP</span>
+				<h3>Pindai kode QR</h3>
+				<ol>
+					<li>Di Configurator klik <b>Show pairing QR code</b>. Kode berlaku sekali pakai selama 15 menit.</li>
+					<li>Di aplikasi: ⚙ Pengaturan → <b>Akses dari mana saja</b> → <b>Pindai kode QR</b>, arahkan kamera ke layar. Bisa juga memakai kamera bawaan HP: link <code>arunicontrol://pair…</code> langsung membuka aplikasi.</li>
+					<li>Selesai. Lokasi baru muncul sebagai ruangan dan semua komputer di kantor tampil, baik lewat Wi-Fi maupun paket data.</li>
+				</ol>
+				<p>HP yang terhubung tercatat di <b>Connected phones</b> pada Configurator dan aksesnya bisa dicabut kapan saja dengan <b>Remove access</b>.</p>
+			</div>
+			<div class="shot pair">
+				<figure><div class="phone"><img class="zoomable" src="/img/android-remote-access.webp" alt="Akses dari mana saja"></div><figcaption>Akses dari mana saja</figcaption></figure>
+			</div>
+		</div>
+
+		<div class="guide-step">
+			<div>
+				<span class="num"><b>+</b>Alternatif</span>
+				<h3>Sudah punya VPN?</h3>
+				<ul>
+					<li><b>WireGuard / MikroTik (RouterOS 7)</b>: impor file <code>.conf</code> di <i>Akses dari mana saja → VPN WireGuard</i>. Hanya lalu lintas AruniControl yang lewat VPN, aplikasi lain tetap memakai internet biasa. Ketuk <i>Cara membuat di MikroTik</i> untuk panduan singkat.</li>
+					<li><b>ZeroTier</b>: pasang ZeroTier One dari Play Store, gabung ke Network ID kantor, lalu minta admin menyetujui HP Anda.</li>
+					<li><b>Subnet tambahan</b>: di <i>Ruangan &amp; komputer</i>, tambahkan subnet (mis. <code>192.168.10.0/24</code>) agar komputer di balik VPN ikut ditemukan.</li>
+				</ul>
+			</div>
+			<div class="shot"><figure><div class="phone"><img class="zoomable" src="/img/android-remote-access.webp" alt="VPN"></div><figcaption>WireGuard &amp; ZeroTier</figcaption></figure></div>
+		</div>
+	</div>
+</section>
+
+<!-- ================= BANTUAN ================= -->
+<section id="bantuan" style="padding-top:0">
+	<div class="wrap">
+		<div class="section-head center">
+			<span class="kicker">Bantuan</span>
+			<h2>Masalah yang sering ditemui</h2>
+		</div>
+		<div class="faq">
+			<details class="card"><summary>Komputer tidak muncul di Master / aplikasi</summary><div>
+				<p>Pastikan layanan AruniControl berjalan di komputer tersebut (Configurator → Service → <b>Running</b>) dan komputer ada di jaringan yang sama. Firewall harus mengizinkan port TCP <code>11100</code>. Installer Windows sudah menambahkan aturan ini otomatis.</p>
+				<p>Jika komputer berada di subnet lain, tambahkan manual lewat Configurator → <b>Locations &amp; computers</b>, atau di aplikasi HP → Pengaturan → <b>Ruangan &amp; komputer</b>.</p>
+			</div></details>
+			<details class="card"><summary>Muncul “Kunci akses ditolak” / “Authentication failed”</summary><div>
+				<p>Kunci di Master/HP tidak cocok dengan kunci publik di komputer tersebut. Periksa bahwa <b>nama kunci</b> sama persis di kedua sisi dan kunci publik sudah di-<b>Import</b> di komputer itu. Setelah mengubah kunci, klik <b>Apply</b>.</p>
+			</div></details>
+			<details class="card"><summary>Mac: layar hitam, atau bisa lihat tapi tidak bisa diklik</summary><div>
+				<p>macOS mewajibkan dua izin untuk <code>veyon-server</code>: <b>Screen Recording</b> (agar layar terlihat) dan <b>Accessibility</b> (agar klik/ketikan masuk). Tambahkan keduanya di System Settings → Privacy &amp; Security, lalu <b>restart layanan</b> (Configurator → Service → Stop, lalu Start).</p>
+			</div></details>
+			<details class="card"><summary>Windows: “Windows protected your PC”</summary><div>
+				<p>Peringatan SmartScreen muncul karena installer belum memakai sertifikat tanda tangan berbayar. Klik <b>More info</b> → <b>Run anyway</b>. Anda bisa memastikan file asli dengan mencocokkan <a href="/unduh/sha256" target="_blank" rel="noopener">checksum SHA-256</a>.</p>
+			</div></details>
+			<details class="card"><summary>Android: “Aplikasi tidak terinstal” atau diblokir</summary><div>
+				<p>Izinkan instalasi dari browser/file manager yang dipakai (<i>Instal aplikasi tidak dikenal</i>). APK ini untuk HP 64-bit (ARM64) dengan Android 9 ke atas. Jika sebelumnya ada versi lain dengan tanda tangan berbeda, hapus dulu versi lama.</p>
+			</div></details>
+			<details class="card"><summary>Aruni Gateway “offline”</summary><div>
+				<p>PC gateway harus menyala dan terhubung internet, dan layanan AruniControl harus berjalan di sana. Buka Configurator → Aruni Gateway dan pastikan status <b>Online</b>. Di HP, buka Akses dari mana saja → ⋮ → <b>Sambungkan ulang</b>. Jika gateway dipasang ulang, pindai kode QR yang baru.</p>
+			</div></details>
+			<details class="card"><summary>Tampilan patah-patah saat lewat paket data</summary><div>
+				<p>Lewat internet, gambar otomatis dikompres ke kualitas sedang agar hemat kuota (sekitar 35 KB/detik per layar yang dibuka). Thumbnail grid diperbarui lebih jarang. Untuk kontrol yang lebih lancar, buka satu komputer saja dalam mode layar penuh.</p>
+			</div></details>
+			<details class="card"><summary>Port apa saja yang dipakai?</summary><div>
+				<div class="table-wrap"><table class="table">
+					<tr><th>Port</th><th>Fungsi</th></tr>
+					<tr><td><code>11100</code> TCP</td><td>Koneksi Master → komputer (wajib dibuka di firewall)</td></tr>
+					<tr><td><code>11200</code> TCP</td><td>Server layar internal (hanya lokal)</td></tr>
+					<tr><td><code>11300</code> TCP</td><td>Fitur internal (hanya lokal)</td></tr>
+					<tr><td><code>443</code> keluar</td><td>Aruni Gateway → relay (tidak perlu port forwarding)</td></tr>
+				</table></div>
+			</div></details>
+		</div>
+	</div>
+</section>
+
+<section style="padding-top:0">
+	<div class="wrap">
+		<div class="band">
+			<h2>Siap mencoba?</h2>
+			<p>Unduh gratis untuk Windows, macOS dan Android. Pasang di satu komputer dulu, lalu pantau dari HP Anda dalam hitungan menit.</p>
+			<div class="hero-cta"><a class="btn" href="#unduh"><svg><use href="#i-download"/></svg>Unduh sekarang</a></div>
+		</div>
+	</div>
+</section>
+</main>
+
+<footer>
+	<div class="wrap">
+		<a class="brand" href="#"><img src="/img/logo.svg" alt="">AruniControl</a>
+		<div>© 2026 Arunika · Berbasis <a href="https://veyon.io" target="_blank" rel="noopener">Veyon</a> (GNU GPL v2) · Font Plus Jakarta Sans (OFL)</div>
+	</div>
+</footer>
+
+<div class="lightbox" id="lightbox"><img alt=""></div>
+
+<script>
+// sticky header border
+const nav = document.getElementById("nav");
+addEventListener("scroll", () => nav.classList.toggle("scrolled", scrollY > 8), { passive: true });
+
+// tabs
+const tabs = [...document.querySelectorAll('[role="tab"]')];
+function selectTab(tab) {
+	tabs.forEach((t) => {
+		const on = t === tab;
+		t.setAttribute("aria-selected", on);
+		document.getElementById(t.getAttribute("aria-controls")).hidden = !on;
+	});
+}
+tabs.forEach((t) => t.addEventListener("click", () => selectTab(t)));
+document.querySelectorAll("[data-tab]").forEach((a) => a.addEventListener("click", () => selectTab(document.getElementById(a.dataset.tab))));
+
+// recommend the download for this device
+const ua = navigator.userAgent;
+const os = /Android/i.test(ua) ? "android" : /Mac/i.test(ua) && !/iPhone|iPad/.test(ua) ? "mac" : /Windows/i.test(ua) ? "windows" : null;
+if (os) {
+	document.querySelector(`.download[data-os="${os}"]`)?.classList.add("recommended");
+	const labels = { windows: "Unduh untuk Windows", mac: "Unduh untuk Mac", android: "Unduh untuk Android" };
+	const links = { windows: "/unduh/windows", mac: "/unduh/macos", android: "/unduh/android" };
+	const hero = document.getElementById("hero-download");
+	hero.href = links[os];
+	hero.querySelector("span").textContent = labels[os];
+	selectTab(document.getElementById({ windows: "t-windows", mac: "t-mac", android: "t-android" }[os]));
+}
+if (/iPhone|iPad/.test(ua)) {
+	document.getElementById("hero-note").textContent = "Belum tersedia untuk iPhone/iPad — gunakan Android, Windows, atau Mac.";
+}
+
+// lightbox
+const box = document.getElementById("lightbox");
+document.addEventListener("click", (e) => {
+	if (e.target.classList.contains("zoomable")) {
+		box.querySelector("img").src = e.target.currentSrc || e.target.src;
+		box.classList.add("open");
+	} else if (box.contains(e.target)) {
+		box.classList.remove("open");
+	}
+});
+addEventListener("keydown", (e) => e.key === "Escape" && box.classList.remove("open"));
+</script>
+</body>
+</html>

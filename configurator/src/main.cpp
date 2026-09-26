@@ -23,6 +23,8 @@
  */
 
 #include <QApplication>
+#include <QListWidget>
+#include <QTimer>
 #include <QMessageBox>
 
 #include "VeyonConfiguration.h"
@@ -76,6 +78,24 @@ int main( int argc, char **argv )
 	// now create the main window
 	auto mainWindow = new MainWindow;
 	mainWindow->show();
+
+	// documentation screenshots: ARUNI_SCREENSHOT_PAGE selects a page by its
+	// title, ARUNI_SCREENSHOT renders the window into a PNG file and quits
+	const auto screenshotFile = qEnvironmentVariable( "ARUNI_SCREENSHOT" );
+	if( screenshotFile.isEmpty() == false )
+	{
+		const auto pageSelector = mainWindow->findChild<QListWidget *>( QStringLiteral("pageSelector") );
+		const auto items = pageSelector ? pageSelector->findItems( qEnvironmentVariable( "ARUNI_SCREENSHOT_PAGE" ),
+																   Qt::MatchStartsWith ) : QList<QListWidgetItem *>{};
+		if( items.isEmpty() == false )
+		{
+			pageSelector->setCurrentItem( items.first() );
+		}
+		QTimer::singleShot( 1500, mainWindow, [=]() {
+			mainWindow->grab().save( screenshotFile );
+			QCoreApplication::exit( 0 );
+		} );
+	}
 
 	return core.exec();
 }
