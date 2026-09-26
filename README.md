@@ -7,7 +7,7 @@
 **Kendalikan banyak komputer dari satu layar — lintas macOS dan Windows.**
 
 [![Lisensi](https://img.shields.io/badge/lisensi-GPLv2-green.svg)](COPYING)
-[![Versi](https://img.shields.io/badge/versi-1.2.0_"Clara"-F2812F.svg)](https://github.com/rsamjkt/veyon-macos/releases)
+[![Versi](https://img.shields.io/badge/versi-1.3.0_"Diana"-F2812F.svg)](https://github.com/rsamjkt/veyon-macos/releases)
 [![Platform](https://img.shields.io/badge/platform-macOS_•_Windows-blue.svg)](#-platform-yang-didukung)
 
 </div>
@@ -49,6 +49,8 @@ AruniControl adalah bagian dari keluarga produk **Arunika** (AruniHealth, Arunik
 | 🚫 **Internet Access Control** | Blokir / izinkan internet (mis. saat ujian) | macOS & Windows |
 | 💬 **Chat** | Obrolan dua arah Master ↔ pengguna | macOS & Windows |
 | 🎙️ **AruniVoice** | Suara **dua arah** (push-to-talk / intercom) 1:1 dengan satu client | macOS & Windows |
+| 🌐 **Aruni Gateway** | Akses semua komputer kantor dari aplikasi HP lewat internet/paket data, tanpa VPN | macOS & Windows |
+| 🏠 **Laptop Jelajah** *(baru 1.3.0)* | Laptop yang dibawa pulang tetap terpantau dari HP & Master kantor, lewat Aruni Gateway | macOS & Windows |
 
 ---
 
@@ -65,14 +67,14 @@ AruniControl adalah bagian dari keluarga produk **Arunika** (AruniHealth, Arunik
 
 ## 📥 Download
 
-Ambil rilis terbaru di **[halaman Releases](https://github.com/rsamjkt/veyon-macos/releases/tag/v1.2.0)** — versi **1.2.0 "Clara"**:
+Ambil rilis terbaru di **[halaman Releases](https://github.com/rsamjkt/veyon-macos/releases/tag/v1.3.0)** — versi **1.3.0 "Diana"**:
 
 | Paket | Untuk |
 |-------|-------|
-| `AruniControl-1.2.0-Clara-macOS-arm64.zip` | Master & Configurator di **macOS** (Apple Silicon) |
-| `AruniControl-Setup-1.2.0-Clara-Windows-x64.exe` | Installer client **Windows** sekali klik |
-| `AruniControl-Server-1.2.0-Clara-Windows-x64.zip` | Client **Windows** lengkap (mandiri) |
-| `AruniControl-1.2.0-Clara-Android-arm64.apk` | **AruniControl Mobile**: Master di HP Android (layar live, kontrol sentuh, semua fitur) |
+| `AruniControl-1.3.0-Diana-macOS-arm64.zip` | Master & Configurator di **macOS** (Apple Silicon) |
+| `AruniControl-Setup-1.3.0-Diana-Windows-x64.exe` | Installer client **Windows** sekali klik |
+| `AruniControl-Server-1.3.0-Diana-Windows-x64.zip` | Client **Windows** lengkap (mandiri) |
+| `AruniControl-1.3.0-Diana-Android-arm64.apk` | **AruniControl Mobile**: Master di HP Android (layar live, kontrol sentuh, semua fitur) |
 
 ---
 

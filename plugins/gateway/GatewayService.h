@@ -25,7 +25,10 @@
 #pragma once
 
 #include <QDateTime>
+#include <QJsonObject>
 #include <QLockFile>
+#include <QPointer>
+#include <QTcpServer>
 #include <QTimer>
 #include <QWebSocket>
 
@@ -33,12 +36,18 @@
 
 #include "GatewayState.h"
 
+class GatewaySession;
 class NetworkObjectDirectory;
 
 // Keeps an outbound control connection to the Aruni Relay, accepts Master
 // sessions announced by the relay and lists the computers of this LAN.
 // Only one gateway runs per computer (lock file), whichever server instance
 // (user session) gets it first.
+//
+// Roaming laptops (agents) keep a session to the gateway while they are away
+// from the office. Each one gets a port on this computer (Veyon server port +
+// slot) forwarding to its AruniControl server, and is listed to the app and -
+// through a small directory service - to Masters on the office network.
 class GatewayService : public QObject
 {
 	Q_OBJECT
@@ -60,7 +69,32 @@ public:
 	QByteArray sharedKeyJson() const;
 	void wakeOnLan( const QString& macAddress );
 
+	// roaming laptops
+	bool authorizeAgent( const QByteArray& agentKey, const QByteArray& enrollmentToken, const QString& name );
+	QString agentName( const QByteArray& agentKey ) const;
+	void agentConnected( GatewaySession* session );
+	void agentDisconnected( GatewaySession* session );
+	void agentHello( const QByteArray& agentKey, const QJsonObject& hello );
+	// port forwarding to the laptop listed as host, 0 if unknown or offline
+	quint16 agentPort( const QString& host ) const;
+
 private:
+	struct OnlineAgent
+	{
+		QPointer<GatewaySession> session;
+		QTcpServer* server{nullptr};
+		QJsonObject hello;
+		QDateTime since;
+	};
+
+	static bool isRoamingForward( const QString& host );
+	const GatewayState::Agent* findAgent( const QByteArray& agentKey ) const;
+	bool isAgentLocal( const OnlineAgent& agent ) const;
+	void dropAgent( const QByteArray& agentKey );
+	void dropRemovedAgents();
+	void updateDirectoryServer();
+	QByteArray roamingDirectoryJson() const;
+
 	void checkState();
 	void connectToRelay();
 	void onTextMessage( const QString& message );
@@ -90,5 +124,8 @@ private:
 	int m_sessions{0};
 
 	NetworkObjectDirectory* m_directory{nullptr};
+
+	QHash<QByteArray, OnlineAgent> m_onlineAgents;
+	QTcpServer m_directoryServer;
 
 };

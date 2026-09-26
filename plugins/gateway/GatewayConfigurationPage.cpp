@@ -27,10 +27,13 @@
 #include <QClipboard>
 #include <QComboBox>
 #include <QFileInfo>
+#include <QDir>
 #include <QFormLayout>
 #include <QGroupBox>
 #include <QHBoxLayout>
 #include <QHeaderView>
+#include <QJsonArray>
+#include <QJsonObject>
 #include <QImage>
 #include <QLabel>
 #include <QLineEdit>
@@ -90,6 +93,7 @@ GatewayConfigurationPage::GatewayConfigurationPage( QWidget* parent ) :
 
 	// --- pairing
 	auto pairBox = new QGroupBox( tr( "Connect a phone" ) );
+	m_pairBox = pairBox;
 	auto pairLayout = new QVBoxLayout( pairBox );
 	auto pairIntro = new QLabel( tr( "Open the AruniControl app, choose \"Scan QR code\" and scan the code below. "
 									 "Each code works once and expires after 15 minutes." ) );
@@ -132,6 +136,7 @@ GatewayConfigurationPage::GatewayConfigurationPage( QWidget* parent ) :
 
 	// --- devices
 	auto devicesBox = new QGroupBox( tr( "Connected phones" ) );
+	m_devicesBox = devicesBox;
 	auto devicesLayout = new QVBoxLayout( devicesBox );
 	m_devices = new QTableWidget( 0, 3 );
 	m_devices->setHorizontalHeaderLabels( { tr( "Device" ), tr( "Connected since" ), tr( "Last used" ) } );
@@ -143,6 +148,81 @@ GatewayConfigurationPage::GatewayConfigurationPage( QWidget* parent ) :
 	m_removeButton = new QPushButton( tr( "Remove access" ) );
 	devicesLayout->addWidget( m_removeButton, 0, Qt::AlignLeft );
 	layout->addWidget( devicesBox, 1 );
+
+	// --- roaming laptops (office gateway side)
+	auto laptopsBox = new QGroupBox( tr( "Laptops outside the office" ) );
+	m_laptopsBox = laptopsBox;
+	auto laptopsLayout = new QVBoxLayout( laptopsBox );
+	auto laptopsIntro = new QLabel( tr( "Laptops that are taken home stay monitored: enter this enrollment code on the laptop "
+										"(AruniControl Configurator → Aruni Gateway → \"This laptop outside the office\", or "
+										"\"veyon-cli gateway enroll <code>\" for many laptops at once). Outside the office "
+										"they appear in the app as \"Outside the office\" and in the Master on this network as "
+										"\"<this computer>:<port>\"." ) );
+	laptopsIntro->setWordWrap( true );
+	laptopsIntro->setTextFormat( Qt::PlainText );
+	laptopsLayout->addWidget( laptopsIntro );
+	auto codeRow = new QHBoxLayout;
+	m_enrollmentCode = new QLineEdit;
+	m_enrollmentCode->setReadOnly( true );
+	codeRow->addWidget( m_enrollmentCode, 1 );
+	auto copyCodeButton = new QPushButton( tr( "Copy" ) );
+	codeRow->addWidget( copyCodeButton );
+	auto renewCodeButton = new QPushButton( tr( "New code" ) );
+	renewCodeButton->setToolTip( tr( "Laptops that are already registered keep working" ) );
+	codeRow->addWidget( renewCodeButton );
+	laptopsLayout->addLayout( codeRow );
+	m_laptops = new QTableWidget( 0, 4 );
+	m_laptops->setHorizontalHeaderLabels( { tr( "Laptop" ), tr( "Status" ), tr( "Port" ), tr( "Last seen" ) } );
+	m_laptops->horizontalHeader()->setSectionResizeMode( 0, QHeaderView::ResizeToContents );
+	m_laptops->horizontalHeader()->setSectionResizeMode( 1, QHeaderView::Stretch );
+	m_laptops->horizontalHeader()->setSectionResizeMode( 2, QHeaderView::ResizeToContents );
+	m_laptops->horizontalHeader()->setSectionResizeMode( 3, QHeaderView::ResizeToContents );
+	m_laptops->verticalHeader()->hide();
+	m_laptops->setSelectionBehavior( QAbstractItemView::SelectRows );
+	m_laptops->setEditTriggers( QAbstractItemView::NoEditTriggers );
+	m_laptops->setMinimumHeight( 120 );
+	laptopsLayout->addWidget( m_laptops );
+	m_removeLaptopButton = new QPushButton( tr( "Remove laptop" ) );
+	laptopsLayout->addWidget( m_removeLaptopButton, 0, Qt::AlignLeft );
+	layout->addWidget( laptopsBox, 1 );
+
+	// --- this computer as roaming laptop
+	auto roamingBox = new QGroupBox( tr( "This laptop outside the office" ) );
+	m_roamingBox = roamingBox;
+	auto roamingLayout = new QVBoxLayout( roamingBox );
+	auto roamingIntro = new QLabel( tr( "Keeps this laptop reachable for the Master and the app of the office when it is used "
+										"elsewhere (at home, on mobile data). It connects to the Aruni Gateway of the office; "
+										"only this computer can be reached this way, never other devices of the network it is in." ) );
+	roamingIntro->setWordWrap( true );
+	roamingLayout->addWidget( roamingIntro );
+	m_roamingEnabled = new QCheckBox( tr( "Keep this laptop monitored outside the office" ) );
+	roamingLayout->addWidget( m_roamingEnabled );
+	auto roamingForm = new QFormLayout;
+	m_roamingCode = new QLineEdit;
+	m_roamingCode->setPlaceholderText( tr( "Enrollment code from the office gateway (ARUNIL1:…)" ) );
+	roamingForm->addRow( tr( "Enrollment code" ), m_roamingCode );
+	m_roamingStatus = new QLabel;
+	m_roamingStatus->setTextFormat( Qt::RichText );
+	m_roamingStatus->setWordWrap( true );
+	roamingForm->addRow( tr( "Status" ), m_roamingStatus );
+	roamingLayout->addLayout( roamingForm );
+	// right below the general settings - on a laptop it is the only relevant part
+	layout->insertWidget( 1, roamingBox );
+	// keeps the boxes compact when the lists are hidden (on a laptop)
+	layout->addStretch( 1 );
+
+	connect( copyCodeButton, &QPushButton::clicked, this, [this]() {
+		QApplication::clipboard()->setText( m_enrollmentCode->text() );
+	} );
+	connect( renewCodeButton, &QPushButton::clicked, this, &GatewayConfigurationPage::renewEnrollmentCode );
+	connect( m_removeLaptopButton, &QPushButton::clicked, this, &GatewayConfigurationPage::removeSelectedLaptop );
+	connect( m_roamingEnabled, &QCheckBox::toggled, this, &GatewayConfigurationPage::applyRoaming );
+	connect( m_roamingCode, &QLineEdit::editingFinished, this, [this]() {
+		if( m_roamingEnabled->isChecked() )
+		{
+			applyRoaming();
+		}
+	} );
 
 	connect( m_pairButton, &QPushButton::clicked, this, &GatewayConfigurationPage::startPairing );
 	connect( copyButton, &QPushButton::clicked, this, [this]() {
@@ -157,6 +237,7 @@ GatewayConfigurationPage::GatewayConfigurationPage( QWidget* parent ) :
 	connect( &m_refreshTimer, &QTimer::timeout, this, [this]() {
 		refreshStatus();
 		refreshDevices();
+		refreshRoaming();
 	} );
 	m_refreshTimer.start( 2000 );
 }
@@ -189,8 +270,13 @@ void GatewayConfigurationPage::resetWidgets()
 	}
 	m_sharedKey->setCurrentIndex( qMax( 0, m_sharedKey->findData( state.sharedKeyName ) ) );
 
+	const QSignalBlocker roamingBlocker( m_roamingEnabled );
+	m_roamingEnabled->setChecked( state.roamingEnabled );
+	m_roamingCode->setText( state.roamingHub.gatewayId.isEmpty() ? QString{} : state.roamingHub.encode() );
+
 	refreshStatus();
 	refreshDevices();
+	refreshRoaming();
 }
 
 
@@ -229,6 +315,7 @@ void GatewayConfigurationPage::applyConfiguration()
 	}
 
 	refreshStatus();
+	refreshRoaming();
 }
 
 
@@ -378,4 +465,178 @@ void GatewayConfigurationPage::removeSelectedDevice()
 		state.devices.removeIf( [&key]( const GatewayState::Device& device ) { return device.publicKey == key; } );
 	} );
 	refreshDevices();
+}
+
+
+
+void GatewayConfigurationPage::refreshRoaming()
+{
+	const auto state = GatewayState::load();
+
+	// a computer is either the office gateway or a roaming laptop
+	m_laptopsBox->setVisible( state.enabled );
+	m_pairBox->setVisible( state.enabled );
+	m_devicesBox->setVisible( state.enabled );
+	m_roamingBox->setVisible( state.enabled == false );
+	m_enabled->setEnabled( state.roamingEnabled == false );
+
+	if( state.enabled )
+	{
+		const auto code = state.enrollmentInfo().encode();
+		if( m_enrollmentCode->text() != code )
+		{
+			m_enrollmentCode->setText( code );
+		}
+
+		QHash<QString, QJsonObject> online;
+		for( const auto& value : GatewayState::readStatus()[QStringLiteral("agents")].toArray() )
+		{
+			const auto object = value.toObject();
+			online.insert( object[QStringLiteral("key")].toString(), object );
+		}
+
+		const auto selected = m_laptops->currentRow();
+		m_laptops->setRowCount( int( state.agents.size() ) );
+		int row = 0;
+		for( const auto& agent : state.agents )
+		{
+			const auto key = AruniTunnel::toBase64Url( agent.publicKey );
+			auto nameItem = new QTableWidgetItem( agent.name );
+			nameItem->setData( Qt::UserRole, key );
+			m_laptops->setItem( row, 0, nameItem );
+
+			auto statusItem = new QTableWidgetItem( tr( "Offline" ) );
+			if( online.contains( key ) )
+			{
+				statusItem->setText( online[key][QStringLiteral("local")].toBool() ? tr( "In the office" ) : tr( "Online, away" ) );
+				const auto user = online[key][QStringLiteral("user")].toString();
+				if( user.isEmpty() == false )
+				{
+					statusItem->setToolTip( tr( "Logged on: %1" ).arg( user ) );
+				}
+			}
+			m_laptops->setItem( row, 1, statusItem );
+			m_laptops->setItem( row, 2, new QTableWidgetItem( QString::number( VeyonCore::config().veyonServerPort() + agent.slot ) ) );
+			m_laptops->setItem( row, 3, new QTableWidgetItem( online.contains( key ) ? tr( "now" ) :
+				QLocale().toString( agent.lastSeen.toLocalTime(), QLocale::ShortFormat ) ) );
+			++row;
+		}
+		m_laptops->setCurrentCell( qMin( selected, m_laptops->rowCount() - 1 ), 0 );
+		m_removeLaptopButton->setEnabled( m_laptops->rowCount() > 0 );
+	}
+
+	QString text;
+	QString color = QStringLiteral("#888888");
+	if( state.enabled )
+	{
+		text = tr( "Not available on the Aruni Gateway itself" );
+	}
+	else if( state.roamingEnabled == false )
+	{
+		text = tr( "Off" );
+	}
+	else
+	{
+		const auto status = GatewayState::readStatus( QStringLiteral("roaming-status.json") );
+		const auto site = state.roamingHub.siteName.toHtmlEscaped();
+		if( status.value( QStringLiteral("running") ).toBool() == false )
+		{
+			text = tr( "Enabled - waiting for the AruniControl service" );
+			color = QStringLiteral("#d48e00");
+		}
+		else if( status.value( QStringLiteral("connected") ).toBool() )
+		{
+			text = tr( "Connected to \"%1\" - this laptop can be monitored from anywhere" ).arg( site );
+			color = QStringLiteral("#1f9d55");
+		}
+		else
+		{
+			text = tr( "Connecting to \"%1\"…" ).arg( site );
+			const auto error = status.value( QStringLiteral("error") ).toString();
+			if( error.isEmpty() == false )
+			{
+				text += QStringLiteral(" (%1)").arg( error.toHtmlEscaped() );
+			}
+			color = QStringLiteral("#dc3b3f");
+		}
+	}
+	m_roamingStatus->setText( QStringLiteral("<span style='color:%1'>●</span> %2").arg( color, text ) );
+}
+
+
+
+void GatewayConfigurationPage::renewEnrollmentCode()
+{
+	if( QMessageBox::question( this, tr( "New enrollment code" ),
+							   tr( "Create a new enrollment code? The current code can no longer be used to add laptops. "
+								   "Laptops that are already registered keep working." ) ) != QMessageBox::Yes )
+	{
+		return;
+	}
+
+	GatewayState::update( []( GatewayState& state ) {
+		state.enrollmentToken = AruniTunnel::randomBytes( AruniTunnel::TokenSize );
+	} );
+	refreshRoaming();
+}
+
+
+
+void GatewayConfigurationPage::removeSelectedLaptop()
+{
+	const auto item = m_laptops->item( m_laptops->currentRow(), 0 );
+	if( item == nullptr )
+	{
+		return;
+	}
+
+	if( QMessageBox::question( this, tr( "Remove laptop" ),
+							   tr( "Remove \"%1\"? It can no longer be reached outside the office until it is enrolled "
+								   "again with a new enrollment code." ).arg( item->text() ) ) != QMessageBox::Yes )
+	{
+		return;
+	}
+
+	// a removed laptop must not be able to re-enroll with the code it knows
+	const auto key = AruniTunnel::fromBase64Url( item->data( Qt::UserRole ).toString() );
+	GatewayState::update( [&key]( GatewayState& state ) {
+		state.agents.removeIf( [&key]( const GatewayState::Agent& agent ) { return agent.publicKey == key; } );
+		state.enrollmentToken = AruniTunnel::randomBytes( AruniTunnel::TokenSize );
+	} );
+	refreshRoaming();
+}
+
+
+
+void GatewayConfigurationPage::applyRoaming()
+{
+	const bool enabled = m_roamingEnabled->isChecked();
+	const auto code = m_roamingCode->text().trimmed();
+	const auto hub = AruniTunnel::PairingInfo::decode( code );
+
+	if( enabled && ( hub.enrollment == false || hub.isValid() == false ) )
+	{
+		QMessageBox::warning( this, tr( "Aruni Gateway" ),
+							  tr( "Please enter the enrollment code shown by the Aruni Gateway of the office "
+								  "(section \"Laptops outside the office\"). It starts with ARUNIL1:" ) );
+		const QSignalBlocker blocker( m_roamingEnabled );
+		m_roamingEnabled->setChecked( false );
+		return;
+	}
+
+	if( GatewayState::update( [=]( GatewayState& state ) {
+			const bool hubChanged = state.roamingHub.gatewayId != hub.gatewayId || state.roamingHub.token != hub.token;
+			state.roamingEnabled = enabled;
+			if( enabled && hubChanged )
+			{
+				state.roamingHub = hub;
+				state.roamingRegistered = false;
+			}
+		} ) == false )
+	{
+		QMessageBox::critical( this, tr( "Aruni Gateway" ),
+							   tr( "The settings could not be saved. Please run the Configurator as administrator." ) );
+	}
+
+	refreshRoaming();
 }

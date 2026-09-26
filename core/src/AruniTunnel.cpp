@@ -44,8 +44,10 @@ using PKeyCtxPtr = std::unique_ptr<EVP_PKEY_CTX, decltype(&EVP_PKEY_CTX_free)>;
 using CipherCtxPtr = std::unique_ptr<EVP_CIPHER_CTX, decltype(&EVP_CIPHER_CTX_free)>;
 
 constexpr quint8 FlagPairing = 0x01;
+constexpr quint8 FlagAgent = 0x02;
 constexpr auto HkdfSalt = "aruni-tunnel-v1";
 constexpr auto PairingPrefix = "ARUNI1:";
+constexpr auto EnrollmentPrefix = "ARUNIL1:";
 
 QByteArray nonceFor( quint64 counter )
 {
@@ -286,7 +288,7 @@ QString PairingInfo::encode() const
 		{ QStringLiteral("t"), toBase64Url( token ) },
 	};
 
-	return QLatin1String( PairingPrefix ) + toBase64Url( QJsonDocument( json ).toJson( QJsonDocument::Compact ) );
+	return QLatin1String( enrollment ? EnrollmentPrefix : PairingPrefix ) + toBase64Url( QJsonDocument( json ).toJson( QJsonDocument::Compact ) );
 }
 
 
@@ -304,12 +306,18 @@ PairingInfo PairingInfo::decode( const QString& text )
 	}
 
 	PairingInfo info;
-	if( code.startsWith( QLatin1String( PairingPrefix ) ) == false )
+	QLatin1String prefix( PairingPrefix );
+	if( code.startsWith( QLatin1String( EnrollmentPrefix ) ) )
+	{
+		prefix = QLatin1String( EnrollmentPrefix );
+		info.enrollment = true;
+	}
+	else if( code.startsWith( prefix ) == false )
 	{
 		return info;
 	}
 
-	const auto json = QJsonDocument::fromJson( fromBase64Url( code.mid( int( qstrlen( PairingPrefix ) ) ) ) ).object();
+	const auto json = QJsonDocument::fromJson( fromBase64Url( code.mid( int( prefix.size() ) ) ) ).object();
 	info.relayUrl = json[QStringLiteral("r")].toString();
 	info.gatewayId = json[QStringLiteral("g")].toString();
 	info.siteName = json[QStringLiteral("n")].toString();
@@ -342,12 +350,13 @@ bool SecureChannel::decrypt( const QByteArray& message, QByteArray& frame )
 
 
 MasterHandshake::MasterHandshake( const KeyPair& device, const QByteArray& gatewayPublicKey,
-								  const QByteArray& pairingToken, const QString& deviceName ) :
+								  const QByteArray& pairingToken, const QString& deviceName, bool agent ) :
 	m_device( device ),
 	m_ephemeral( KeyPair::generate() ),
 	m_gatewayPublicKey( gatewayPublicKey ),
 	m_pairingToken( pairingToken ),
-	m_deviceName( deviceName )
+	m_deviceName( deviceName ),
+	m_agent( agent )
 {
 }
 
@@ -358,7 +367,7 @@ QByteArray MasterHandshake::firstMessage()
 	const bool pairing = m_pairingToken.size() == TokenSize;
 
 	QByteArray message( Magic );
-	message.append( char( pairing ? FlagPairing : 0 ) );
+	message.append( char( ( pairing ? FlagPairing : 0 ) | ( m_agent ? FlagAgent : 0 ) ) );
 	message.append( m_device.publicKey );
 	message.append( m_ephemeral.publicKey );
 
@@ -423,6 +432,7 @@ bool GatewayHandshake::processFirstMessage( const QByteArray& message, const Aut
 	}
 
 	const auto flags = quint8( message.at( headerSize - 1 ) );
+	m_agent = flags & FlagAgent;
 	m_devicePublicKey = message.mid( headerSize, KeySize );
 	const auto masterEphemeral = message.mid( headerSize + KeySize, KeySize );
 

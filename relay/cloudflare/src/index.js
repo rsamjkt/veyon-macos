@@ -18,7 +18,8 @@ const ID_PATTERN = /^[A-Za-z0-9_-]{8,64}$/;
 const SESSION_PATTERN = /^[a-f0-9]{32}$/;
 const ACCEPT_TIMEOUT_MS = 15000;
 const MAX_PENDING_BYTES = 256 * 1024;
-const MAX_SESSIONS = 64;
+// phones and roaming laptops (one long-lived session each)
+const MAX_SESSIONS = 1000;
 
 const CLOSE_GATEWAY_OFFLINE = 4404;
 const CLOSE_UNAUTHORIZED = 4401;
@@ -149,10 +150,13 @@ export class GatewayRoom {
 			role: "master", sessionId, created: Date.now(),
 		});
 
-		try {
-			controls[0].send(JSON.stringify({ type: "session", sid: sessionId }));
-		} catch {
-			// the control socket just went away; the timeout below closes the session
+		// a control socket replaced by a reconnect can linger (closing) until its
+		// dead peer times out - announce to all of them, only the live gateway
+		// answers; if none does, the timeout below closes the session
+		for (const control of controls) {
+			try {
+				control.send(JSON.stringify({ type: "session", sid: sessionId }));
+			} catch {}
 		}
 
 		await this.state.storage.setAlarm(Date.now() + ACCEPT_TIMEOUT_MS);

@@ -53,6 +53,10 @@ private:
 	void refreshStatus();
 	void refreshDevices();
 	void removeSelectedDevice();
+	void refreshRoaming();
+	void renewEnrollmentCode();
+	void removeSelectedLaptop();
+	void applyRoaming();
 
 	QCheckBox* m_enabled;
 	QLineEdit* m_siteName;
@@ -69,6 +73,21 @@ private:
 
 	QTableWidget* m_devices;
 	QPushButton* m_removeButton;
+
+	QWidget* m_pairBox;
+	QWidget* m_devicesBox;
+
+	// office gateway: roaming laptops
+	QWidget* m_laptopsBox;
+	QLineEdit* m_enrollmentCode;
+	QTableWidget* m_laptops;
+	QPushButton* m_removeLaptopButton;
+
+	// this computer as roaming laptop
+	QWidget* m_roamingBox;
+	QCheckBox* m_roamingEnabled;
+	QLineEdit* m_roamingCode;
+	QLabel* m_roamingStatus;
 
 	QTimer m_refreshTimer;
 

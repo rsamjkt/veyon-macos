@@ -22,6 +22,8 @@
  *
  */
 
+#include <algorithm>
+
 #include <QDir>
 #include <QFile>
 #include <QHostInfo>
@@ -54,6 +56,13 @@ QString readableId( const QByteArray& random )
 
 QString GatewayState::directory()
 {
+	// lets a second instance (e.g. "veyon-cli gateway runroaming") act as a
+	// separate computer when testing
+	const auto overridden = qEnvironmentVariable( "ARUNI_GATEWAY_DIR" );
+	if( overridden.isEmpty() == false )
+	{
+		return overridden;
+	}
 	return VeyonCore::filesystem().expandPath( QStringLiteral("%GLOBALAPPDATA%/gateway") );
 }
 
@@ -91,6 +100,28 @@ GatewayState GatewayState::load()
 		state.pairingExpires = QDateTime::fromString( json[QStringLiteral("pairingExpires")].toString(), Qt::ISODate );
 		state.sharedKeyName = json[QStringLiteral("sharedKey")].toString();
 
+		state.enrollmentToken = AruniTunnel::fromBase64Url( json[QStringLiteral("enrollmentToken")].toString() );
+		for( const auto& value : json[QStringLiteral("agents")].toArray() )
+		{
+			const auto object = value.toObject();
+			Agent agent;
+			agent.publicKey = AruniTunnel::fromBase64Url( object[QStringLiteral("key")].toString() );
+			agent.name = object[QStringLiteral("name")].toString();
+			agent.slot = object[QStringLiteral("slot")].toInt();
+			agent.added = QDateTime::fromString( object[QStringLiteral("added")].toString(), Qt::ISODate );
+			agent.lastSeen = QDateTime::fromString( object[QStringLiteral("lastSeen")].toString(), Qt::ISODate );
+			if( agent.publicKey.size() == AruniTunnel::KeySize && agent.slot > 0 && agent.slot <= MaxAgentSlot )
+			{
+				state.agents.append( agent );
+			}
+		}
+
+		const auto roaming = json[QStringLiteral("roaming")].toObject();
+		state.roamingEnabled = roaming[QStringLiteral("enabled")].toBool();
+		state.roamingHub = AruniTunnel::PairingInfo::decode( roaming[QStringLiteral("code")].toString() );
+		state.roamingKeyPair = AruniTunnel::KeyPair::fromPrivateKey( AruniTunnel::fromBase64Url( roaming[QStringLiteral("key")].toString() ) );
+		state.roamingRegistered = roaming[QStringLiteral("registered")].toBool();
+
 		for( const auto& value : json[QStringLiteral("devices")].toArray() )
 		{
 			const auto object = value.toObject();
@@ -118,6 +149,18 @@ GatewayState GatewayState::load()
 		state.relaySecret = AruniTunnel::toBase64Url( AruniTunnel::randomBytes( 32 ) );
 		state.keyPair = AruniTunnel::KeyPair::generate();
 		state.devices.clear();
+		state.agents.clear();
+	}
+
+	if( state.enrollmentToken.size() != AruniTunnel::TokenSize )
+	{
+		state.enrollmentToken = AruniTunnel::randomBytes( AruniTunnel::TokenSize );
+	}
+
+	if( state.roamingKeyPair.isValid() == false )
+	{
+		state.roamingKeyPair = AruniTunnel::KeyPair::generate();
+		state.roamingRegistered = false;
 	}
 
 	return state;
@@ -138,6 +181,18 @@ bool GatewayState::save() const
 		} );
 	}
 
+	QJsonArray agentArray;
+	for( const auto& agent : agents )
+	{
+		agentArray.append( QJsonObject{
+			{ QStringLiteral("key"), AruniTunnel::toBase64Url( agent.publicKey ) },
+			{ QStringLiteral("name"), agent.name },
+			{ QStringLiteral("slot"), agent.slot },
+			{ QStringLiteral("added"), agent.added.toString( Qt::ISODate ) },
+			{ QStringLiteral("lastSeen"), agent.lastSeen.toString( Qt::ISODate ) },
+		} );
+	}
+
 	const QJsonObject json{
 		{ QStringLiteral("enabled"), enabled },
 		{ QStringLiteral("relayUrl"), relayUrl },
@@ -149,6 +204,14 @@ bool GatewayState::save() const
 		{ QStringLiteral("pairingExpires"), pairingExpires.toString( Qt::ISODate ) },
 		{ QStringLiteral("sharedKey"), sharedKeyName },
 		{ QStringLiteral("devices"), deviceArray },
+		{ QStringLiteral("enrollmentToken"), AruniTunnel::toBase64Url( enrollmentToken ) },
+		{ QStringLiteral("agents"), agentArray },
+		{ QStringLiteral("roaming"), QJsonObject{
+			{ QStringLiteral("enabled"), roamingEnabled },
+			{ QStringLiteral("code"), roamingHub.gatewayId.isEmpty() ? QString{} : roamingHub.encode() },
+			{ QStringLiteral("key"), AruniTunnel::toBase64Url( roamingKeyPair.privateKey ) },
+			{ QStringLiteral("registered"), roamingRegistered },
+		} },
 	};
 
 	QDir().mkpath( directory() );
@@ -204,10 +267,45 @@ AruniTunnel::PairingInfo GatewayState::pairingInfo() const
 
 
 
-void GatewayState::writeStatus( const QJsonObject& status )
+AruniTunnel::PairingInfo GatewayState::enrollmentInfo() const
+{
+	auto info = pairingInfo();
+	info.token = enrollmentToken;
+	info.enrollment = true;
+	return info;
+}
+
+
+
+int GatewayState::freeAgentSlot() const
+{
+	for( int slot = 1; slot <= MaxAgentSlot; ++slot )
+	{
+		const bool used = std::any_of( agents.cbegin(), agents.cend(), [slot]( const Agent& agent ) {
+			return agent.slot == slot;
+		} );
+		if( used == false )
+		{
+			return slot;
+		}
+	}
+	return 0;
+}
+
+
+
+QString GatewayState::Agent::id() const
+{
+	// DNS-label compatible, so it passes through the Master's host handling
+	return QString::fromLatin1( publicKey.left( 8 ).toHex() ) + QStringLiteral(".roam.aruni");
+}
+
+
+
+void GatewayState::writeStatus( const QJsonObject& status, const QString& fileName )
 {
 	QDir().mkpath( directory() );
-	QFile file( statusPath() );
+	QFile file( QDir( directory() ).filePath( fileName ) );
 	if( file.open( QFile::WriteOnly | QFile::Truncate ) )
 	{
 		file.write( QJsonDocument( status ).toJson( QJsonDocument::Compact ) );
@@ -216,9 +314,9 @@ void GatewayState::writeStatus( const QJsonObject& status )
 
 
 
-QJsonObject GatewayState::readStatus()
+QJsonObject GatewayState::readStatus( const QString& fileName )
 {
-	QFile file( statusPath() );
+	QFile file( QDir( directory() ).filePath( fileName ) );
 	if( file.open( QFile::ReadOnly ) == false )
 	{
 		return {};

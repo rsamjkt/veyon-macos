@@ -89,6 +89,17 @@ GatewayService::GatewayService( QObject* parent ) :
 	} );
 	m_keepAliveTimer.start( 30000 );
 
+	// Masters on the office network ask here which roaming laptops they can
+	// reach through this gateway (see NetworkDiscoveryDirectory)
+	connect( &m_directoryServer, &QTcpServer::newConnection, this, [this]() {
+		while( auto socket = m_directoryServer.nextPendingConnection() )
+		{
+			connect( socket, &QTcpSocket::disconnected, socket, &QObject::deleteLater );
+			socket->write( roamingDirectoryJson() );
+			socket->disconnectFromHost();
+		}
+	} );
+
 	checkState();
 }
 
@@ -96,6 +107,11 @@ GatewayService::GatewayService( QObject* parent ) :
 
 GatewayService::~GatewayService()
 {
+	const auto agents = m_onlineAgents.keys();
+	for( const auto& key : agents )
+	{
+		dropAgent( key );
+	}
 	m_control.close();
 	if( m_haveLock )
 	{
@@ -223,7 +239,7 @@ QByteArray GatewayService::hostsJson() const
 		for( const auto& object : objects )
 		{
 			const auto host = object.hostAddress().isEmpty() ? object.name() : object.hostAddress();
-			if( host.isEmpty() || seen.contains( host ) )
+			if( host.isEmpty() || seen.contains( host ) || isRoamingForward( host ) )
 			{
 				continue;
 			}
@@ -249,7 +265,318 @@ QByteArray GatewayService::hostsJson() const
 		}
 	}
 
+	for( auto it = m_onlineAgents.cbegin(); it != m_onlineAgents.cend(); ++it )
+	{
+		const auto agent = findAgent( it.key() );
+		if( agent == nullptr || isAgentLocal( it.value() ) )
+		{
+			// in the office the laptop is already listed with its LAN address
+			continue;
+		}
+
+		hosts.append( QJsonObject{
+			{ QStringLiteral("name"), agent->name },
+			{ QStringLiteral("host"), agent->id() },
+			{ QStringLiteral("roaming"), true },
+			{ QStringLiteral("user"), it->hello[QStringLiteral("user")].toString() },
+		} );
+	}
+
 	return QJsonDocument( hosts ).toJson( QJsonDocument::Compact );
+}
+
+
+
+bool GatewayService::authorizeAgent( const QByteArray& agentKey, const QByteArray& enrollmentToken, const QString& name )
+{
+	if( findAgent( agentKey ) )
+	{
+		return true;
+	}
+
+	if( enrollmentToken.size() != AruniTunnel::TokenSize || enrollmentToken != m_state.enrollmentToken )
+	{
+		return false;
+	}
+
+	GatewayState::Agent agent;
+	agent.publicKey = agentKey;
+	agent.name = name.isEmpty() ? tr("Laptop") : name;
+	agent.added = QDateTime::currentDateTimeUtc();
+	agent.lastSeen = agent.added;
+
+	bool registered = false;
+	const bool saved = GatewayState::update( [&agent, &registered]( GatewayState& state ) {
+		agent.slot = state.freeAgentSlot();
+		if( agent.slot > 0 )
+		{
+			state.agents.append( agent );
+			registered = true;
+		}
+	} );
+
+	if( saved == false || registered == false )
+	{
+		vWarning() << "Aruni Gateway: cannot register roaming laptop" << agent.name << "- no free slot";
+		return false;
+	}
+
+	m_state.agents.append( agent );
+	m_stateModified = QFileInfo( GatewayState::statePath() ).lastModified();
+	vInfo() << "Aruni Gateway: registered roaming laptop" << agent.name << "on port" << VeyonCore::config().veyonServerPort() + agent.slot;
+	return true;
+}
+
+
+
+QString GatewayService::agentName( const QByteArray& agentKey ) const
+{
+	const auto agent = findAgent( agentKey );
+	return agent ? agent->name : QString{};
+}
+
+
+
+void GatewayService::agentConnected( GatewaySession* session )
+{
+	const auto key = session->peerKey();
+	const auto agent = findAgent( key );
+	if( agent == nullptr )
+	{
+		session->finish();
+		return;
+	}
+
+	// a laptop that reconnected before the old session timed out
+	dropAgent( key );
+
+	auto server = new QTcpServer( this );
+	const auto port = quint16( VeyonCore::config().veyonServerPort() + agent->slot );
+	if( server->listen( QHostAddress::Any, port ) == false )
+	{
+		vWarning() << "Aruni Gateway: cannot listen on port" << port << "for" << agent->name << server->errorString();
+		delete server;
+		session->finish();
+		return;
+	}
+
+	QPointer<GatewaySession> sessionPointer( session );
+	connect( server, &QTcpServer::newConnection, this, [server, sessionPointer]() {
+		while( auto socket = server->nextPendingConnection() )
+		{
+			if( sessionPointer )
+			{
+				sessionPointer->forwardToAgent( socket );
+			}
+			else
+			{
+				socket->abort();
+				socket->deleteLater();
+			}
+		}
+	} );
+
+	OnlineAgent online;
+	online.session = session;
+	online.server = server;
+	online.since = QDateTime::currentDateTimeUtc();
+	m_onlineAgents.insert( key, online );
+
+	writeStatus();
+}
+
+
+
+void GatewayService::agentDisconnected( GatewaySession* session )
+{
+	const auto key = session->peerKey();
+	const auto it = m_onlineAgents.find( key );
+	if( it == m_onlineAgents.end() || it->session != session )
+	{
+		return;
+	}
+
+	delete it->server;
+	m_onlineAgents.erase( it );
+
+	GatewayState::update( [&key]( GatewayState& state ) {
+		for( auto& agent : state.agents )
+		{
+			if( agent.publicKey == key )
+			{
+				agent.lastSeen = QDateTime::currentDateTimeUtc();
+			}
+		}
+	} );
+	m_stateModified = QFileInfo( GatewayState::statePath() ).lastModified();
+
+	writeStatus();
+}
+
+
+
+void GatewayService::agentHello( const QByteArray& agentKey, const QJsonObject& hello )
+{
+	const auto it = m_onlineAgents.find( agentKey );
+	if( it != m_onlineAgents.end() )
+	{
+		it->hello = hello;
+		writeStatus();
+	}
+}
+
+
+
+quint16 GatewayService::agentPort( const QString& host ) const
+{
+	for( auto it = m_onlineAgents.cbegin(); it != m_onlineAgents.cend(); ++it )
+	{
+		const auto agent = findAgent( it.key() );
+		if( agent && agent->id().compare( host, Qt::CaseInsensitive ) == 0 )
+		{
+			return quint16( VeyonCore::config().veyonServerPort() + agent->slot );
+		}
+	}
+	return 0;
+}
+
+
+
+bool GatewayService::isRoamingForward( const QString& host )
+{
+	// "<gateway>:<port>" entries of roaming laptops (found through the
+	// directory service of this or another gateway) are listed as roaming
+	// laptops instead
+	const auto separator = host.lastIndexOf( QLatin1Char(':') );
+	if( separator < 0 || host.count( QLatin1Char(':') ) > 1 )
+	{
+		return false;
+	}
+	const auto port = host.mid( separator + 1 ).toInt();
+	const auto basePort = VeyonCore::config().veyonServerPort();
+	return port > basePort && port <= basePort + GatewayState::MaxAgentSlot;
+}
+
+
+
+const GatewayState::Agent* GatewayService::findAgent( const QByteArray& agentKey ) const
+{
+	for( const auto& agent : m_state.agents )
+	{
+		if( agent.publicKey == agentKey )
+		{
+			return &agent;
+		}
+	}
+	return nullptr;
+}
+
+
+
+bool GatewayService::isAgentLocal( const OnlineAgent& agent ) const
+{
+	// the laptop is in the office if this gateway's network discovery found an
+	// AruniControl server at one of its addresses
+	if( m_directory == nullptr )
+	{
+		return false;
+	}
+
+	const auto addresses = agent.hello[QStringLiteral("addresses")].toArray();
+	if( addresses.isEmpty() )
+	{
+		return false;
+	}
+
+	const auto objects = m_directory->queryObjects( NetworkObject::Type::Host, NetworkObject::Attribute::None, {} );
+	for( const auto& object : objects )
+	{
+		for( const auto& address : addresses )
+		{
+			if( object.hostAddress() == address.toString() )
+			{
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
+
+
+void GatewayService::dropAgent( const QByteArray& agentKey )
+{
+	const auto it = m_onlineAgents.find( agentKey );
+	if( it == m_onlineAgents.end() )
+	{
+		return;
+	}
+
+	delete it->server;
+	const auto session = it->session;
+	m_onlineAgents.erase( it );
+	if( session )
+	{
+		session->finish();
+	}
+}
+
+
+
+void GatewayService::dropRemovedAgents()
+{
+	const auto keys = m_onlineAgents.keys();
+	for( const auto& key : keys )
+	{
+		if( findAgent( key ) == nullptr )
+		{
+			vInfo() << "Aruni Gateway: disconnecting removed roaming laptop";
+			dropAgent( key );
+		}
+	}
+}
+
+
+
+void GatewayService::updateDirectoryServer()
+{
+	const bool wanted = m_haveLock && m_state.enabled;
+	if( wanted && m_directoryServer.isListening() == false )
+	{
+		const auto port = quint16( VeyonCore::config().veyonServerPort() + GatewayState::DirectoryPortOffset );
+		if( m_directoryServer.listen( QHostAddress::Any, port ) == false )
+		{
+			vWarning() << "Aruni Gateway: cannot listen on directory port" << port << m_directoryServer.errorString();
+		}
+	}
+	else if( wanted == false && m_directoryServer.isListening() )
+	{
+		m_directoryServer.close();
+	}
+}
+
+
+
+QByteArray GatewayService::roamingDirectoryJson() const
+{
+	QJsonArray laptops;
+	for( auto it = m_onlineAgents.cbegin(); it != m_onlineAgents.cend(); ++it )
+	{
+		const auto agent = findAgent( it.key() );
+		if( agent && isAgentLocal( it.value() ) == false )
+		{
+			laptops.append( QJsonObject{
+				{ QStringLiteral("name"), agent->name },
+				{ QStringLiteral("port"), VeyonCore::config().veyonServerPort() + agent->slot },
+				{ QStringLiteral("id"), agent->id() },
+			} );
+		}
+	}
+
+	return QJsonDocument( QJsonObject{
+		{ QStringLiteral("site"), m_state.siteName },
+		{ QStringLiteral("laptops"), laptops },
+	} ).toJson( QJsonDocument::Compact );
 }
 
 
@@ -302,15 +629,23 @@ void GatewayService::checkState()
 		{
 			m_control.close();
 		}
+
+		dropRemovedAgents();
 	}
 
 	if( m_state.enabled == false )
 	{
 		if( m_haveLock )
 		{
+			const auto agents = m_onlineAgents.keys();
+			for( const auto& key : agents )
+			{
+				dropAgent( key );
+			}
 			m_control.close();
 			m_reconnectTimer.stop();
 			m_directoryTimer.stop();
+			updateDirectoryServer();
 			delete m_directory;
 			m_directory = nullptr;
 			GatewayState::writeStatus( { { QStringLiteral("running"), false }, { QStringLiteral("enabled"), false } } );
@@ -344,6 +679,7 @@ void GatewayService::checkState()
 		connectToRelay();
 	}
 
+	updateDirectoryServer();
 	writeStatus();
 }
 
@@ -440,7 +776,20 @@ void GatewayService::writeStatus()
 		return;
 	}
 
+	QJsonArray agents;
+	for( auto it = m_onlineAgents.cbegin(); it != m_onlineAgents.cend(); ++it )
+	{
+		agents.append( QJsonObject{
+			{ QStringLiteral("key"), AruniTunnel::toBase64Url( it.key() ) },
+			{ QStringLiteral("local"), isAgentLocal( it.value() ) },
+			{ QStringLiteral("since"), it->since.toString( Qt::ISODate ) },
+			{ QStringLiteral("user"), it->hello[QStringLiteral("user")].toString() },
+			{ QStringLiteral("addresses"), it->hello[QStringLiteral("addresses")].toArray() },
+		} );
+	}
+
 	GatewayState::writeStatus( {
+		{ QStringLiteral("agents"), agents },
 		{ QStringLiteral("running"), true },
 		{ QStringLiteral("enabled"), m_state.enabled },
 		{ QStringLiteral("connected"), m_connected },

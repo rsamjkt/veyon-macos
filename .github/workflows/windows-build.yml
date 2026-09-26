@@ -23,8 +23,8 @@ on:
   workflow_dispatch:
 
 env:
-  APP_VERSION: 1.2.0
-  APP_CODENAME: Clara
+  APP_VERSION: 1.3.0
+  APP_CODENAME: Diana
 
 permissions:
   contents: write   # allow uploading assets to the release

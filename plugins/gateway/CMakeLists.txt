@@ -26,6 +26,10 @@ build_veyon_plugin(gateway
 	GatewaySession.h
 	GatewayState.cpp
 	GatewayState.h
+	RoamingAgent.cpp
+	RoamingAgent.h
+	TunnelEndpoint.cpp
+	TunnelEndpoint.h
 	${qrcodegen_DIR}/qrcodegen.cpp
 	)
 

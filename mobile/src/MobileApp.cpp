@@ -1229,15 +1229,27 @@ void MobileApp::publishGatewayHosts()
 
 		objects.append( NetworkObject( NetworkObject::Type::Location, site.name, {}, {}, {}, locationUid ).toJson() );
 
+		// laptops taken home get a room of their own
+		const auto roamingUid = QUuid::createUuidV5( ns, QStringLiteral("roaming:") + site.gatewayId );
+		bool haveRoaming = false;
+
 		for( const auto& hostValue : entry.second )
 		{
 			const auto host = hostValue.toObject();
 			const auto address = host[QStringLiteral("host")].toString();
+			const bool roaming = host[QStringLiteral("roaming")].toBool();
+			if( roaming && haveRoaming == false )
+			{
+				haveRoaming = true;
+				locations.append( roamingUid.toString() );
+				objects.append( NetworkObject( NetworkObject::Type::Location, tr("%1 · Di luar kantor").arg( site.name ),
+											   {}, {}, {}, roamingUid ).toJson() );
+			}
 			objects.append( NetworkObject( NetworkObject::Type::Host,
 										   host[QStringLiteral("name")].toString( address ),
 										   address, host[QStringLiteral("mac")].toString(), {},
 										   QUuid::createUuidV5( ns, site.gatewayId + QLatin1Char('/') + address ),
-										   locationUid ).toJson() );
+										   roaming ? roamingUid : locationUid ).toJson() );
 		}
 	}
 

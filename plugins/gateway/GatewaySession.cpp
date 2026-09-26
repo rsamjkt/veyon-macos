@@ -1,5 +1,5 @@
 /*
- * GatewaySession.cpp - one Master connected through the relay
+ * GatewaySession.cpp - one Master or roaming laptop connected through the relay
  *
  * Copyright (c) 2026 AruniControl Community
  *
@@ -22,7 +22,8 @@
  *
  */
 
-#include <QHostInfo>
+#include <QJsonDocument>
+#include <QJsonObject>
 #include <QNetworkRequest>
 #include <QtEndian>
 
@@ -32,20 +33,13 @@
 
 
 GatewaySession::GatewaySession( GatewayService* service, const QString& sessionId ) :
-	QObject( service ),
+	TunnelEndpoint( service ),
 	m_service( service ),
 	m_sessionId( sessionId ),
 	m_handshake( service->keyPair() )
 {
 	connect( &m_socket, &QWebSocket::binaryMessageReceived, this, &GatewaySession::onBinaryMessage );
 	connect( &m_socket, &QWebSocket::disconnected, this, &GatewaySession::finish );
-	connect( &m_socket, &QWebSocket::bytesWritten, this, [this]( qint64 bytes ) {
-		m_pendingBytes = qMax<qint64>( 0, m_pendingBytes - bytes );
-		if( m_pendingBytes < MaxPendingBytes / 2 )
-		{
-			resumeStreams();
-		}
-	} );
 
 	m_handshakeTimer.setSingleShot( true );
 	connect( &m_handshakeTimer, &QTimer::timeout, this, [this]() {
@@ -55,21 +49,6 @@ GatewaySession::GatewaySession( GatewayService* service, const QString& sessionI
 			finish();
 		}
 	} );
-}
-
-
-
-GatewaySession::~GatewaySession()
-{
-	for( auto it = m_streams.begin(); it != m_streams.end(); ++it )
-	{
-		if( *it )
-		{
-			( *it )->disconnect( this );
-			( *it )->abort();
-			( *it )->deleteLater();
-		}
-	}
 }
 
 
@@ -84,12 +63,37 @@ void GatewaySession::start( const QUrl& acceptUrl, const QByteArray& relaySecret
 
 
 
+void GatewaySession::forwardToAgent( QTcpSocket* socket )
+{
+	if( m_agent == false || m_established == false || streamCount() >= MaxStreams )
+	{
+		socket->abort();
+		socket->deleteLater();
+		return;
+	}
+
+	// streams of agent sessions are only ever opened by the gateway
+	const auto stream = m_nextAgentStream++;
+	attachStream( stream, socket );
+
+	QByteArray payload( 2, 0 );
+	qToBigEndian( quint16( VeyonCore::config().veyonServerPort() ), reinterpret_cast<uchar*>( payload.data() ) );
+	payload.append( "127.0.0.1" );
+	sendFrame( AruniTunnel::FrameType::Open, stream, payload );
+}
+
+
+
 void GatewaySession::onBinaryMessage( const QByteArray& message )
 {
 	if( m_established == false )
 	{
 		QByteArray reply;
 		const auto authorizer = [this]( const QByteArray& deviceKey, const QByteArray& token, const QString& name ) {
+			if( m_handshake.isAgent() )
+			{
+				return m_service->authorizeAgent( deviceKey, token, name );
+			}
 			const bool known = m_service->deviceName( deviceKey ).isEmpty() == false;
 			const bool authorized = m_service->authorizeDevice( deviceKey, token, name );
 			m_pairedNow = authorized && known == false;
@@ -104,10 +108,20 @@ void GatewaySession::onBinaryMessage( const QByteArray& message )
 		}
 
 		m_deviceKey = m_handshake.devicePublicKey();
+		m_agent = m_handshake.isAgent();
 		m_established = true;
 		m_handshakeTimer.stop();
 		m_socket.sendBinaryMessage( reply );
-		vInfo() << "gateway session" << m_sessionId << "established for" << m_service->deviceName( m_deviceKey );
+
+		if( m_agent )
+		{
+			vInfo() << "gateway session" << m_sessionId << "established for roaming laptop" << m_service->agentName( m_deviceKey );
+			m_service->agentConnected( this );
+		}
+		else
+		{
+			vInfo() << "gateway session" << m_sessionId << "established for" << m_service->deviceName( m_deviceKey );
+		}
 		return;
 	}
 
@@ -134,19 +148,32 @@ void GatewaySession::handleFrame( AruniTunnel::FrameType type, quint32 stream, c
 {
 	using AruniTunnel::FrameType;
 
+	if( handleStreamFrame( type, stream, payload ) )
+	{
+		return;
+	}
+
+	if( type == FrameType::Ping )
+	{
+		sendFrame( FrameType::Pong, stream, payload );
+		return;
+	}
+
+	if( m_agent )
+	{
+		// a laptop cannot reach anything through the gateway - it only reports
+		// itself and serves the streams the gateway opens
+		if( type == FrameType::AgentHello )
+		{
+			m_service->agentHello( m_deviceKey, QJsonDocument::fromJson( payload ).object() );
+		}
+		return;
+	}
+
 	switch( type )
 	{
 	case FrameType::Open:
 		openStream( stream, payload );
-		break;
-	case FrameType::Data:
-		if( auto socket = m_streams.value( stream ) )
-		{
-			socket->write( payload );
-		}
-		break;
-	case FrameType::Close:
-		closeStream( stream, false );
 		break;
 	case FrameType::HostsRequest:
 		sendFrame( FrameType::Hosts, stream, m_service->hostsJson() );
@@ -160,9 +187,6 @@ void GatewaySession::handleFrame( AruniTunnel::FrameType type, quint32 stream, c
 		sendFrame( FrameType::Key, stream, m_pairedNow ? m_service->sharedKeyJson() : QByteArray{} );
 		m_pairedNow = false;
 		break;
-	case FrameType::Ping:
-		sendFrame( FrameType::Pong, stream, payload );
-		break;
 	default:
 		break;
 	}
@@ -170,134 +194,31 @@ void GatewaySession::handleFrame( AruniTunnel::FrameType type, quint32 stream, c
 
 
 
-void GatewaySession::openStream( quint32 stream, const QByteArray& payload )
+quint16 GatewaySession::mapTarget( const QString& host, quint16 port, QHostAddress& target ) const
 {
-	if( payload.size() < 3 || m_streams.contains( stream ) || m_streams.size() >= MaxStreams )
+	Q_UNUSED(port)
+
+	// roaming laptops are reached through the local port forwarding to them
+	if( m_agent == false )
 	{
-		sendFrame( AruniTunnel::FrameType::Close, stream );
-		return;
-	}
-
-	const auto port = qFromBigEndian<quint16>( reinterpret_cast<const uchar*>( payload.constData() ) );
-	const auto host = QString::fromUtf8( payload.mid( 2 ) );
-
-	// reserve the stream id so data arriving during the name lookup is dropped
-	// instead of opening a second connection
-	m_streams.insert( stream, nullptr );
-
-	QHostInfo::lookupHost( host, this, [this, stream, port, host]( const QHostInfo& info ) {
-		if( m_streams.contains( stream ) == false )
+		if( const auto agentPort = m_service->agentPort( host ) )
 		{
-			return;
+			target = QHostAddress::LocalHost;
+			return agentPort;
 		}
-
-		QHostAddress target;
-		for( const auto& address : info.addresses() )
-		{
-			if( isAllowedTarget( address, port ) )
-			{
-				target = address;
-				break;
-			}
-		}
-
-		if( target.isNull() )
-		{
-			vWarning() << "gateway session" << m_sessionId << "refused connection to" << host << port;
-			m_streams.remove( stream );
-			sendFrame( AruniTunnel::FrameType::Close, stream, QByteArrayLiteral("not allowed") );
-			return;
-		}
-
-		auto socket = new QTcpSocket( this );
-		socket->setSocketOption( QAbstractSocket::LowDelayOption, 1 );
-		socket->setReadBufferSize( 4 * ReadChunkSize );
-		m_streams.insert( stream, socket );
-
-		connect( socket, &QTcpSocket::connected, this, [this, stream]() {
-			sendFrame( AruniTunnel::FrameType::Opened, stream );
-		} );
-		connect( socket, &QTcpSocket::readyRead, this, [this, stream]() { readFromStream( stream ); } );
-		connect( socket, &QTcpSocket::disconnected, this, [this, stream]() {
-			readFromStream( stream );
-			closeStream( stream, true );
-		} );
-		connect( socket, &QTcpSocket::errorOccurred, this, [this, stream]( QAbstractSocket::SocketError error ) {
-			if( error != QAbstractSocket::RemoteHostClosedError )
-			{
-				closeStream( stream, true );
-			}
-		} );
-
-		socket->connectToHost( target, port );
-	} );
-}
-
-
-
-void GatewaySession::closeStream( quint32 stream, bool notify )
-{
-	if( m_streams.contains( stream ) == false )
-	{
-		return;
 	}
-
-	auto socket = m_streams.take( stream );
-	if( socket )
-	{
-		socket->disconnect( this );
-		socket->abort();
-		socket->deleteLater();
-	}
-
-	if( notify )
-	{
-		sendFrame( AruniTunnel::FrameType::Close, stream );
-	}
-}
-
-
-
-void GatewaySession::readFromStream( quint32 stream )
-{
-	auto socket = m_streams.value( stream );
-	while( socket && socket->bytesAvailable() > 0 && m_pendingBytes < MaxPendingBytes )
-	{
-		sendFrame( AruniTunnel::FrameType::Data, stream, socket->read( ReadChunkSize ) );
-	}
-	// remaining data stays in the socket buffer (bounded by setReadBufferSize,
-	// which makes TCP slow the sender down) until the relay caught up
-}
-
-
-
-void GatewaySession::sendFrame( AruniTunnel::FrameType type, quint32 stream, const QByteArray& payload )
-{
-	if( m_established == false || m_finished )
-	{
-		return;
-	}
-
-	const auto message = m_channel.encrypt( AruniTunnel::makeFrame( type, stream, payload ) );
-	m_pendingBytes += message.size();
-	m_socket.sendBinaryMessage( message );
-}
-
-
-
-void GatewaySession::resumeStreams()
-{
-	const auto streams = m_streams.keys();
-	for( const auto stream : streams )
-	{
-		readFromStream( stream );
-	}
+	return 0;
 }
 
 
 
 bool GatewaySession::isAllowedTarget( const QHostAddress& address, quint16 port ) const
 {
+	if( m_agent )
+	{
+		return false;
+	}
+
 	// only AruniControl servers (one port per session) ...
 	const auto basePort = VeyonCore::config().veyonServerPort();
 	if( port < basePort || port >= basePort + 100 )
@@ -339,13 +260,13 @@ void GatewaySession::finish()
 	}
 	m_finished = true;
 
-	const auto streams = m_streams.keys();
-	for( const auto stream : streams )
-	{
-		closeStream( stream, false );
-	}
+	closeAllStreams();
 
-	if( m_deviceKey.isEmpty() == false )
+	if( m_agent )
+	{
+		m_service->agentDisconnected( this );
+	}
+	else if( m_deviceKey.isEmpty() == false )
 	{
 		m_service->markDeviceSeen( m_deviceKey );
 	}

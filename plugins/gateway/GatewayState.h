@@ -48,6 +48,21 @@ public:
 		QDateTime lastSeen;
 	};
 
+	// a roaming laptop registered with this gateway (hub side)
+	struct Agent
+	{
+		QByteArray publicKey;
+		QString name;
+		// the gateway forwards connections to <Veyon server port> + slot to the
+		// laptop, so Masters on the office LAN reach it as "<gateway>:<port>"
+		int slot{0};
+		QDateTime added;
+		QDateTime lastSeen;
+
+		// short, stable host name under which the app lists the laptop
+		QString id() const;
+	};
+
 	bool enabled{false};
 	QString relayUrl{QString::fromLatin1( DefaultRelayUrl )};
 	QString siteName;
@@ -60,6 +75,16 @@ public:
 	// name of an authentication key (private key on this PC) that newly paired
 	// phones receive, so they need no separate key import
 	QString sharedKeyName;
+
+	// hub side: laptops enroll with this (reusable) token until it is renewed
+	QByteArray enrollmentToken;
+	QList<Agent> agents;
+
+	// agent side: this computer is a roaming laptop of the given office gateway
+	bool roamingEnabled{false};
+	AruniTunnel::PairingInfo roamingHub;
+	AruniTunnel::KeyPair roamingKeyPair;
+	bool roamingRegistered{false};
 
 	static QString directory();
 	static QString statePath();
@@ -78,9 +103,18 @@ public:
 	}
 
 	AruniTunnel::PairingInfo pairingInfo() const;
+	AruniTunnel::PairingInfo enrollmentInfo() const;
 
-	// status reported by the running gateway
-	static void writeStatus( const QJsonObject& status );
-	static QJsonObject readStatus();
+	// first free port slot for a new roaming laptop, 0 if none left
+	int freeAgentSlot() const;
+
+	static constexpr int MaxAgentSlot = 98;
+	// port offset of the service listing the roaming laptops for Masters on
+	// the office LAN (see NetworkDiscoveryDirectory)
+	static constexpr int DirectoryPortOffset = 99;
+
+	// status reported by the running gateway / roaming agent
+	static void writeStatus( const QJsonObject& status, const QString& fileName = QStringLiteral("status.json") );
+	static QJsonObject readStatus( const QString& fileName = QStringLiteral("status.json") );
 
 };

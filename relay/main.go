@@ -43,7 +43,7 @@ const (
 	maxMessageSize        = 1 << 20
 	acceptTimeout         = 15 * time.Second
 	pingInterval          = 25 * time.Second
-	maxSessionsPerGateway = 64
+	maxSessionsPerGateway = 1000 // phones and roaming laptops (one long-lived session each)
 	maxPendingBytes       = 256 << 10
 
 	closeGatewayOffline websocket.StatusCode = 4404

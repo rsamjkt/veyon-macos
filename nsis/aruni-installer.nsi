@@ -6,14 +6,18 @@
 ;   OUTFILE  - output installer path
 ;   ICON     - .ico used for the installer/uninstaller
 ; Optional:
-;   VERSION  - product version string (default 1.2.0)
+;   VERSION  - product version string (default 1.3.0)
+;
+; Command line of the installer (besides /S for a silent install):
+;   /ENROLL=<code> - make this laptop a roaming laptop of the office gateway
+;                    with the given enrollment code (ARUNIL1:...)
 
 Unicode true
 
 !define PRODUCT "AruniControl"
 !define PUBLISHER "Arunika"
 !ifndef VERSION
-  !define VERSION "1.2.0"
+  !define VERSION "1.3.0"
 !endif
 !ifndef ICON
   !define ICON "installer.ico"
@@ -33,6 +37,8 @@ ShowUnInstDetails show
 SetCompressor /SOLID lzma
 
 !include "MUI2.nsh"
+!include "FileFunc.nsh"
+!include "LogicLib.nsh"
 
 !define MUI_ICON "${ICON}"
 !define MUI_UNICON "${ICON}"
@@ -62,9 +68,22 @@ Section "AruniControl Server" SecMain
   nsExec::ExecToLog '"$INSTDIR\veyon-wcli.exe" service register'
   nsExec::ExecToLog '"$INSTDIR\veyon-wcli.exe" service start'
 
-  ; allow the server through Windows Firewall (inbound, control port 11100)
+  ; allow the server through Windows Firewall (inbound): 11100 control port,
+  ; 11101-11198 roaming laptops forwarded by the Aruni Gateway, 11199 its
+  ; directory for Masters on the office network
   DetailPrint "Menambah aturan firewall..."
-  nsExec::ExecToLog 'netsh advfirewall firewall add rule name="AruniControl Server" dir=in action=allow program="$INSTDIR\veyon-server.exe" protocol=TCP localport=11100 enable=yes'
+  nsExec::ExecToLog 'netsh advfirewall firewall delete rule name="AruniControl Server"'
+  nsExec::ExecToLog 'netsh advfirewall firewall add rule name="AruniControl Server" dir=in action=allow program="$INSTDIR\veyon-server.exe" protocol=TCP localport=11100-11199 enable=yes'
+
+  ; roaming laptop enrollment for mass deployment: setup.exe /S /ENROLL=ARUNIL1:...
+  ${GetParameters} $0
+  ClearErrors
+  ${GetOptions} $0 "/ENROLL=" $1
+  ${IfNot} ${Errors}
+  ${AndIf} $1 != ""
+    DetailPrint "Mendaftarkan laptop ke gateway kantor..."
+    nsExec::ExecToLog '"$INSTDIR\veyon-wcli.exe" gateway enroll "$1"'
+  ${EndIf}
 
   ; Start Menu shortcuts
   CreateDirectory "$SMPROGRAMS\${PRODUCT}"

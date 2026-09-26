@@ -91,6 +91,11 @@ int main( int argc, char **argv )
 		{
 			pageSelector->setCurrentItem( items.first() );
 		}
+		const auto height = qEnvironmentVariableIntValue( "ARUNI_SCREENSHOT_HEIGHT" );
+		if( height > 0 )
+		{
+			mainWindow->resize( mainWindow->width(), height );
+		}
 		QTimer::singleShot( 1500, mainWindow, [=]() {
 			mainWindow->grab().save( screenshotFile );
 			QCoreApplication::exit( 0 );

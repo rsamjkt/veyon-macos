@@ -24,16 +24,20 @@
 
 #pragma once
 
+#include "CommandLineIO.h"
+#include "CommandLinePluginInterface.h"
 #include "ConfigurationPagePluginInterface.h"
 #include "PluginInterface.h"
 
 class GatewayService;
+class RoamingAgent;
 
-class GatewayPlugin : public QObject, PluginInterface, ConfigurationPagePluginInterface
+class GatewayPlugin : public QObject, PluginInterface, ConfigurationPagePluginInterface,
+		CommandLinePluginInterface, CommandLineIO
 {
 	Q_OBJECT
 	Q_PLUGIN_METADATA(IID "io.veyon.Veyon.Plugins.Gateway")
-	Q_INTERFACES(PluginInterface ConfigurationPagePluginInterface)
+	Q_INTERFACES(PluginInterface ConfigurationPagePluginInterface CommandLinePluginInterface)
 public:
 	explicit GatewayPlugin( QObject* parent = nullptr );
 	~GatewayPlugin() override = default;
@@ -70,7 +74,29 @@ public:
 
 	ConfigurationPage* createConfigurationPage() override;
 
+	QString commandLineModuleName() const override
+	{
+		return QStringLiteral( "gateway" );
+	}
+
+	QString commandLineModuleHelp() const override
+	{
+		return tr( "Commands for the Aruni Gateway and roaming laptops" );
+	}
+
+	QStringList commands() const override;
+	QString commandHelp( const QString& command ) const override;
+
+public Q_SLOTS:
+	CommandLinePluginInterface::RunResult handle_status( const QStringList& arguments );
+	CommandLinePluginInterface::RunResult handle_enroll( const QStringList& arguments );
+	CommandLinePluginInterface::RunResult handle_leave( const QStringList& arguments );
+	CommandLinePluginInterface::RunResult handle_enrollmentcode( const QStringList& arguments );
+	CommandLinePluginInterface::RunResult handle_runroaming( const QStringList& arguments );
+
 private:
 	GatewayService* m_service{nullptr};
+	RoamingAgent* m_roamingAgent{nullptr};
+	QMap<QString, QString> m_commands;
 
 };

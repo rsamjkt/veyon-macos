@@ -614,6 +614,12 @@ QString GatewayManager::addFromCode( const QString& code )
 		return tr("Kode tidak dikenali. Gunakan kode QR dari halaman \"Aruni Gateway\" di AruniControl Configurator.");
 	}
 
+	if( info.enrollment )
+	{
+		return tr("Ini kode pendaftaran laptop, bukan kode untuk HP. Masukkan kode ini di laptop (Configurator → Aruni Gateway), "
+				  "lalu pindai kode QR \"Show pairing QR code\" di HP.");
+	}
+
 	// the same link may arrive twice (deep link + URL handler) - ignore repeats
 	for( const auto& site : std::as_const( m_sites ) )
 	{

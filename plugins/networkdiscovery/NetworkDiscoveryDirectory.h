@@ -25,6 +25,7 @@
 #pragma once
 
 #include <QHostAddress>
+#include <QJsonObject>
 #include <QSet>
 
 #include "NetworkObjectDirectory.h"
@@ -52,6 +53,8 @@ private:
 	void updateConfiguredObjects();
 	void updateConfiguredLocation( const NetworkObject& locationObject, const QJsonArray& networkObjects );
 	QList<QHostAddress> scanTargets() const;
+	void queryRoamingLaptops( const QString& gatewayHost );
+	void publishRoamingLaptops();
 
 	NetworkObject m_location;
 	int m_serverPort;
@@ -65,6 +68,16 @@ private:
 	QList<QHostAddress> m_pendingTargets;
 	QList<QTcpSocket *> m_pendingSockets;
 	QTimer* m_scanTimeout{nullptr};
+
+	// roaming laptops reachable through an Aruni Gateway found on this network:
+	// gateway host -> {site, laptops [{name, port, id}]}
+	QHash<QString, QJsonObject> m_roamingSites;
+	QSet<QString> m_pendingRoamingQueries;
+	NetworkObjectUidList m_roamingLocationUids;
+
+	// an Aruni Gateway lists its roaming laptops on Veyon server port + 99
+	static constexpr int RoamingDirectoryPortOffset = 99;
+	static constexpr int RoamingQueryTimeoutMs = 3000;
 
 	// long enough for a host behind a VPN overlay such as ZeroTier to answer,
 	// short enough that a sweep of a /23 is over within a few seconds

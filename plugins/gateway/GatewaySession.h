@@ -1,5 +1,5 @@
 /*
- * GatewaySession.h - one Master connected through the relay
+ * GatewaySession.h - one Master or roaming laptop connected through the relay
  *
  * Copyright (c) 2026 AruniControl Community
  *
@@ -24,57 +24,61 @@
 
 #pragma once
 
-#include <QHash>
-#include <QPointer>
-#include <QTcpSocket>
 #include <QTimer>
-#include <QWebSocket>
 
-#include "AruniTunnel.h"
+#include "TunnelEndpoint.h"
 
 class GatewayService;
 
-// Terminates the encrypted tunnel of one Master and forwards its streams as TCP
-// connections to AruniControl servers on the local network
-class GatewaySession : public QObject
+// Terminates the encrypted tunnel of one peer:
+// - a Master: its streams become TCP connections to AruniControl servers on
+//   the local network
+// - a roaming laptop (agent): it stays connected, and connections to its port
+//   on this gateway are forwarded to the laptop's AruniControl server
+class GatewaySession : public TunnelEndpoint
 {
 	Q_OBJECT
 public:
 	GatewaySession( GatewayService* service, const QString& sessionId );
-	~GatewaySession() override;
+	~GatewaySession() override = default;
 
 	void start( const QUrl& acceptUrl, const QByteArray& relaySecret );
+
+	bool isAgent() const
+	{
+		return m_agent;
+	}
+
+	const QByteArray& peerKey() const
+	{
+		return m_deviceKey;
+	}
+
+	// agent sessions: forward a connection to the laptop's server
+	void forwardToAgent( QTcpSocket* socket );
+
+	void finish();
 
 Q_SIGNALS:
 	void finished();
 
+protected:
+	bool isAllowedTarget( const QHostAddress& address, quint16 port ) const override;
+	quint16 mapTarget( const QString& host, quint16 port, QHostAddress& target ) const override;
+
 private:
 	void onBinaryMessage( const QByteArray& message );
 	void handleFrame( AruniTunnel::FrameType type, quint32 stream, const QByteArray& payload );
-	void openStream( quint32 stream, const QByteArray& payload );
-	void closeStream( quint32 stream, bool notify );
-	void readFromStream( quint32 stream );
-	void sendFrame( AruniTunnel::FrameType type, quint32 stream, const QByteArray& payload = {} );
-	void resumeStreams();
-	bool isAllowedTarget( const QHostAddress& address, quint16 port ) const;
-	void finish();
 
-	static constexpr qint64 MaxPendingBytes = 1024 * 1024;
-	static constexpr int ReadChunkSize = 32 * 1024;
-	static constexpr int MaxStreams = 256;
 	static constexpr int HandshakeTimeout = 15000;
 
 	GatewayService* m_service;
 	QString m_sessionId;
-	QWebSocket m_socket;
 	AruniTunnel::GatewayHandshake m_handshake;
-	AruniTunnel::SecureChannel m_channel;
-	bool m_established{false};
 	bool m_pairedNow{false};
+	bool m_agent{false};
+	quint32 m_nextAgentStream{1};
 	QByteArray m_deviceKey;
-	QHash<quint32, QPointer<QTcpSocket>> m_streams;
-	qint64 m_pendingBytes{0};
 	QTimer m_handshakeTimer;
-	bool m_finished{false};
 
 };

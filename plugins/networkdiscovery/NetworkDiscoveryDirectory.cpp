@@ -23,8 +23,10 @@
  */
 
 #include <algorithm>
+#include <memory>
 
 #include <QJsonArray>
+#include <QJsonDocument>
 #include <QJsonObject>
 #include <QNetworkInterface>
 #include <QTcpSocket>
@@ -91,11 +93,13 @@ void NetworkDiscoveryDirectory::updateConfiguredObjects()
 	}
 
 	// drop configured locations that have been removed, but never the location
-	// holding the discovered computers
+	// holding the discovered computers or those of roaming laptops
 	const auto discoveredUid = m_location.uid();
-	removeObjects( rootObject(), [locationUids, discoveredUid]( const NetworkObject& object ) {
+	const auto roamingUids = m_roamingLocationUids;
+	removeObjects( rootObject(), [locationUids, discoveredUid, roamingUids]( const NetworkObject& object ) {
 		return object.type() == NetworkObject::Type::Location &&
 			   object.uid() != discoveredUid &&
+			   roamingUids.contains( object.uid() ) == false &&
 			   locationUids.contains( object.uid() ) == false; } );
 }
 
@@ -298,11 +302,111 @@ void NetworkDiscoveryDirectory::finishScan()
 	setObjectPopulated( m_location );
 	propagateChildObjectChanges();
 
+	for( auto it = m_knownHosts.keyBegin(), end = m_knownHosts.keyEnd(); it != end; ++it )
+	{
+		queryRoamingLaptops( *it );
+	}
+	// gateways that disappeared take their laptops with them
+	for( auto it = m_roamingSites.begin(); it != m_roamingSites.end(); )
+	{
+		it = m_knownHosts.contains( it.key() ) ? std::next( it ) : m_roamingSites.erase( it );
+	}
+	publishRoamingLaptops();
+
 	vDebug() << "NetworkDiscovery: scan finished, found" << m_foundHosts.size()
 			 << "AruniControl server(s):" << QStringList( m_foundHosts.begin(), m_foundHosts.end() )
 			 << "- listing" << m_knownHosts.size() << "host(s) including recently seen ones";
 
 	m_scanning = false;
+}
+
+
+
+void NetworkDiscoveryDirectory::queryRoamingLaptops( const QString& gatewayHost )
+{
+	if( m_pendingRoamingQueries.contains( gatewayHost ) )
+	{
+		return;
+	}
+	m_pendingRoamingQueries.insert( gatewayHost );
+
+	auto socket = new QTcpSocket( this );
+	auto buffer = std::make_shared<QByteArray>();
+	auto done = std::make_shared<bool>( false );
+
+	const auto finish = [this, socket, buffer, done, gatewayHost]( bool answered ) {
+		if( *done )
+		{
+			return;
+		}
+		*done = true;
+		m_pendingRoamingQueries.remove( gatewayHost );
+		socket->abort();
+		socket->deleteLater();
+
+		const auto json = QJsonDocument::fromJson( *buffer ).object();
+		const bool hasLaptops = answered && json[QStringLiteral("laptops")].toArray().isEmpty() == false;
+		const bool changed = hasLaptops ? m_roamingSites.value( gatewayHost ) != json : m_roamingSites.remove( gatewayHost ) > 0;
+		if( hasLaptops )
+		{
+			m_roamingSites.insert( gatewayHost, json );
+		}
+		if( changed )
+		{
+			publishRoamingLaptops();
+		}
+	};
+
+	connect( socket, &QTcpSocket::readyRead, this, [socket, buffer]() {
+		buffer->append( socket->readAll() );
+	} );
+	connect( socket, &QTcpSocket::disconnected, this, [finish]() { finish( true ); } );
+	connect( socket, &QTcpSocket::errorOccurred, this, [finish]( QAbstractSocket::SocketError error ) {
+		finish( error == QAbstractSocket::RemoteHostClosedError );
+	} );
+	QTimer::singleShot( RoamingQueryTimeoutMs, socket, [finish]() { finish( false ); } );
+
+	socket->connectToHost( gatewayHost, static_cast<quint16>( m_serverPort + RoamingDirectoryPortOffset ) );
+}
+
+
+
+void NetworkDiscoveryDirectory::publishRoamingLaptops()
+{
+	static const auto ns = NetworkObject::Uid( QStringLiteral("{0c7e21a5-8f3b-4d6e-a1f9-5b2d7c4e9a10}") );
+
+	NetworkObjectUidList locationUids;
+	for( auto it = m_roamingSites.cbegin(); it != m_roamingSites.cend(); ++it )
+	{
+		const auto& gatewayHost = it.key();
+		const auto site = it.value()[QStringLiteral("site")].toString();
+		const NetworkObject location( NetworkObject::Type::Location,
+									  tr( "%1 - outside the office" ).arg( site.isEmpty() ? gatewayHost : site ),
+									  {}, {}, {}, NetworkObject::Uid::createUuidV5( ns, QStringLiteral("site:") + gatewayHost ) );
+		locationUids.append( location.uid() );
+		addOrUpdateObject( location, rootObject() );
+
+		NetworkObjectList laptops;
+		for( const auto& value : it.value()[QStringLiteral("laptops")].toArray() )
+		{
+			const auto laptop = value.toObject();
+			// the laptop is reached through its port forwarding on the gateway
+			const auto address = QStringLiteral("%1:%2").arg( gatewayHost ).arg( laptop[QStringLiteral("port")].toInt() );
+			laptops.append( NetworkObject( NetworkObject::Type::Host, laptop[QStringLiteral("name")].toString( address ),
+										   address, {}, {},
+										   NetworkObject::Uid::createUuidV5( ns, laptop[QStringLiteral("id")].toString( address ) ),
+										   location.uid() ) );
+		}
+		replaceObjects( laptops, location );
+		setObjectPopulated( location );
+	}
+
+	const auto previous = m_roamingLocationUids;
+	m_roamingLocationUids = locationUids;
+	removeObjects( rootObject(), [previous, locationUids]( const NetworkObject& object ) {
+		return previous.contains( object.uid() ) && locationUids.contains( object.uid() ) == false; } );
+
+	propagateChildObjectChanges();
 }
 
 
