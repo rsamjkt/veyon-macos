@@ -51,7 +51,7 @@ public:
 private:
 	struct Capture
 	{
-		ComputerControlInterface::Pointer interface;
+		ComputerControlInterface::Pointer control;
 		QString laptop;
 		QTimer* timeout{nullptr};
 	};

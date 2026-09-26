@@ -90,7 +90,7 @@ ScreenshotScheduler::~ScreenshotScheduler()
 {
 	for( auto& capture : m_captures )
 	{
-		capture.interface->stop();
+		capture.control->stop();
 	}
 }
 
@@ -194,10 +194,10 @@ void ScreenshotScheduler::tick()
 void ScreenshotScheduler::capture( const QByteArray& agentKey, const QString& laptop, quint16 port )
 {
 	const Computer computer( QUuid::createUuid(), laptop, QStringLiteral("127.0.0.1") );
-	auto interface = ComputerControlInterface::Pointer::create( computer, port );
+	auto control = ComputerControlInterface::Pointer::create( computer, port );
 
 	Capture capture;
-	capture.interface = interface;
+	capture.control = control;
 	capture.laptop = laptop;
 	capture.timeout = new QTimer( this );
 	capture.timeout->setSingleShot( true );
@@ -207,18 +207,18 @@ void ScreenshotScheduler::capture( const QByteArray& agentKey, const QString& la
 	} );
 	capture.timeout->start( CaptureTimeout );
 
-	connect( interface.data(), &ComputerControlInterface::framebufferUpdated, this, [this, agentKey]() {
+	connect( control.data(), &ComputerControlInterface::framebufferUpdated, this, [this, agentKey]() {
 		// the first updates may only carry parts of the screen (or the cursor)
 		// on an all-black framebuffer - wait until there is a picture
 		const auto it = m_captures.constFind( agentKey );
-		if( it != m_captures.cend() && hasContent( it->interface->framebuffer() ) )
+		if( it != m_captures.cend() && hasContent( it->control->framebuffer() ) )
 		{
-			finishCapture( agentKey, it->interface->framebuffer() );
+			finishCapture( agentKey, it->control->framebuffer() );
 		}
 	} );
-	connect( interface.data(), &ComputerControlInterface::stateChanged, this, [this, agentKey]() {
+	connect( control.data(), &ComputerControlInterface::stateChanged, this, [this, agentKey]() {
 		const auto it = m_captures.constFind( agentKey );
-		if( it != m_captures.cend() && it->interface->state() == ComputerControlInterface::State::AuthenticationFailed )
+		if( it != m_captures.cend() && it->control->state() == ComputerControlInterface::State::AuthenticationFailed )
 		{
 			m_service->setScreenshotError( tr( "The laptop \"%1\" refused the key \"%2\"" ).arg( it->laptop, m_loadedKey ) );
 			finishCapture( agentKey, {} );
@@ -226,7 +226,7 @@ void ScreenshotScheduler::capture( const QByteArray& agentKey, const QString& la
 	} );
 
 	m_captures.insert( agentKey, capture );
-	interface->start( {}, ComputerControlInterface::UpdateMode::Monitoring );
+	control->start( {}, ComputerControlInterface::UpdateMode::Monitoring );
 }
 
 
@@ -234,14 +234,14 @@ void ScreenshotScheduler::capture( const QByteArray& agentKey, const QString& la
 void ScreenshotScheduler::finishCapture( const QByteArray& agentKey, const QImage& image )
 {
 	auto capture = m_captures.take( agentKey );
-	if( capture.interface.isNull() )
+	if( capture.control.isNull() )
 	{
 		return;
 	}
 
 	delete capture.timeout;
 	// stopping from within one of its signals is not safe - let it finish first
-	QTimer::singleShot( 0, this, [interface = capture.interface]() { interface->stop(); } );
+	QTimer::singleShot( 0, this, [control = capture.control]() { control->stop(); } );
 
 	if( image.isNull() )
 	{
