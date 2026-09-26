@@ -33,17 +33,23 @@ jobs:
         run: |
           $cli = "$env:ProgramFiles\AruniControl\veyon-wcli.exe"
           & $cli authkeys create sekolah
-          & $cli config set Authentication/Method 1
-          & $cli config set NetworkObjectDirectory/Plugin "{14bacaaa-ebe5-449c-b881-5b382f952571}"
-          & $cli networkobjects add location "Lab Komputer 1"
-          & $cli networkobjects add computer "PC-GURU" localhost "" "Lab Komputer 1"
-          & $cli networkobjects add computer "PC-01" 10.0.0.101 "" "Lab Komputer 1"
-          & $cli networkobjects add computer "PC-02" 10.0.0.102 "" "Lab Komputer 1"
+          # one import instead of several "config set" calls, which overwrote
+          # each other on the runner
+          $loc = "{6a0e7f4c-1f8b-4c4e-9a51-7c3d2b1e0a01}"
+          $pcs = @(@("PC-GURU", "localhost"), @("PC-01", "10.0.0.101"), @("PC-02", "10.0.0.102"), @("PC-03", "10.0.0.103"))
+          $objects = @(@{ Name = "Lab Komputer 1"; Type = 2; Uid = $loc })
+          foreach ($pc in $pcs) { $objects += @{ Name = $pc[0]; HostAddress = $pc[1]; ParentUid = $loc; Type = 3; Uid = "{" + [guid]::NewGuid() + "}" } }
+          $config = @{
+            Authentication = @{ Method = "1" }
+            NetworkObjectDirectory = @{ Plugin = "{14bacaaa-ebe5-449c-b881-5b382f952571}" }
+            BuiltinDirectory = @{ NetworkObjects = @{ JsonStoreArray = $objects } }
+          }
+          $config | ConvertTo-Json -Depth 6 | Set-Content -Encoding utf8NoBOM config.json
+          Get-Content config.json
+          & $cli config import config.json
           & $cli service restart
           & $cli networkobjects list
           & $cli config get Authentication/Method
-          & $cli config get NetworkObjectDirectory/Plugin
-          reg query "HKLM\SOFTWARE\Arunika" /s | Select-Object -First 40
 
       - name: Capture
         run: |
