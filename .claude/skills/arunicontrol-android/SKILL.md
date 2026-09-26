@@ -189,3 +189,14 @@ quick-action bar (Kunci/Buka/Pesan/Aksi) always one tap away, selection by long-
 `AC_IMPORT_KEY=<private key file>` imports a key at start; `AC_PAGE=auth|settings|rooms|shots|
 vpn|actions|remote|welcome` (+ `AC_DELAY` ms) opens a page for screenshots. Window capture on
 macOS without accessibility: `CGWindowListCopyWindowInfo` → `screencapture -l <id>`.
+
+## Website unduhan resmi (website/)
+
+- Live: https://arunicontrol.randymandala.workers.dev (Worker `arunicontrol`, static assets + R2 `arunicontrol-unduhan`).
+- `/unduh/{windows,windows-zip,macos,android,sha256}` → file rilis di R2 (`<tag>/<file>`); mendukung Range (resume).
+  Repo GitHub private → link rilis GitHub TIDAK bisa dipakai publik, makanya file di R2.
+- Edit `website/index.src.html`, lalu `python3 build.py` (inline ikon dari mobile/icons) + `npx wrangler deploy`.
+- Rilis baru: upload ke R2 dengan awalan tag, ubah `RELEASE` di `src/worker.js` + versi/ukuran di HTML (lihat website/README.md).
+- Screenshot: Configurator punya `ARUNI_SCREENSHOT`/`ARUNI_SCREENSHOT_PAGE` (render diri sendiri, tanpa izin Screen Recording);
+  Windows lewat workflow `windows-screenshots.yml` (hasil di draft release "CI screenshots", hapus setelahnya — kuota artifact sering penuh).
+- Di runner Windows beberapa `veyon-wcli config set` berturut-turut saling menimpa → pakai satu `config import`.
