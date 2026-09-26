@@ -142,6 +142,8 @@ public:
 	Q_INVOKABLE void removeRoom( const QString& roomUid );
 	Q_INVOKABLE QString addComputer( const QString& roomUid, const QString& name, const QString& host, const QString& mac );
 	Q_INVOKABLE void removeComputer( const QString& computerUid );
+	// rooms and computers from a CSV file (columns Ruangan, Nama, Alamat IP, MAC)
+	Q_INVOKABLE QVariantMap importComputers( const QUrl& fileUrl );
 	Q_INVOKABLE void refreshComputers();
 
 	// --- features; an empty uid list means "all visible computers"

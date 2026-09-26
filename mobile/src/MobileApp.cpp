@@ -53,6 +53,7 @@
 #include "CryptoCore.h"
 #include "FeatureManager.h"
 #include "Filesystem.h"
+#include "ComputerListFile.h"
 #include "MobileApp.h"
 #include "NetworkObject.h"
 #include "NetworkObjectDirectory.h"
@@ -415,6 +416,43 @@ QString MobileApp::collectedFilesDirectory() const
 QString MobileApp::displayName( const QUrl& fileUrl ) const
 {
 	return fileUrl.isLocalFile() ? fileUrl.fileName() : QFileInfo( fileUrl.toString() ).fileName();
+}
+
+
+
+QVariantMap MobileApp::importComputers( const QUrl& fileUrl )
+{
+	// content:// URIs (Android document picker) are opened by QFile directly
+	QFile file( fileUrl.isLocalFile() ? fileUrl.toLocalFile() : fileUrl.toString() );
+	if( file.open( QFile::ReadOnly ) == false )
+	{
+		return { { QStringLiteral("ok"), false }, { QStringLiteral("message"), tr("File tidak bisa dibuka.") } };
+	}
+
+	const auto data = file.read( 4 * 1024 * 1024 );
+	auto text = QString::fromUtf8( data );
+	if( text.contains( QChar::ReplacementCharacter ) )
+	{
+		text = QString::fromLatin1( data );
+	}
+
+	const auto parsed = ComputerListFile::parse( text, tr("Komputer") );
+	if( parsed.rows.isEmpty() )
+	{
+		return { { QStringLiteral("ok"), false },
+				 { QStringLiteral("message"), tr("Tidak ada komputer ditemukan. Kolom yang diharapkan: Ruangan, Nama, Alamat IP, MAC.") } };
+	}
+
+	auto objects = directoryObjects();
+	const auto result = ComputerListFile::merge( objects, parsed.rows, false );
+	setDirectoryObjects( objects );
+
+	auto message = tr("%1 komputer ditambahkan, %2 diperbarui").arg( result.computersAdded ).arg( result.computersUpdated );
+	if( parsed.problems.isEmpty() == false )
+	{
+		message += tr(" · %1 baris dilewati").arg( parsed.problems.size() );
+	}
+	return { { QStringLiteral("ok"), true }, { QStringLiteral("message"), message } };
 }
 
 

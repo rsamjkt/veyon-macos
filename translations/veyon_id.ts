@@ -1045,12 +1045,100 @@ Pastikan nama kunci milik satu sama lain sama di semua komputer.</translation>
         <translation>Impor berkas CSV  dimungkinkan melalui antarmuka baris perintah. Informasi lebih lanjut, lihat &lt;a href="https://docs.veyon.io/en/latest/admin/cli.html#network-object-directory"&gt;dokumentasi daring&lt;/a&gt;.</translation>
     </message>
     <message>
+        <source>Import and export</source>
+        <translation>Impor dan ekspor</translation>
+    </message>
+    <message>
+        <source>Make a table in Excel with the columns Room, Name, IP address and MAC (optional), save it as CSV and import it - or copy the rows in Excel and click "Paste from Excel".</source>
+        <translation>Buat tabel di Excel dengan kolom Ruangan, Nama, Alamat IP, dan MAC (opsional), simpan sebagai CSV lalu impor - atau salin baris-barisnya di Excel lalu klik "Tempel dari Excel".</translation>
+    </message>
+    <message>
+        <source>Import from file…</source>
+        <translation>Impor dari berkas…</translation>
+    </message>
+    <message>
+        <source>Paste from Excel</source>
+        <translation>Tempel dari Excel</translation>
+    </message>
+    <message>
+        <source>Export…</source>
+        <translation>Ekspor…</translation>
+    </message>
+    <message>
+        <source>Template…</source>
+        <translation>Templat…</translation>
+    </message>
+    <message>
         <source>New location</source>
         <translation>Lokasi baru</translation>
     </message>
     <message>
         <source>New computer</source>
         <translation>Komputer baru</translation>
+    </message>
+    <message>
+        <source>Import computers</source>
+        <translation>Impor komputer</translation>
+    </message>
+    <message>
+        <source>Tables (*.csv *.txt *.tsv);;All files (*)</source>
+        <translation>Tabel (*.csv *.txt *.tsv);;Semua berkas (*)</translation>
+    </message>
+    <message>
+        <source>Could not open %1.</source>
+        <translation>Tidak dapat membuka %1.</translation>
+    </message>
+    <message>
+        <source>The clipboard is empty. Select the rows in Excel (with or without the heading row), press Ctrl+C and click this button again.</source>
+        <translation>Papan klip kosong. Pilih baris-barisnya di Excel (dengan atau tanpa baris judul), tekan Ctrl+C, lalu klik tombol ini lagi.</translation>
+    </message>
+    <message>
+        <source>No computers found. Expected columns: Room, Name, IP address, MAC.</source>
+        <translation>Tidak ada komputer ditemukan. Kolom yang diharapkan: Ruangan, Nama, Alamat IP, MAC.</translation>
+    </message>
+    <message>
+        <source>%1 computers found. Add them to the current list or replace the whole list?</source>
+        <translation>%1 komputer ditemukan. Tambahkan ke daftar saat ini atau ganti seluruh daftar?</translation>
+    </message>
+    <message>
+        <source>Add</source>
+        <translation>Tambahkan</translation>
+    </message>
+    <message>
+        <source>Replace all</source>
+        <translation>Ganti semua</translation>
+    </message>
+    <message>
+        <source>%1 rooms and %2 computers added, %3 computers updated. Click Apply to save.</source>
+        <translation>%1 ruangan dan %2 komputer ditambahkan, %3 komputer diperbarui. Klik Terapkan untuk menyimpan.</translation>
+    </message>
+    <message>
+        <source>Skipped:</source>
+        <translation>Dilewati:</translation>
+    </message>
+    <message>
+        <source>Export computers</source>
+        <translation>Ekspor komputer</translation>
+    </message>
+    <message>
+        <source>computers.csv</source>
+        <translation>daftar-komputer.csv</translation>
+    </message>
+    <message>
+        <source>CSV files (*.csv)</source>
+        <translation>Berkas CSV (*.csv)</translation>
+    </message>
+    <message>
+        <source>Could not write %1.</source>
+        <translation>Tidak dapat menulis %1.</translation>
+    </message>
+    <message>
+        <source>Save template</source>
+        <translation>Simpan templat</translation>
+    </message>
+    <message>
+        <source>computer-list-template.csv</source>
+        <translation>templat-daftar-komputer.csv</translation>
     </message>
 </context>
 <context>
@@ -1468,6 +1556,41 @@ Pastikan nama kunci milik satu sama lain sama di semua komputer.</translation>
     <message>
         <source>Active connections:</source>
         <translation>Koneksi aktif:</translation>
+    </message>
+</context>
+<context>
+    <name>ComputerListFile</name>
+    <message>
+        <source>Row %1</source>
+        <translation>Baris %1</translation>
+    </message>
+    <message>
+        <source>%1: no name or IP address - skipped</source>
+        <translation>%1: nama atau alamat IP kosong - dilewati</translation>
+    </message>
+    <message>
+        <source>%1: "%2" is not a valid address - skipped</source>
+        <translation>%1: "%2" bukan alamat yang valid - dilewati</translation>
+    </message>
+    <message>
+        <source>%1: no room given - skipped</source>
+        <translation>%1: ruangan kosong - dilewati</translation>
+    </message>
+    <message>
+        <source>%1: MAC address "%2" ignored (invalid)</source>
+        <translation>%1: alamat MAC "%2" diabaikan (tidak valid)</translation>
+    </message>
+    <message>
+        <source>Room</source>
+        <translation>Ruangan</translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <translation>Nama</translation>
+    </message>
+    <message>
+        <source>IP address</source>
+        <translation>Alamat IP</translation>
     </message>
 </context>
 <context>

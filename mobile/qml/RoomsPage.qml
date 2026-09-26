@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Layouts
 import QtQuick.Controls.Basic
+import QtQuick.Dialogs
 
 Page {
 	id: page
@@ -23,6 +24,18 @@ Page {
 			spacing: 6
 			IconButton { iconName: "arrow_back"; onClicked: page.StackView.view.pop() }
 			AppText { Layout.fillWidth: true; text: qsTr("Ruangan & komputer"); style: "title"; wrapMode: Text.NoWrap }
+			// a whole list from Excel instead of adding computers one by one
+			IconButton { iconName: "upload_file"; onClicked: importDialog.open() }
+		}
+	}
+
+	FileDialog {
+		id: importDialog
+		title: qsTr("Pilih daftar komputer (CSV dari Excel)")
+		fileMode: FileDialog.OpenFile
+		onAccepted: {
+			const result = App.importComputers(selectedFile)
+			window.toast(result.message, result.ok ? "success" : "error")
 		}
 	}
 
@@ -153,7 +166,7 @@ Page {
 				Layout.topMargin: 30
 				iconName: "meeting_room"
 				title: qsTr("Belum ada ruangan")
-				text: qsTr("Buat ruangan (mis. \"Lab Komputer 1\"), lalu tambahkan komputernya.")
+				text: qsTr("Buat ruangan (mis. \"Lab Komputer 1\"), lalu tambahkan komputernya - atau ketuk ikon impor di atas untuk memuat daftar dari Excel (kolom: Ruangan, Nama, Alamat IP, MAC).")
 			}
 		}
 	}

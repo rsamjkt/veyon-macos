@@ -55,8 +55,13 @@ private Q_SLOTS:
 	void removeComputer();
 	void moveComputerUp();
 	void moveComputerDown();
+	void importFile();
+	void importClipboard();
+	void exportFile();
+	void saveTemplate();
 
 private:
+	void importText( const QString& text );
 	void populateLocations();
 	void populateComputers();
 

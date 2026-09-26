@@ -14,13 +14,13 @@
 // Rilis baru: unggah file ke R2 dengan awalan tag-nya, lalu ubah RELEASE.
 
 const RELEASE = {
-	tag: "v1.3.1",
-	codename: "Diana",
+	tag: "v1.4.0",
+	codename: "Elena",
 	files: {
-		windows: "AruniControl-Setup-1.3.1-Diana-Windows-x64.exe",
-		"windows-zip": "AruniControl-Server-1.3.1-Diana-Windows-x64.zip",
-		macos: "AruniControl-1.3.1-Diana-macOS-arm64.zip",
-		android: "AruniControl-1.3.1-Diana-Android-arm64.apk",
+		windows: "AruniControl-Setup-1.4.0-Elena-Windows-x64.exe",
+		"windows-zip": "AruniControl-Server-1.4.0-Elena-Windows-x64.zip",
+		macos: "AruniControl-1.4.0-Elena-macOS-arm64.zip",
+		android: "AruniControl-1.4.0-Elena-Android-arm64.apk",
 		sha256: "SHA256SUMS.txt",
 	},
 };

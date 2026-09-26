@@ -24,7 +24,18 @@
 
 #include <QJsonObject>
 
+#include <QApplication>
+#include <QClipboard>
+#include <QFileDialog>
+#include <QGroupBox>
+#include <QHBoxLayout>
+#include <QLabel>
+#include <QMessageBox>
+#include <QPushButton>
+#include <QStandardPaths>
+
 #include "BuiltinDirectoryConfiguration.h"
+#include "ComputerListFile.h"
 #include "BuiltinDirectoryConfigurationPage.h"
 #include "Configuration/UiMapping.h"
 #include "NetworkObjectModel.h"
@@ -43,6 +54,29 @@ BuiltinDirectoryConfigurationPage::BuiltinDirectoryConfigurationPage( BuiltinDir
 
 	connect( ui->locationTableWidget, &QTableWidget::currentItemChanged,
 			 this, &BuiltinDirectoryConfigurationPage::populateComputers );
+
+	// the whole list at once instead of typing every computer - replaces the
+	// hint that CSV import is only possible on the command line
+	ui->label_3->hide();
+	auto transferBox = new QGroupBox( tr( "Import and export" ) );
+	auto transferLayout = new QVBoxLayout( transferBox );
+	auto hint = new QLabel( tr( "Make a table in Excel with the columns Room, Name, IP address and MAC (optional), save it as "
+								"CSV and import it - or copy the rows in Excel and click \"Paste from Excel\"." ) );
+	hint->setWordWrap( true );
+	transferLayout->addWidget( hint );
+	auto buttons = new QHBoxLayout;
+	const auto addButton = [this, buttons]( const QString& text, void (BuiltinDirectoryConfigurationPage::*slot)() ) {
+		auto button = new QPushButton( text );
+		connect( button, &QPushButton::clicked, this, slot );
+		buttons->addWidget( button );
+	};
+	addButton( tr( "Import from file…" ), &BuiltinDirectoryConfigurationPage::importFile );
+	addButton( tr( "Paste from Excel" ), &BuiltinDirectoryConfigurationPage::importClipboard );
+	addButton( tr( "Export…" ), &BuiltinDirectoryConfigurationPage::exportFile );
+	addButton( tr( "Template…" ), &BuiltinDirectoryConfigurationPage::saveTemplate );
+	buttons->addStretch( 1 );
+	transferLayout->addLayout( buttons );
+	ui->verticalLayout->addWidget( transferBox );
 }
 
 
@@ -365,4 +399,131 @@ NetworkObject BuiltinDirectoryConfigurationPage::currentComputerObject() const
 	}
 
 	return NetworkObject();
+}
+
+
+
+void BuiltinDirectoryConfigurationPage::importFile()
+{
+	const auto fileName = QFileDialog::getOpenFileName( this, tr( "Import computers" ),
+		QStandardPaths::writableLocation( QStandardPaths::DocumentsLocation ),
+		tr( "Tables (*.csv *.txt *.tsv);;All files (*)" ) );
+	if( fileName.isEmpty() )
+	{
+		return;
+	}
+
+	QFile file( fileName );
+	if( file.open( QFile::ReadOnly ) == false )
+	{
+		QMessageBox::critical( this, tr( "Import computers" ), tr( "Could not open %1." ).arg( fileName ) );
+		return;
+	}
+
+	// Excel saves "CSV (Comma delimited)" in the Windows code page, "CSV UTF-8"
+	// in UTF-8 - fall back when the text is not valid UTF-8
+	const auto data = file.readAll();
+	auto text = QString::fromUtf8( data );
+	if( text.contains( QChar::ReplacementCharacter ) )
+	{
+		text = QString::fromLatin1( data );
+	}
+	importText( text );
+}
+
+
+
+void BuiltinDirectoryConfigurationPage::importClipboard()
+{
+	const auto text = QApplication::clipboard()->text();
+	if( text.trimmed().isEmpty() )
+	{
+		QMessageBox::information( this, tr( "Paste from Excel" ),
+								  tr( "The clipboard is empty. Select the rows in Excel (with or without the heading row), "
+									  "press Ctrl+C and click this button again." ) );
+		return;
+	}
+	importText( text );
+}
+
+
+
+void BuiltinDirectoryConfigurationPage::importText( const QString& text )
+{
+	const auto parsed = ComputerListFile::parse( text, currentLocationObject().name() );
+	const QString problems = parsed.problems.mid( 0, 12 ).join( QLatin1Char('\n') ) +
+						  ( parsed.problems.size() > 12 ? QStringLiteral("\n…") : QString{} );
+
+	if( parsed.rows.isEmpty() )
+	{
+		QMessageBox::warning( this, tr( "Import computers" ),
+							  tr( "No computers found. Expected columns: Room, Name, IP address, MAC." ) +
+							  ( problems.isEmpty() ? QString{} : QStringLiteral("\n\n") + problems ) );
+		return;
+	}
+
+	QMessageBox question( QMessageBox::Question, tr( "Import computers" ),
+						  tr( "%1 computers found. Add them to the current list or replace the whole list?" )
+							  .arg( parsed.rows.size() ), QMessageBox::Cancel, this );
+	auto addButton = question.addButton( tr( "Add" ), QMessageBox::AcceptRole );
+	auto replaceButton = question.addButton( tr( "Replace all" ), QMessageBox::DestructiveRole );
+	question.setDefaultButton( addButton );
+	if( problems.isEmpty() == false )
+	{
+		question.setDetailedText( problems );
+	}
+	question.exec();
+	if( question.clickedButton() != addButton && question.clickedButton() != replaceButton )
+	{
+		return;
+	}
+
+	auto objects = m_configuration.networkObjects();
+	const auto result = ComputerListFile::merge( objects, parsed.rows, question.clickedButton() == replaceButton );
+	m_configuration.setNetworkObjects( objects );
+	populateLocations();
+
+	QMessageBox::information( this, tr( "Import computers" ),
+		tr( "%1 rooms and %2 computers added, %3 computers updated. Click Apply to save." )
+			.arg( result.locationsAdded ).arg( result.computersAdded ).arg( result.computersUpdated ) +
+		( problems.isEmpty() ? QString{} : QStringLiteral("\n\n") + tr( "Skipped:" ) + QLatin1Char('\n') + problems ) );
+}
+
+
+
+void BuiltinDirectoryConfigurationPage::exportFile()
+{
+	const auto fileName = QFileDialog::getSaveFileName( this, tr( "Export computers" ),
+		QDir( QStandardPaths::writableLocation( QStandardPaths::DocumentsLocation ) ).filePath( tr( "computers.csv" ) ),
+		tr( "CSV files (*.csv)" ) );
+	if( fileName.isEmpty() )
+	{
+		return;
+	}
+
+	QFile file( fileName );
+	if( file.open( QFile::WriteOnly | QFile::Truncate ) == false ||
+		file.write( ComputerListFile::toCsv( m_configuration.networkObjects() ) ) < 0 )
+	{
+		QMessageBox::critical( this, tr( "Export computers" ), tr( "Could not write %1." ).arg( fileName ) );
+	}
+}
+
+
+
+void BuiltinDirectoryConfigurationPage::saveTemplate()
+{
+	const auto fileName = QFileDialog::getSaveFileName( this, tr( "Save template" ),
+		QDir( QStandardPaths::writableLocation( QStandardPaths::DocumentsLocation ) ).filePath( tr( "computer-list-template.csv" ) ),
+		tr( "CSV files (*.csv)" ) );
+	if( fileName.isEmpty() )
+	{
+		return;
+	}
+
+	QFile file( fileName );
+	if( file.open( QFile::WriteOnly | QFile::Truncate ) == false || file.write( ComputerListFile::templateCsv() ) < 0 )
+	{
+		QMessageBox::critical( this, tr( "Save template" ), tr( "Could not write %1." ).arg( fileName ) );
+	}
 }
