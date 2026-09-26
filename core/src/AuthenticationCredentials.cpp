@@ -38,6 +38,7 @@ AuthenticationCredentials::AuthenticationCredentials() :
 AuthenticationCredentials::AuthenticationCredentials( const AuthenticationCredentials &other ) :
 	m_privateKey( other.privateKey() ),
 	m_authenticationKeyName( other.authenticationKeyName() ),
+	m_announcedUsername( other.announcedUsername() ),
 	m_logonUsername( other.logonUsername() ),
 	m_logonPassword( other.logonPassword() ),
 	m_token( other.token() ),

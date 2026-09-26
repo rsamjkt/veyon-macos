@@ -25,6 +25,7 @@
 #include <QCoreApplication>
 
 #include "AccessControlProvider.h"
+#include "AccessLog.h"
 #include "BuiltinFeatures.h"
 #include "ComputerControlClient.h"
 #include "ComputerControlServer.h"
@@ -100,7 +101,10 @@ VncProxyConnection* ComputerControlServer::createVncProxyConnection( QTcpSocket*
 	auto client = new ComputerControlClient( this, clientSocket, vncServerPort, vncServerPassword, parent );
 
 	connect( client, &ComputerControlClient::serverConnectionClosed, this,
-		[=, this]() { checkForIncompleteAuthentication(client->serverClient()); },
+		[=, this]() {
+			checkForIncompleteAuthentication(client->serverClient());
+			logDisconnect(client->serverClient());
+		},
 		Qt::DirectConnection );
 
 	return client;
@@ -132,9 +136,67 @@ bool ComputerControlServer::handleFeatureMessage(ComputerControlClient* client)
 		return false;
 	}
 
+	logFeatureUse( client->serverClient(), featureMessage );
+
 	VeyonCore::featureManager().handleFeatureMessage( *this, MessageContext{socket, client}, featureMessage );
 
 	return true;
+}
+
+
+
+void ComputerControlServer::logDisconnect( VncServerClient* client )
+{
+	QDateTime since;
+	{
+		QMutexLocker l( &m_dataMutex );
+		since = m_connectedClients.take( client );
+	}
+
+	if( since.isValid() )
+	{
+		AccessLog::append( QStringLiteral("disconnected"), client->hostAddress(), client->username(),
+						   { { QStringLiteral("seconds"), since.secsTo( QDateTime::currentDateTimeUtc() ) } } );
+	}
+}
+
+
+
+void ComputerControlServer::logFeatureUse( VncServerClient* client, const FeatureMessage& message )
+{
+	// only functions a person triggers - not the periodic queries of the
+	// monitoring (meta/builtin features) or the access log itself
+	const auto& feature = VeyonCore::featureManager().feature( message.featureUid() );
+	if( feature.isValid() == false ||
+		feature.testFlag( Feature::Flag::Meta ) || feature.testFlag( Feature::Flag::Builtin ) ||
+		( feature.testFlag( Feature::Flag::Action ) == false && feature.testFlag( Feature::Flag::Mode ) == false ) ||
+		feature.name() == QStringLiteral("AccessLog") )
+	{
+		return;
+	}
+
+	// a function refreshing itself (e.g. the application list) is logged once
+	// per 10 minutes
+	const auto key = QStringLiteral("%1|%2|%3|%4").arg( client->hostAddress(), client->username(),
+													   message.featureUid().toString(),
+													   QString::number( static_cast<int>( message.command() ) ) );
+	const auto now = QDateTime::currentDateTimeUtc();
+	{
+		QMutexLocker l( &m_dataMutex );
+		const auto last = m_loggedFeatureUses.value( key );
+		if( last.isValid() && last.secsTo( now ) < 600 )
+		{
+			return;
+		}
+		m_loggedFeatureUses[key] = now;
+		if( m_loggedFeatureUses.size() > 2000 )
+		{
+			m_loggedFeatureUses.clear();
+		}
+	}
+
+	AccessLog::append( QStringLiteral("feature"), client->hostAddress(), client->username(),
+					   { { QStringLiteral("feature"), feature.displayName().isEmpty() ? feature.name() : feature.displayName() } } );
 }
 
 
@@ -184,6 +246,7 @@ void ComputerControlServer::showAuthenticationMessage( VncServerClient* client )
 	if( client->authState() == VncServerClient::AuthState::Failed )
 	{
 		vWarning() << "Authentication failed for" << client->hostAddress() << client->username();
+		AccessLog::append( QStringLiteral("auth_failed"), client->hostAddress(), client->username() );
 
 		if (VeyonCore::config().failedAuthenticationNotificationsEnabled() &&
 			VeyonCore::platform().sessionFunctions().currentSessionHasUser())
@@ -219,6 +282,12 @@ void ComputerControlServer::showAccessControlMessage( VncServerClient* client )
 	{
 		vInfo() << "Access control successful for" << client->hostAddress() << client->username();
 
+		{
+			QMutexLocker l( &m_dataMutex );
+			m_connectedClients[client] = QDateTime::currentDateTimeUtc();
+		}
+		AccessLog::append( QStringLiteral("connected"), client->hostAddress(), client->username() );
+
 		if (VeyonCore::config().remoteConnectionNotificationsEnabled() &&
 			VeyonCore::platform().sessionFunctions().currentSessionHasUser())
 		{
@@ -236,6 +305,7 @@ void ComputerControlServer::showAccessControlMessage( VncServerClient* client )
 	else if( client->accessControlState() == VncServerClient::AccessControlState::Failed )
 	{
 		vWarning() << "Access control failed for" << client->hostAddress() << client->username();
+		AccessLog::append( QStringLiteral("access_denied"), client->hostAddress(), client->username() );
 
 		if( VeyonCore::config().failedAuthenticationNotificationsEnabled() )
 		{

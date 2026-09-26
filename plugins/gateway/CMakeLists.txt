@@ -29,8 +29,10 @@ build_veyon_plugin(gateway
 	ActivityLog.h
 	Notifier.cpp
 	Notifier.h
-	ScreenshotScheduler.cpp
-	ScreenshotScheduler.h
+	MonitoringCollector.cpp
+	MonitoringCollector.h
+	TimelapseView.cpp
+	TimelapseView.h
 	GatewayPlugin.cpp
 	GatewayPlugin.h
 	GatewayConfigurationPage.cpp

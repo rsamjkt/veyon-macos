@@ -41,7 +41,6 @@
 #include "NetworkObjectDirectoryManager.h"
 #include "Notifier.h"
 #include "PlatformFilesystemFunctions.h"
-#include "ScreenshotScheduler.h"
 #include "VeyonConfiguration.h"
 #include "VeyonCore.h"
 
@@ -107,7 +106,7 @@ GatewayService::GatewayService( QObject* parent ) :
 	} );
 
 	m_notifier = new Notifier( this );
-	m_screenshots = new ScreenshotScheduler( this );
+	m_collector = new MonitoringCollector( this );
 
 	connect( &m_alertTimer, &QTimer::timeout, this, &GatewayService::checkOfflineAlerts );
 	m_alertTimer.start( 60 * 1000 );
@@ -669,6 +668,39 @@ QList<GatewayService::OnlineLaptop> GatewayService::onlineLaptops() const
 		}
 	}
 	return laptops;
+}
+
+
+
+QList<MonitoringCollector::Target> GatewayService::collectionTargets( bool includeOffice ) const
+{
+	QList<MonitoringCollector::Target> targets;
+	QSet<QString> seen;
+
+	for( const auto& laptop : onlineLaptops() )
+	{
+		const auto agent = findAgent( laptop.key );
+		targets.append( { QStringLiteral("agent:") + ( agent ? agent->id() : QString::fromLatin1( laptop.key.toHex() ) ),
+						  laptop.name, QStringLiteral("127.0.0.1"), laptop.port, true, laptop.local } );
+	}
+
+	if( includeOffice && m_directory )
+	{
+		const auto objects = m_directory->queryObjects( NetworkObject::Type::Host, NetworkObject::Attribute::None, {} );
+		for( const auto& object : objects )
+		{
+			const auto host = object.hostAddress().isEmpty() ? object.name() : object.hostAddress();
+			if( host.isEmpty() || isRoamingForward( host ) || seen.contains( host.toLower() ) )
+			{
+				continue;
+			}
+			seen.insert( host.toLower() );
+			targets.append( { QStringLiteral("lan:") + host.toLower(), object.name().isEmpty() ? host : object.name(),
+							  host, quint16( VeyonCore::config().veyonServerPort() ), false, false } );
+		}
+	}
+
+	return targets;
 }
 
 

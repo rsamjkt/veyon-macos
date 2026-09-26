@@ -93,6 +93,10 @@ public:
 	int screenshotInterval{0};		// minutes, 0 = off
 	int screenshotRetentionDays{30};
 	bool screenshotInOffice{false};	// also while the laptop is in the office
+	bool screenshotAllComputers{false};	// every computer of the office, not only roaming laptops
+
+	// access logs of the computers collected into the activity history
+	bool collectAccessLogs{true};
 
 	bool isTelegramConfigured() const
 	{

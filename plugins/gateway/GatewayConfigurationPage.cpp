@@ -53,7 +53,8 @@
 #include "ActivityLog.h"
 #include "GatewayConfigurationPage.h"
 #include "Notifier.h"
-#include "ScreenshotScheduler.h"
+#include "MonitoringCollector.h"
+#include "TimelapseView.h"
 #include "Filesystem.h"
 #include "GatewayState.h"
 #include "RoamingAgent.h"
@@ -209,6 +210,8 @@ GatewayConfigurationPage::GatewayConfigurationPage( QWidget* parent ) :
 
 	m_notificationsTabIndex = m_tabs->addTab( createNotificationsTab(), tr( "Notifications" ) );
 	m_activityTabIndex = m_tabs->addTab( createActivityTab(), tr( "Activity" ) );
+	m_timelapse = new TimelapseView;
+	m_recordingsTabIndex = m_tabs->addTab( m_timelapse, tr( "Recordings" ) );
 
 	// --- this computer as roaming laptop
 	auto roamingBox = new QGroupBox( tr( "This laptop outside the office" ) );
@@ -272,6 +275,10 @@ GatewayConfigurationPage::GatewayConfigurationPage( QWidget* parent ) :
 		{
 			refreshActivity();
 		}
+		else if( index == m_recordingsTabIndex )
+		{
+			m_timelapse->refresh();
+		}
 	} );
 	m_refreshTimer.start( 2000 );
 }
@@ -307,6 +314,8 @@ void GatewayConfigurationPage::resetWidgets()
 	m_screenshotInterval->setCurrentIndex( qMax( 0, m_screenshotInterval->findData( state.screenshotInterval ) ) );
 	m_screenshotRetention->setValue( state.screenshotRetentionDays );
 	m_screenshotInOffice->setChecked( state.screenshotInOffice );
+	m_screenshotAllComputers->setChecked( state.screenshotAllComputers );
+	m_collectAccessLogs->setChecked( state.collectAccessLogs );
 	m_telegramToken->setText( state.telegramToken );
 	m_telegramChatId->setText( state.telegramChatId );
 	m_offlineAlertHours->setValue( state.offlineAlertHours );
@@ -332,6 +341,8 @@ void GatewayConfigurationPage::connectWidgetsToProperties()
 	connect( m_screenshotInterval, &QComboBox::currentIndexChanged, this, &ConfigurationPage::widgetsChanged );
 	connect( m_screenshotRetention, &QSpinBox::valueChanged, this, &ConfigurationPage::widgetsChanged );
 	connect( m_screenshotInOffice, &QCheckBox::toggled, this, &ConfigurationPage::widgetsChanged );
+	connect( m_screenshotAllComputers, &QCheckBox::toggled, this, &ConfigurationPage::widgetsChanged );
+	connect( m_collectAccessLogs, &QCheckBox::toggled, this, &ConfigurationPage::widgetsChanged );
 	connect( m_telegramToken, &QLineEdit::textChanged, this, &ConfigurationPage::widgetsChanged );
 	connect( m_telegramChatId, &QLineEdit::textChanged, this, &ConfigurationPage::widgetsChanged );
 	connect( m_offlineAlertHours, &QSpinBox::valueChanged, this, &ConfigurationPage::widgetsChanged );
@@ -350,6 +361,8 @@ void GatewayConfigurationPage::applyConfiguration()
 	const auto screenshotInterval = m_screenshotInterval->currentData().toInt();
 	const auto screenshotRetention = m_screenshotRetention->value();
 	const auto screenshotInOffice = m_screenshotInOffice->isChecked();
+	const auto screenshotAllComputers = m_screenshotAllComputers->isChecked();
+	const auto collectAccessLogs = m_collectAccessLogs->isChecked();
 	const auto telegramToken = m_telegramToken->text().trimmed();
 	const auto telegramChatId = m_telegramChatId->text().trimmed();
 	const auto offlineAlertHours = m_offlineAlertHours->value();
@@ -360,6 +373,8 @@ void GatewayConfigurationPage::applyConfiguration()
 			state.screenshotInterval = screenshotInterval;
 			state.screenshotRetentionDays = screenshotRetention;
 			state.screenshotInOffice = screenshotInOffice;
+			state.screenshotAllComputers = screenshotAllComputers;
+			state.collectAccessLogs = collectAccessLogs;
 			state.telegramToken = telegramToken;
 			state.telegramChatId = telegramChatId;
 			state.offlineAlertHours = offlineAlertHours;
@@ -545,6 +560,7 @@ void GatewayConfigurationPage::refreshRoaming()
 	m_tabs->setTabVisible( m_laptopsTabIndex, state.enabled );
 	m_tabs->setTabVisible( m_notificationsTabIndex, state.enabled );
 	m_tabs->setTabVisible( m_activityTabIndex, state.enabled );
+	m_tabs->setTabVisible( m_recordingsTabIndex, state.enabled );
 	m_pairBox->setVisible( state.enabled );
 	m_devicesBox->setVisible( state.enabled );
 	m_roamingBox->setVisible( state.enabled == false );
@@ -597,7 +613,7 @@ void GatewayConfigurationPage::refreshRoaming()
 
 	if( state.enabled )
 	{
-		const auto keyName = ScreenshotScheduler::availableKeyName( state.sharedKeyName );
+		const auto keyName = MonitoringCollector::availableKeyName( state.sharedKeyName );
 		const auto error = GatewayState::readStatus()[QStringLiteral("screenshotError")].toString();
 		if( m_screenshotInterval->currentData().toInt() <= 0 )
 		{
@@ -750,9 +766,9 @@ QWidget* GatewayConfigurationPage::createScreenshotBox()
 	auto box = new QGroupBox( tr( "Scheduled screenshots" ) );
 	auto layout = new QVBoxLayout( box );
 
-	auto intro = new QLabel( tr( "Keeps a screenshot of every roaming laptop at regular intervals as an audit trail. "
-								 "This computer connects to the laptops like a Master, so it needs a private "
-								 "authentication key whose public key is installed on the laptops." ) );
+	auto intro = new QLabel( tr( "Keeps screenshots of the computers at regular intervals as an audit trail - watch them "
+								 "as a timelapse in the Recordings tab. This computer connects to them like a Master, so "
+								 "it needs a private authentication key whose public key is installed on the computers." ) );
 	intro->setWordWrap( true );
 	layout->addWidget( intro );
 
@@ -770,7 +786,9 @@ QWidget* GatewayConfigurationPage::createScreenshotBox()
 	m_screenshotRetention->setSuffix( tr( " days" ) );
 	form->addRow( tr( "Keep screenshots for" ), m_screenshotRetention );
 
-	m_screenshotInOffice = new QCheckBox( tr( "Also while the laptop is in the office" ) );
+	m_screenshotAllComputers = new QCheckBox( tr( "All computers of the office, not only roaming laptops" ) );
+	form->addRow( QString{}, m_screenshotAllComputers );
+	m_screenshotInOffice = new QCheckBox( tr( "Roaming laptops also while they are in the office" ) );
 	form->addRow( QString{}, m_screenshotInOffice );
 
 	m_screenshotStatus = new QLabel;
@@ -781,8 +799,8 @@ QWidget* GatewayConfigurationPage::createScreenshotBox()
 
 	auto openButton = new QPushButton( tr( "Open screenshots folder" ) );
 	connect( openButton, &QPushButton::clicked, this, []() {
-		QDir().mkpath( ScreenshotScheduler::directory() );
-		QDesktopServices::openUrl( QUrl::fromLocalFile( ScreenshotScheduler::directory() ) );
+		QDir().mkpath( MonitoringCollector::screenshotDirectory() );
+		QDesktopServices::openUrl( QUrl::fromLocalFile( MonitoringCollector::screenshotDirectory() ) );
 	} );
 	layout->addWidget( openButton, 0, Qt::AlignLeft );
 
@@ -854,6 +872,10 @@ QWidget* GatewayConfigurationPage::createActivityTab()
 {
 	auto tab = new QWidget;
 	auto layout = new QVBoxLayout( tab );
+
+	m_collectAccessLogs = new QCheckBox( tr( "Collect the access logs of all computers (every 15 minutes): who connected "
+											 "to which computer, when and with which functions" ) );
+	layout->addWidget( m_collectAccessLogs );
 
 	auto row = new QHBoxLayout;
 	row->addWidget( new QLabel( tr( "Show" ) ) );

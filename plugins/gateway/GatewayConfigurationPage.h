@@ -110,6 +110,10 @@ private:
 	QComboBox* m_screenshotInterval;
 	QSpinBox* m_screenshotRetention;
 	QCheckBox* m_screenshotInOffice;
+	QCheckBox* m_screenshotAllComputers;
+	QCheckBox* m_collectAccessLogs;
+	class TimelapseView* m_timelapse;
+	int m_recordingsTabIndex{-1};
 	QLabel* m_screenshotStatus;
 
 	// notifications

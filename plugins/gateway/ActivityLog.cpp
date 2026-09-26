@@ -79,6 +79,13 @@ QString ActivityLog::logPath()
 
 void ActivityLog::append( const QString& event, const QString& subject, const QJsonObject& details )
 {
+	appendAt( QDateTime::currentDateTimeUtc(), event, subject, details );
+}
+
+
+
+void ActivityLog::appendAt( const QDateTime& time, const QString& event, const QString& subject, const QJsonObject& details )
+{
 	QDir().mkpath( GatewayState::directory() );
 
 	QLockFile lock( logPath() + QStringLiteral(".lock") );
@@ -102,7 +109,7 @@ void ActivityLog::append( const QString& event, const QString& subject, const QJ
 	}
 
 	auto json = details;
-	json[QStringLiteral("t")] = QDateTime::currentDateTimeUtc().toString( Qt::ISODate );
+	json[QStringLiteral("t")] = time.toUTC().toString( Qt::ISODate );
 	json[QStringLiteral("e")] = event;
 	json[QStringLiteral("s")] = subject;
 	file.write( QJsonDocument( json ).toJson( QJsonDocument::Compact ) + '\n' );
@@ -147,13 +154,16 @@ QList<ActivityLog::Entry> ActivityLog::read( int maximum, const QDateTime& since
 			fileEntries.append( entry );
 		}
 
-		// the current file holds the newer entries
-		for( auto it = fileEntries.crbegin(); it != fileEntries.crend() && entries.size() < maximum; ++it )
-		{
-			entries.append( *it );
-		}
+		entries.append( fileEntries );
 	}
 
+	// collected access logs are appended later than they happened - order by
+	// the time of the event, newest first
+	std::stable_sort( entries.begin(), entries.end(), []( const Entry& a, const Entry& b ) { return a.time > b.time; } );
+	if( entries.size() > maximum )
+	{
+		entries.resize( maximum );
+	}
 	return entries;
 }
 
@@ -204,6 +214,11 @@ QString ActivityLog::eventName( const QString& event )
 		{ QStringLiteral("phone.connected"), QT_TR_NOOP( "Phone connected" ) },
 		{ QStringLiteral("phone.paired"), QT_TR_NOOP( "Phone paired" ) },
 		{ QStringLiteral("phone.rejected"), QT_TR_NOOP( "Access refused" ) },
+		{ QStringLiteral("access.connected"), QT_TR_NOOP( "Access: connected" ) },
+		{ QStringLiteral("access.disconnected"), QT_TR_NOOP( "Access: disconnected" ) },
+		{ QStringLiteral("access.auth_failed"), QT_TR_NOOP( "Access: authentication failed" ) },
+		{ QStringLiteral("access.access_denied"), QT_TR_NOOP( "Access: denied" ) },
+		{ QStringLiteral("access.feature"), QT_TR_NOOP( "Access: function used" ) },
 	};
 	const auto name = names.value( event );
 	return name ? tr( name ) : event;
@@ -241,6 +256,19 @@ QString ActivityLog::describe( const Entry& entry )
 	if( entry.event == QStringLiteral("laptop.screenshot") )
 	{
 		return d[QStringLiteral("file")].toString();
+	}
+	if( entry.event.startsWith( QStringLiteral("access.") ) )
+	{
+		auto text = tr( "from %1 (%2)" ).arg( d[QStringLiteral("host")].toString(), d[QStringLiteral("user")].toString() );
+		if( entry.event == QStringLiteral("access.feature") )
+		{
+			text.prepend( d[QStringLiteral("feature")].toString() + QLatin1Char(' ') );
+		}
+		else if( entry.event == QStringLiteral("access.disconnected") )
+		{
+			text += QStringLiteral(", ") + tr( "after %1" ).arg( duration( d[QStringLiteral("seconds")].toInteger() ) );
+		}
+		return text;
 	}
 	if( entry.event == QStringLiteral("phone.rejected") || entry.event == QStringLiteral("laptop.rejected") )
 	{

@@ -254,6 +254,10 @@ rfbBool VeyonConnection::handleSecTypeVeyon( rfbClient* client, uint32_t authSch
 	{
 		authReplyMessage.write( connection->authenticationCredentials().logonUsername() );
 	}
+	else if( connection->authenticationCredentials().announcedUsername().isEmpty() == false )
+	{
+		authReplyMessage.write( connection->authenticationCredentials().announcedUsername() );
+	}
 	else
 	{
 		authReplyMessage.write(VeyonCore::platform().userFunctions().queryCurrentUserProperty(PlatformUserFunctions::UserProperty::LoginName));

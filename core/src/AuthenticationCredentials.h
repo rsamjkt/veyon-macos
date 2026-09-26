@@ -58,6 +58,18 @@ public:
 		return m_privateKey;
 	}
 
+	// name the connection is announced with instead of the logged-on user
+	// (e.g. "Aruni Gateway" for its automatic visits, see the access log)
+	const QString& announcedUsername() const
+	{
+		return m_announcedUsername;
+	}
+
+	void setAnnouncedUsername( const QString& username )
+	{
+		m_announcedUsername = username;
+	}
+
 	const QString& authenticationKeyName() const
 	{
 		return m_authenticationKeyName;
@@ -112,6 +124,7 @@ public:
 private:
 	CryptoCore::PrivateKey m_privateKey;
 	QString m_authenticationKeyName;
+	QString m_announcedUsername;
 
 	QString m_logonUsername;
 	Password m_logonPassword;

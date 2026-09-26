@@ -24,6 +24,9 @@
 
 #pragma once
 
+#include <QDateTime>
+#include <QHash>
+
 #include <QMap>
 #include <QMutex>
 #include <QSet>
@@ -82,6 +85,8 @@ public:
 
 private:
 	void checkForIncompleteAuthentication( VncServerClient* client );
+	void logDisconnect( VncServerClient* client );
+	void logFeatureUse( VncServerClient* client, const FeatureMessage& message );
 	void showAuthenticationMessage( VncServerClient* client );
 	void showAccessControlMessage( VncServerClient* client );
 	QFutureWatcher<QMap<QString, QString>>* resolveFQDNs( const QStringList& hosts );
@@ -97,6 +102,9 @@ private:
 	static constexpr auto MaximumResolvedHostNames = 1024;
 
 	QStringList m_failedAuthHosts;
+	// access log: connect time per client, last logged use per client+feature
+	QHash<VncServerClient*, QDateTime> m_connectedClients;
+	QHash<QString, QDateTime> m_loggedFeatureUses;
 	QStringList m_failedAccessControlHosts;
 
 	FeatureWorkerManager m_featureWorkerManager;

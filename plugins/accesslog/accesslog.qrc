@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/accesslog">
+        <file>accesslog.png</file>
+    </qresource>
+</RCC>

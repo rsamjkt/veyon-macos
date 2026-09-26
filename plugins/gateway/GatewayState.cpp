@@ -129,6 +129,8 @@ GatewayState GatewayState::load()
 		state.screenshotInterval = screenshots[QStringLiteral("interval")].toInt();
 		state.screenshotRetentionDays = screenshots[QStringLiteral("retentionDays")].toInt( 30 );
 		state.screenshotInOffice = screenshots[QStringLiteral("inOffice")].toBool();
+		state.screenshotAllComputers = screenshots[QStringLiteral("allComputers")].toBool();
+		state.collectAccessLogs = json[QStringLiteral("collectAccessLogs")].toBool( true );
 
 		const auto roaming = json[QStringLiteral("roaming")].toObject();
 		state.roamingEnabled = roaming[QStringLiteral("enabled")].toBool();
@@ -232,7 +234,9 @@ bool GatewayState::save() const
 			{ QStringLiteral("interval"), screenshotInterval },
 			{ QStringLiteral("retentionDays"), screenshotRetentionDays },
 			{ QStringLiteral("inOffice"), screenshotInOffice },
+			{ QStringLiteral("allComputers"), screenshotAllComputers },
 		} },
+		{ QStringLiteral("collectAccessLogs"), collectAccessLogs },
 		{ QStringLiteral("roaming"), QJsonObject{
 			{ QStringLiteral("enabled"), roamingEnabled },
 			{ QStringLiteral("code"), roamingHub.gatewayId.isEmpty() ? QString{} : roamingHub.encode() },

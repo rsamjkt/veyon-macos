@@ -36,11 +36,11 @@
 #include <memory>
 
 #include "GatewayState.h"
+#include "MonitoringCollector.h"
 
 class GatewaySession;
 class NetworkObjectDirectory;
 class Notifier;
-class ScreenshotScheduler;
 
 // Keeps an outbound control connection to the Aruni Relay, accepts Master
 // sessions announced by the relay and lists the computers of this LAN.
@@ -100,6 +100,10 @@ public:
 		bool local;
 	};
 	QList<OnlineLaptop> onlineLaptops() const;
+
+	// computers the monitoring collector visits: online roaming laptops, and
+	// with includeOffice every computer of the office network
+	QList<MonitoringCollector::Target> collectionTargets( bool includeOffice ) const;
 
 	void setScreenshotError( const QString& error );
 
@@ -162,7 +166,7 @@ public:
 	QTcpServer m_directoryServer;
 
 	Notifier* m_notifier;
-	ScreenshotScheduler* m_screenshots;
+	MonitoringCollector* m_collector;
 	QString m_screenshotError;
 	QTimer m_alertTimer;
 	QDateTime m_lastRefusedAlert;

@@ -45,6 +45,8 @@ public:
 	};
 
 	static void append( const QString& event, const QString& subject, const QJsonObject& details = {} );
+	// with the time the event happened (e.g. access logs collected later)
+	static void appendAt( const QDateTime& time, const QString& event, const QString& subject, const QJsonObject& details = {} );
 
 	// newest first; entries of the rotated file are included
 	static QList<Entry> read( int maximum = 5000, const QDateTime& since = {} );
