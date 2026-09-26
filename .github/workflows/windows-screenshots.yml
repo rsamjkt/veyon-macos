@@ -79,6 +79,7 @@ jobs:
             Start-Sleep 2
             $r = New-Object W+RECT
             [W]::GetWindowRect($h, [ref]$r) | Out-Null
+            if ($r.R - $r.L -le 0) { Write-Host "no window for $name"; return }
             $bmp = New-Object System.Drawing.Bitmap ($r.R - $r.L), ($r.B - $r.T)
             $g = [System.Drawing.Graphics]::FromImage($bmp)
             $g.CopyFromScreen($r.L, $r.T, 0, 0, $bmp.Size)
@@ -116,9 +117,12 @@ jobs:
           Stop-Process $conf
 
           $master = Start-Process "$dir\veyon-master.exe" -PassThru
-          WaitWindow $master
-          [W]::MoveWindow($master.MainWindowHandle, 0, 0, 1000, 720, $true) | Out-Null
+          # the first window is the splash screen - wait for the main window
           Start-Sleep 15
+          $master.Refresh()
+          [W]::ShowWindow($master.MainWindowHandle, 3) | Out-Null
+          Start-Sleep 10
+          $master.Refresh()
           Shot $master "windows-master"
           Stop-Process $master
 
