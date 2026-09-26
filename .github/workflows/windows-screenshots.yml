@@ -30,7 +30,7 @@ jobs:
 
       - name: Capture
         run: |
-          Add-Type -AssemblyName System.Drawing, UIAutomationClient, UIAutomationTypes
+          Add-Type -AssemblyName System.Drawing, System.Windows.Forms, UIAutomationClient, UIAutomationTypes
           Add-Type @"
           using System;
           using System.Runtime.InteropServices;
@@ -76,7 +76,7 @@ jobs:
             return $true
           }
 
-          Add-Type -AssemblyName System.Windows.Forms
+          $env:VEYON_CONFIGURATOR_NO_ELEVATION = '1'
           $conf = Start-Process "$dir\veyon-configurator.exe" -PassThru
           WaitWindow $conf
           [W]::MoveWindow($conf.MainWindowHandle, 0, 0, 1000, 720, $true) | Out-Null
