@@ -200,3 +200,31 @@ macOS without accessibility: `CGWindowListCopyWindowInfo` → `screencapture -l 
 - Screenshot: Configurator punya `ARUNI_SCREENSHOT`/`ARUNI_SCREENSHOT_PAGE` (render diri sendiri, tanpa izin Screen Recording);
   Windows lewat workflow `windows-screenshots.yml` (hasil di draft release "CI screenshots", hapus setelahnya — kuota artifact sering penuh).
 - Di runner Windows beberapa `veyon-wcli config set` berturut-turut saling menimpa → pakai satu `config import`.
+
+## Laptop jelajah / roaming laptops (1.3.0 "Diana")
+
+Laptops taken home stay monitored through the office Aruni Gateway (hub).
+- **Agent = reverse master**: `plugins/gateway/RoamingAgent` (runs in veyon-server, lock `aruni-roaming.lock`)
+  connects to the relay as a *master* of the hub (`/v1/connect/<hubId>`) with `MasterHandshake(..., agent=true)`
+  (flag `0x02` in M1). The enrollment token (`ARUNIL1:` code, reusable, `GatewayState::enrollmentToken`) is sent only
+  until the first success (`roaming.registered`) — a removed laptop cannot re-enroll itself.
+- **Hub**: `GatewaySession` with `isAgent()` → `GatewayService::agentConnected` listens on `0.0.0.0:<11100+slot>` and
+  forwards each accepted TCP connection as a stream *to* the agent (`forwardToAgent`, Open(11100,"127.0.0.1")).
+  Agent only allows loopback targets. `TunnelEndpoint` = shared stream/flow-control code (streams opened by the hub
+  wait for `Opened` before reading).
+- **Phone**: hub `hostsJson` adds online, non-local agents as `{host:"<8-byte-hex>.roam.aruni", roaming:true}`;
+  `GatewaySession::mapTarget` maps that host to `127.0.0.1:<slot port>`. Mobile puts them in room
+  "<site> · Di luar kantor" (`MobileApp::publishGatewayHosts`). Entries `IP:11101..11198` found by discovery are
+  filtered from hostsJson (`isRoamingForward`) to avoid duplicates.
+- **Desktop Master**: hub serves JSON on port 11199 (`{site, laptops:[{name,port,id}]}`); `NetworkDiscoveryDirectory`
+  queries 11199 on every found host and publishes location "<site> - outside the office" with hosts `gatewayIP:port`
+  (Veyon parses `host:port`).
+- **"local"**: an agent whose reported IPv4 is in the hub's discovered hosts is hidden (it is in the office).
+- CLI: `veyon-cli gateway enroll <code> | leave | status | enrollmentcode | runroaming` (foreground agent for tests).
+  Windows installer: `/S /ENROLL=<code>`; firewall rule now `localport=11100-11199`.
+- Testing on one Mac: `ARUNI_GATEWAY_DIR=/tmp/agentstate ARUNI_ROAMING_HIDE_ADDRESSES=1 veyon-cli gateway runroaming`
+  acts as a second computer (its own state dir; hide addresses so the hub doesn't treat it as local).
+- Relay gotcha: after a gateway reconnect the old control socket can linger in the Durable Object (closing, dead peer);
+  sessions must be announced to **all** control sockets (fixed in `relay/cloudflare/src/index.js`). Limit raised to 1000
+  sessions per gateway (each agent holds one permanently). Agent pings every 40 s.
+- Not available while away: Demo (clients connect back to the master) and Wake-on-LAN.
