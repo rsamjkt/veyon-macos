@@ -1,5 +1,5 @@
 /*
- * VoiceController.h - AruniVoice push-to-talk / intercom with one computer
+ * BroadcastController.h - voice broadcast (announcement) to many computers
  *
  * Copyright (c) 2026 AruniControl Community
  *
@@ -24,7 +24,6 @@
 
 #pragma once
 
-#include <QElapsedTimer>
 #include <QPointer>
 #include <QTimer>
 
@@ -32,44 +31,47 @@
 
 class AudioEngine;
 
-// AruniVoice with one computer: push-to-talk / open intercom. Uses the
-// plugin's AudioEngine (16 kHz mono PCM) and its feature messages.
-class VoiceController : public FeatureSession
+// AruniVoice broadcast: the teacher speaks to all target computers at once
+// (hold-to-talk or an open microphone). One-way - nothing comes back and the
+// computers never open their microphones; they only show a small notice.
+class BroadcastController : public FeatureSession
 {
 	Q_OBJECT
-	Q_PROPERTY(bool active READ isActive NOTIFY computerChanged)
+	Q_PROPERTY(bool active READ isActive NOTIFY targetsChanged)
+	Q_PROPERTY(QString targetLabel READ targetLabel NOTIFY targetsChanged)
+	Q_PROPERTY(int targetCount READ targetCount NOTIFY targetsChanged)
+	Q_PROPERTY(int onlineCount READ onlineCount NOTIFY targetsChanged)
 	Q_PROPERTY(bool talking READ isTalking NOTIFY stateChanged)
-	Q_PROPERTY(bool intercom READ isIntercom NOTIFY stateChanged)
-	Q_PROPERTY(bool speakerMuted READ isSpeakerMuted WRITE setSpeakerMuted NOTIFY stateChanged)
+	Q_PROPERTY(bool keepOpen READ isKeepOpen NOTIFY stateChanged)
 	Q_PROPERTY(bool microphoneMissing READ isMicrophoneMissing NOTIFY stateChanged)
 	Q_PROPERTY(QString permission READ permission NOTIFY permissionChanged)
-	Q_PROPERTY(qreal micLevel READ micLevel NOTIFY levelsChanged)
-	Q_PROPERTY(qreal remoteLevel READ remoteLevel NOTIFY levelsChanged)
-	Q_PROPERTY(bool remoteSpeaking READ isRemoteSpeaking NOTIFY levelsChanged)
+	Q_PROPERTY(qreal micLevel READ micLevel NOTIFY levelChanged)
 public:
-	explicit VoiceController( ComputerGridModel* computers, QObject* parent = nullptr );
-	~VoiceController() override;
+	explicit BroadcastController( ComputerGridModel* computers, QObject* parent = nullptr );
+	~BroadcastController() override;
 
 	bool isActive() const
 	{
-		return computerUid().isEmpty() == false;
+		return m_active;
 	}
+
+	const QString& targetLabel() const
+	{
+		return m_label;
+	}
+
+	int targetCount() const;
+	int onlineCount() const;
 
 	bool isTalking() const
 	{
 		return m_talking;
 	}
 
-	bool isIntercom() const
+	bool isKeepOpen() const
 	{
-		return m_intercom;
+		return m_keepOpen;
 	}
-
-	bool isSpeakerMuted() const
-	{
-		return m_speakerMuted;
-	}
-	void setSpeakerMuted( bool muted );
 
 	bool isMicrophoneMissing() const
 	{
@@ -84,47 +86,42 @@ public:
 		return m_micLevel;
 	}
 
-	qreal remoteLevel() const
-	{
-		return m_remoteLevel;
-	}
-
-	bool isRemoteSpeaking() const;
-
-	Q_INVOKABLE void open( const QString& uid );
+	// an empty uid list means "all visible computers"
+	Q_INVOKABLE void open( const QStringList& uids, const QString& label );
 	Q_INVOKABLE void end();
 	Q_INVOKABLE void startTalking();
 	Q_INVOKABLE void stopTalking();
-	Q_INVOKABLE void setIntercom( bool enabled );
+	Q_INVOKABLE void setKeepOpen( bool enabled );
 	Q_INVOKABLE void requestPermission();
-	Q_INVOKABLE void openPermissionSettings();
-
-	// 0..1 meter value of a PCM chunk (AudioEngine's 16 bit voice format)
-	static qreal peakLevel( const QByteArray& pcm );
 
 Q_SIGNALS:
+	void targetsChanged();
 	void stateChanged();
 	void permissionChanged();
-	void levelsChanged();
+	void levelChanged();
 	void problem( const QString& message );
 
 protected:
 	void handleMessage( const ComputerControlInterface::Pointer& controlInterface, const FeatureMessage& message ) override;
 
 private:
+	ComputerControlInterfaceList targets() const;
 	bool startCapture();
 	void stopCapture();
-	void setTalking( bool talking );
-	void decayLevels();
+	void sendChunk( const QByteArray& pcm );
+	void flush();
 
 	QPointer<AudioEngine> m_engine;
+	QStringList m_uids;
+	QString m_label;
+	ComputerControlInterfaceList m_audience;	// resolved when the microphone opens
+	QByteArray m_buffer;
+	bool m_active{false};
 	bool m_talking{false};
-	bool m_intercom{false};
-	bool m_speakerMuted{false};
+	bool m_keepOpen{false};
 	bool m_microphoneMissing{false};
 	qreal m_micLevel{0};
-	qreal m_remoteLevel{0};
-	QElapsedTimer m_lastRemoteAudio;
 	QTimer m_levelTimer;
+	QTimer m_onlineTimer;
 
 };

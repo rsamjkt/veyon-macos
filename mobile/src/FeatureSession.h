@@ -45,6 +45,8 @@ class FeatureSession : public QObject
 	Q_PROPERTY(bool online READ isOnline NOTIFY onlineChanged)
 public:
 	FeatureSession( const QString& featureName, ComputerGridModel* computers, QObject* parent = nullptr );
+	// for features with a fixed uid: works even if the plugin isn't loaded in the app
+	FeatureSession( const Feature::Uid& featureUid, ComputerGridModel* computers, QObject* parent = nullptr );
 
 	// the feature's plugin is loaded (and not disabled)
 	bool isAvailable() const
@@ -88,6 +90,8 @@ protected:
 	virtual void handleMessage( const ComputerControlInterface::Pointer& controlInterface, const FeatureMessage& message ) = 0;
 
 private:
+	void listenForReplies();
+
 	ComputerGridModel* m_computers;
 	Feature::Uid m_featureUid;
 	QString m_computerUid;

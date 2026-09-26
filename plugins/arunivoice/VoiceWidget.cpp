@@ -23,6 +23,7 @@
  */
 
 #include <QCheckBox>
+#include <QCloseEvent>
 #include <QLabel>
 #include <QPushButton>
 #include <QVBoxLayout>
@@ -30,7 +31,8 @@
 #include "VoiceWidget.h"
 
 
-VoiceWidget::VoiceWidget( const QString& title, bool showIntercomToggle, QWidget* parent ) :
+VoiceWidget::VoiceWidget( const QString& title, bool showIntercomToggle,
+						  const QString& toggleText, QWidget* parent ) :
 	QWidget( parent, Qt::Window ),
 	m_status( new QLabel( this ) )
 {
@@ -53,7 +55,8 @@ VoiceWidget::VoiceWidget( const QString& title, bool showIntercomToggle, QWidget
 
 	if( showIntercomToggle )
 	{
-		m_intercom = new QCheckBox( tr( "Open intercom (always-on, use a headset)" ), this );
+		m_intercom = new QCheckBox( toggleText.isEmpty() ? tr( "Open intercom (always-on, use a headset)" )
+														 : toggleText, this );
 		layout->addWidget( m_intercom );
 		connect( m_intercom, &QCheckBox::toggled, this, &VoiceWidget::intercomToggled );
 		connect( m_intercom, &QCheckBox::toggled, talkButton, &QPushButton::setDisabled );
@@ -75,4 +78,12 @@ void VoiceWidget::setStatus( const QString& text )
 bool VoiceWidget::intercomEnabled() const
 {
 	return m_intercom != nullptr && m_intercom->isChecked();
+}
+
+
+
+void VoiceWidget::closeEvent( QCloseEvent* event )
+{
+	Q_EMIT closed();
+	QWidget::closeEvent( event );
 }

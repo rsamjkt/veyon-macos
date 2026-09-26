@@ -34,6 +34,7 @@
 #include <QtEndian>
 
 #ifdef Q_OS_ANDROID
+#include <QCoreApplication>
 #include <QJniEnvironment>
 #include <QJniObject>
 #endif

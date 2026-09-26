@@ -1,5 +1,5 @@
 /*
- * VoiceWidget.h - push-to-talk / intercom UI for AruniVoice
+ * BroadcastNotice.h - unobtrusive "teacher is speaking" notice
  *
  * Copyright (c) 2026 Arunika / AruniControl
  *
@@ -24,33 +24,29 @@
 
 #pragma once
 
-#include <QWidget>
+#include <QLabel>
+#include <QTimer>
 
-class QLabel;
-class QCheckBox;
-
-class VoiceWidget : public QWidget
+// Small frameless, always-on-top label shown on the computers while a voice
+// broadcast is playing. It never takes the focus or mouse input and hides
+// itself a few seconds after the last audio chunk.
+class BroadcastNotice : public QLabel
 {
 	Q_OBJECT
 public:
-	// toggleText replaces the label of the intercom check box (e.g. for broadcasts)
-	explicit VoiceWidget( const QString& title, bool showIntercomToggle,
-						  const QString& toggleText = {}, QWidget* parent = nullptr );
+	explicit BroadcastNotice( QWidget* parent = nullptr );
 
-	void setStatus( const QString& text );
-	bool intercomEnabled() const;
-
-Q_SIGNALS:
-	void talkPressed();
-	void talkReleased();
-	void intercomToggled( bool enabled );
-	void closed();
+	// (re)shows the notice and restarts the hide timer
+	void ping( const QString& speaker );
 
 protected:
-	void closeEvent( QCloseEvent* event ) override;
+	void paintEvent( QPaintEvent* event ) override;
 
 private:
-	QLabel* m_status;
-	QCheckBox* m_intercom = nullptr;
+	void placeOnScreen();
+
+	static constexpr int HideDelay = 3000;
+
+	QTimer m_hideTimer;
 
 };

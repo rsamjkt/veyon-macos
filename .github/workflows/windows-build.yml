@@ -23,8 +23,8 @@ on:
   workflow_dispatch:
 
 env:
-  APP_VERSION: 1.4.0
-  APP_CODENAME: Elena
+  APP_VERSION: 1.5.0
+  APP_CODENAME: Fiona
 
 permissions:
   contents: write   # allow uploading assets to the release

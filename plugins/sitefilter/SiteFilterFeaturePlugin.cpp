@@ -395,7 +395,8 @@ bool SiteFilterFeaturePlugin::applySites( const QStringList& sites, QString& err
 		}
 		else
 		{
-			vWarning() << "blocking websites was not approved by an administrator";
+			vWarning() << "blocking websites was not approved by an administrator:"
+					   << QString::fromUtf8( process->readAllStandardError() ).trimmed();
 		}
 	} );
 	process->start( QStringLiteral("/usr/bin/osascript"),

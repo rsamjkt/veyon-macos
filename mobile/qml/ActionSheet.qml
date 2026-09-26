@@ -23,6 +23,7 @@ Sheet {
 				{ key: "lock", icon: "lock", label: qsTr("Kunci layar"), feature: "ScreenLock" },
 				{ key: "unlock", icon: "lock_open", label: qsTr("Buka kunci"), feature: "ScreenLock" },
 				{ key: "message", icon: "chat", label: qsTr("Kirim pesan"), feature: "TextMessage" },
+				{ key: "broadcast", icon: "campaign", label: qsTr("Siaran suara"), feature: "AruniVoiceBroadcast" },
 				{ key: "screenshot", icon: "photo_camera", label: qsTr("Tangkap layar"), feature: "" },
 				{ key: "website", icon: "language", label: qsTr("Buka website"), feature: "OpenWebsite" },
 				{ key: "app", icon: "rocket_launch", label: qsTr("Jalankan aplikasi"), feature: "StartApp" },
@@ -35,7 +36,8 @@ Sheet {
 			actions: [
 				{ key: "chat", icon: "forum", label: qsTr("Chat"), feature: "Chat" },
 				{ key: "voice", icon: "record_voice_over", label: qsTr("Bicara"), feature: "AruniVoice" },
-				{ key: "apps", icon: "apps", label: qsTr("Aplikasi berjalan"), feature: "ApplicationMonitoring" }
+				{ key: "apps", icon: "apps", label: qsTr("Aplikasi berjalan"), feature: "ApplicationMonitoring" },
+				{ key: "accessLog", icon: "history", label: qsTr("Log akses"), feature: "" }
 			]
 		},
 		{
@@ -52,6 +54,7 @@ Sheet {
 			actions: [
 				{ key: "internetOff", icon: "public_off", label: qsTr("Blokir internet"), feature: "InternetAccessControl" },
 				{ key: "internetOn", icon: "public", label: qsTr("Buka internet"), feature: "InternetAccessControl" },
+				{ key: "siteBlock", icon: "block", label: qsTr("Blokir situs"), feature: "" },
 				{ key: "mute", icon: "volume_off", label: qsTr("Bisukan suara"), feature: "AruniMediaMute" },
 				{ key: "unmute", icon: "volume_up", label: qsTr("Nyalakan suara"), feature: "AruniMediaMute" }
 			]
@@ -98,9 +101,18 @@ Sheet {
 			shareSheet.sourceUid = uids[0]
 			shareSheet.open()
 			break
+		case "broadcast":
+			sheet.close()
+			window.openBroadcast(uids, targetLabel)
+			return
+		case "siteBlock":
+			sheet.close()
+			window.openSiteBlock(uids, targetLabel)
+			return
 		case "chat":
 		case "voice":
 		case "apps":
+		case "accessLog":
 			if (uids.length !== 1) {
 				window.toast(qsTr("Tahan kartu satu komputer untuk memilihnya dulu"), "info")
 				break
@@ -110,6 +122,8 @@ Sheet {
 				window.openChat(uids[0])
 			else if (key === "voice")
 				window.openVoice(uids[0])
+			else if (key === "accessLog")
+				window.openAccessLog(uids[0])
 			else
 				window.openApps(uids[0])
 			return

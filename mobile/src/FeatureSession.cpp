@@ -40,6 +40,23 @@ FeatureSession::FeatureSession( const QString& featureName, ComputerGridModel* c
 		}
 	}
 
+	listenForReplies();
+}
+
+
+
+FeatureSession::FeatureSession( const Feature::Uid& featureUid, ComputerGridModel* computers, QObject* parent ) :
+	QObject( parent ),
+	m_computers( computers ),
+	m_featureUid( featureUid )
+{
+	listenForReplies();
+}
+
+
+
+void FeatureSession::listenForReplies()
+{
 	if( isAvailable() )
 	{
 		connect( &VeyonCore::featureManager(), &FeatureManager::featureMessageReceived, this,

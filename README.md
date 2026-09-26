@@ -7,7 +7,7 @@
 **Kendalikan banyak komputer dari satu layar — lintas macOS dan Windows.**
 
 [![Lisensi](https://img.shields.io/badge/lisensi-GPLv2-green.svg)](COPYING)
-[![Versi](https://img.shields.io/badge/versi-1.4.0_"Elena"-F2812F.svg)](https://github.com/rsamjkt/veyon-macos/releases)
+[![Versi](https://img.shields.io/badge/versi-1.5.0_"Fiona"-F2812F.svg)](https://github.com/rsamjkt/veyon-macos/releases)
 [![Platform](https://img.shields.io/badge/platform-macOS_•_Windows-blue.svg)](#-platform-yang-didukung)
 
 </div>
@@ -54,6 +54,11 @@ AruniControl adalah bagian dari keluarga produk **Arunika** (AruniHealth, Arunik
 | 🔄 **Pembaruan otomatis** *(baru 1.4.0)* | Versi baru terpasang sendiri di semua komputer (cek tiap 6 jam, terverifikasi SHA-256) | macOS & Windows |
 | 🔔 **Notifikasi Telegram** *(baru 1.4.0)* | Peringatan ke HP admin: laptop offline terlalu lama, akses ditolak, laptop baru | Gateway |
 | 📜 **Riwayat & tangkapan layar terjadwal** *(baru 1.4.0)* | Catatan laptop (lokasi, pengguna, aplikasi aktif) + ekspor Excel; tangkapan layar berkala | Gateway |
+| 🚫 **Blokir situs** *(baru 1.5.0)* | Blokir situs tertentu per komputer/ruangan (Windows: hosts + matikan DNS-over-HTTPS browser) | Windows (Mac perlu izin admin) |
+| 🗂️ **Log akses** *(baru 1.5.0)* | Siapa mengakses komputer mana, kapan, fungsi apa; dikumpulkan di gateway, ekspor Excel | macOS & Windows |
+| 🎞️ **Rekaman timelapse** *(baru 1.5.0)* | Tangkapan layar berkala semua komputer diputar sebagai timelapse per hari | Gateway |
+| 📢 **Siaran suara** *(baru 1.5.0)* | Bicara ke banyak komputer sekaligus (Master & HP) | macOS & Windows |
+| 📥 **Impor/ekspor daftar komputer** *(baru 1.5.0)* | Dari/ke Excel (CSV) atau tempel langsung dari Excel | Configurator & HP |
 
 ---
 
@@ -70,14 +75,14 @@ AruniControl adalah bagian dari keluarga produk **Arunika** (AruniHealth, Arunik
 
 ## 📥 Download
 
-Ambil rilis terbaru di **[halaman Releases](https://github.com/rsamjkt/veyon-macos/releases/tag/v1.4.0)** — versi **1.4.0 "Elena"**:
+Ambil rilis terbaru di **[halaman Releases](https://github.com/rsamjkt/veyon-macos/releases/tag/v1.5.0)** — versi **1.5.0 "Fiona"**:
 
 | Paket | Untuk |
 |-------|-------|
-| `AruniControl-1.4.0-Elena-macOS-arm64.zip` | Master & Configurator di **macOS** (Apple Silicon) |
-| `AruniControl-Setup-1.4.0-Elena-Windows-x64.exe` | Installer client **Windows** sekali klik |
-| `AruniControl-Server-1.4.0-Elena-Windows-x64.zip` | Client **Windows** lengkap (mandiri) |
-| `AruniControl-1.4.0-Elena-Android-arm64.apk` | **AruniControl Mobile**: Master di HP Android (layar live, kontrol sentuh, semua fitur) |
+| `AruniControl-1.5.0-Fiona-macOS-arm64.zip` | Master & Configurator di **macOS** (Apple Silicon) |
+| `AruniControl-Setup-1.5.0-Fiona-Windows-x64.exe` | Installer client **Windows** sekali klik |
+| `AruniControl-Server-1.5.0-Fiona-Windows-x64.zip` | Client **Windows** lengkap (mandiri) |
+| `AruniControl-1.5.0-Fiona-Android-arm64.apk` | **AruniControl Mobile**: Master di HP Android (layar live, kontrol sentuh, semua fitur) |
 
 ---
 

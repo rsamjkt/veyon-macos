@@ -1,5 +1,6 @@
-# AruniVoice: two-way push-to-talk / intercom audio. Needs Qt Multimedia for
-# cross-platform microphone capture (QAudioSource) and playback (QAudioSink).
+# AruniVoice: two-way push-to-talk / intercom audio and one-to-many voice
+# broadcasts. Needs Qt Multimedia for cross-platform microphone capture
+# (QAudioSource) and playback (QAudioSink).
 include(BuildVeyonPlugin)
 
 find_package(Qt6 REQUIRED COMPONENTS Multimedia)
@@ -11,6 +12,8 @@ build_veyon_plugin(arunivoice
 	AruniVoicePlugin.h
 	AudioEngine.cpp
 	AudioEngine.h
+	BroadcastNotice.cpp
+	BroadcastNotice.h
 	VoiceWidget.cpp
 	VoiceWidget.h
 	arunivoice.qrc

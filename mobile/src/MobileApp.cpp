@@ -123,7 +123,10 @@ MobileApp::MobileApp( VeyonMaster* master, QObject* parent ) :
 	m_updater( new AppUpdater( this ) ),
 	m_chat( new ChatController( m_computers, this ) ),
 	m_voice( new VoiceController( m_computers, this ) ),
-	m_appMonitor( new AppMonitorController( m_computers, this ) )
+	m_appMonitor( new AppMonitorController( m_computers, this ) ),
+	m_broadcast( new BroadcastController( m_computers, this ) ),
+	m_siteFilter( new SiteFilterController( m_computers, this ) ),
+	m_accessLog( new AccessLogController( m_computers, this ) )
 {
 	// connections to computers behind a gateway go through its tunnel
 	VncConnection::setConnectionRedirector( [gateways = m_gateways]( const QString& host, int port,

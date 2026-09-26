@@ -63,6 +63,11 @@ ApplicationWindow {
 	}
 	function openApps(uid) { stack.push(Qt.resolvedUrl("AppsPage.qml"), { computerUid: uid }) }
 	function openVoice(uid) { voiceSheet.start(uid) }
+	function openAccessLog(uid) { stack.push(Qt.resolvedUrl("AccessLogPage.qml"), { computerUid: uid }) }
+
+	// tools for many computers at once (an empty uid list = all visible computers)
+	function openBroadcast(uids, label) { broadcastSheet.start(uids, label) }
+	function openSiteBlock(uids, label) { siteBlockSheet.start(uids, label) }
 
 	function goHome() {
 		stack.replace(null, Qt.resolvedUrl("HomePage.qml"))
@@ -103,7 +108,8 @@ ApplicationWindow {
 		}
 	}
 
-	// development hook (desktop builds): AC_PAGE=auth|settings|rooms|shots|actions|message|remote|welcome
+	// development hook (desktop builds): AC_PAGE=auth|settings|rooms|shots|actions|message|remote|welcome|
+	// broadcast|siteblock|accesslog
 	Timer {
 		running: App.devOption("AC_PAGE").length > 0
 		interval: Number(App.devOption("AC_DELAY") || 2500)
@@ -119,6 +125,12 @@ ApplicationWindow {
 			case "remote":
 				if (App.computers.count > 0)
 					window.openComputer(App.computers.uidAt(0))
+				break
+			case "broadcast": window.openBroadcast([], qsTr("Semua komputer")); break
+			case "siteblock": window.openSiteBlock([], qsTr("Semua komputer")); break
+			case "accesslog":
+				if (App.computers.count > 0)
+					window.openAccessLog(App.computers.uidAt(0))
 				break
 			}
 		}
@@ -138,6 +150,8 @@ ApplicationWindow {
 	}
 
 	VoiceSheet { id: voiceSheet }
+	BroadcastSheet { id: broadcastSheet }
+	SiteBlockSheet { id: siteBlockSheet }
 
 	// in-app notification for chat replies that arrive while that chat is closed
 	Rectangle {

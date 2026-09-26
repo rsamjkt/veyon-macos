@@ -24,8 +24,9 @@ set(mobile_MASTER_SOURCES
 
 file(GLOB mobile_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cpp ${CMAKE_CURRENT_SOURCE_DIR}/src/*.h)
 
-# chat, AruniVoice and application monitoring are driven with the plugins'
-# feature messages (their headers) - AruniVoice's audio engine is shared as is
+# chat, AruniVoice (+ broadcast), application monitoring, site filter and access
+# log are driven with the plugins' feature messages (their headers) -
+# AruniVoice's audio engine is shared as is
 set(PLUGINS_SRC ${CMAKE_SOURCE_DIR}/plugins)
 set(mobile_PLUGIN_SOURCES
 	${PLUGINS_SRC}/arunivoice/AudioEngine.cpp
@@ -58,7 +59,8 @@ qt_add_qml_module(arunicontrol-mobile
 
 target_compile_definitions(arunicontrol-mobile PRIVATE ARUNICONTROL_MOBILE)
 target_include_directories(arunicontrol-mobile PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src ${MASTER_SRC}
-	${PLUGINS_SRC}/chat ${PLUGINS_SRC}/arunivoice ${PLUGINS_SRC}/appmonitoring)
+	${PLUGINS_SRC}/chat ${PLUGINS_SRC}/arunivoice ${PLUGINS_SRC}/appmonitoring
+	${PLUGINS_SRC}/sitefilter ${PLUGINS_SRC}/accesslog)
 find_package(Qt6 REQUIRED COMPONENTS WebSockets Multimedia)
 target_link_libraries(arunicontrol-mobile PRIVATE
 	veyon-core

@@ -25,6 +25,7 @@
 			<a href="#panduan">Panduan</a>
 			<a href="#jarak-jauh">Akses jarak jauh</a>
 			<a href="#admin">Admin</a>
+			<a href="#pengawasan">Pengawasan</a>
 			<a href="#bantuan">Bantuan</a>
 		</nav>
 		<a class="btn small" href="#unduh"><svg><use href="#i-download"/></svg>Unduh</a>
@@ -36,7 +37,7 @@
 <section class="hero">
 	<div class="wrap">
 		<div>
-			<span class="eyebrow"><b>Baru</b> Versi 1.4.0 “Elena” — update otomatis, notifikasi &amp; riwayat</span>
+			<span class="eyebrow"><b>Baru</b> Versi 1.5.0 “Fiona” — blokir situs, log akses, rekaman &amp; siaran suara</span>
 			<h1>Semua komputer lab &amp; kantor, <em>dalam genggaman.</em></h1>
 			<p class="lead">AruniControl menampilkan layar semua komputer dalam satu grid. Kunci layar, kirim pesan, tampilkan layar guru, atau ambil alih mouse &amp; keyboard — dari PC, Mac, atau HP. Bahkan lewat paket data, tanpa VPN.</p>
 			<div class="hero-cta">
@@ -642,6 +643,86 @@
 				<p style="font-size:.9rem">Beri tahu pengguna laptop bahwa layar mereka dapat direkam berkala sesuai kebijakan kantor.</p>
 			</div>
 			<div class="shot"><figure><div class="window"><img class="zoomable" src="/img/mac-cfg-laptop.webp" alt="Tab Laptop"></div><figcaption>Aruni Gateway → Laptop</figcaption></figure></div>
+		</div>
+	</div>
+</section>
+
+<!-- ================= PENGAWASAN ================= -->
+<section id="pengawasan" style="padding-top:0">
+	<div class="wrap">
+		<div class="section-head center">
+			<span class="kicker">Baru di 1.5.0</span>
+			<h2>Pengawasan yang lebih lengkap</h2>
+			<p>Blokir situs per komputer, catatan siapa mengakses komputer mana, rekaman layar semua komputer dalam bentuk timelapse, siaran suara ke seluruh kelas, dan impor daftar komputer langsung dari Excel.</p>
+		</div>
+
+		<div class="guide-step">
+			<div>
+				<span class="num"><b>1</b>Blokir situs</span>
+				<h3>Situs terlarang, per komputer atau per ruangan</h3>
+				<ul>
+					<li>Di Master pilih komputer (atau satu ruangan), klik <b>Blokir situs</b>. Centang pilihan cepat (<i>Media sosial, Video, Game online, Chat</i>) atau ketik sendiri, satu situs per baris.</li>
+					<li>Klik <b>Blokir</b>. Blokir tetap berlaku setelah komputer dinyalakan ulang, sampai Anda klik <b>Buka semua blokir</b>.</li>
+					<li>Di aplikasi HP: menu <b>Aksi → Blokir situs</b>.</li>
+				</ul>
+				<div class="callout info"><svg><use href="#i-info"/></svg><p><b>Windows:</b> langsung berlaku, dan fitur DNS aman di Chrome, Edge, dan Firefox dimatikan agar tidak bisa diakali. <b>Mac:</b> pengguna Mac akan dimintai password administrator sekali setiap daftar berubah. VPN pribadi di komputer pengguna dapat menembus blokir ini.</p></div>
+			</div>
+			<div class="shot"><figure><div class="phone"><img class="zoomable" src="/img/android-siteblock.webp" alt="Blokir situs di HP"></div><figcaption>Blokir situs dari HP</figcaption></figure></div>
+		</div>
+
+		<div class="guide-step flip">
+			<div>
+				<span class="num"><b>2</b>Log akses</span>
+				<h3>Siapa mengakses komputer mana, kapan</h3>
+				<ul>
+					<li>Setiap komputer mencatat Master atau HP yang tersambung (alamat dan pengguna), berapa lama, fungsi yang dipakai (kunci layar, kendalikan, kirim file, matikan, …), serta percobaan akses yang gagal atau ditolak.</li>
+					<li>Di Master: pilih komputer → <b>Log akses</b>, lalu ekspor ke Excel. Di HP: menu komputer → <b>Log akses</b>.</li>
+					<li>Di PC gateway: tab <b>Riwayat</b> mengumpulkan log akses <b>semua komputer</b> setiap 15 menit, jadi bisa dilihat dan diekspor dari satu tempat. Kunjungan otomatis gateway sendiri tidak ikut dicatat di sana.</li>
+				</ul>
+			</div>
+			<div class="shot"><figure><div class="window"><img class="zoomable" src="/img/mac-cfg-log-akses.webp" alt="Log akses di Riwayat"></div><figcaption>Aruni Gateway → Riwayat</figcaption></figure></div>
+		</div>
+
+		<div class="guide-step">
+			<div>
+				<span class="num"><b>3</b>Rekaman timelapse</span>
+				<h3>Rekam layar semua komputer, putar per hari</h3>
+				<ul>
+					<li>Aruni Gateway → tab <b>Laptop</b> → <b>Tangkapan layar terjadwal</b>: pilih interval (5–60 menit) dan centang <b>Semua komputer kantor</b>.</li>
+					<li>Tab <b>Rekaman</b>: pilih komputer dan hari, lalu klik <b>Putar</b>. Kecepatan bisa diatur, dan slider bisa digeser ke jam tertentu.</li>
+					<li>Untuk merekam video penuh saat itu juga, pakai tombol <b>Record screen</b> di Master.</li>
+				</ul>
+			</div>
+			<div class="shot"><figure><div class="window"><img class="zoomable" src="/img/mac-cfg-rekaman.webp" alt="Rekaman timelapse"></div><figcaption>Aruni Gateway → Rekaman (isi layar disamarkan)</figcaption></figure></div>
+		</div>
+
+		<div class="guide-step flip">
+			<div>
+				<span class="num"><b>4</b>Siaran suara</span>
+				<h3>Bicara ke seluruh kelas sekaligus</h3>
+				<ul>
+					<li>Pilih komputer (atau semua), klik <b>Siaran suara</b>, lalu tahan tombol untuk bicara. Suara terdengar di semua komputer terpilih, dan di layar mereka muncul pemberitahuan kecil "Guru sedang berbicara".</li>
+					<li>Dari HP: <b>Aksi → Siaran suara</b>. Untuk percakapan dua arah dengan satu pengguna, pakai <b>Bicara (AruniVoice)</b>.</li>
+				</ul>
+			</div>
+			<div class="shot pair">
+				<figure><div class="phone"><img class="zoomable" src="/img/android-broadcast.webp" alt="Siaran suara"></div><figcaption>Siaran suara</figcaption></figure>
+				<figure><div class="phone"><img class="zoomable" src="/img/android-accesslog.webp" alt="Log akses di HP"></div><figcaption>Log akses di HP</figcaption></figure>
+			</div>
+		</div>
+
+		<div class="guide-step">
+			<div>
+				<span class="num"><b>5</b>Impor dari Excel</span>
+				<h3>Daftar komputer tanpa mengetik satu per satu</h3>
+				<ol>
+					<li>Buat tabel di Excel dengan kolom <b>Ruangan | Nama | Alamat IP | MAC</b> (MAC boleh kosong). Klik <b>Templat…</b> untuk contoh siap isi.</li>
+					<li>Configurator → <b>Lokasi &amp; komputer</b> → <b>Impor dari berkas…</b> (simpan Excel sebagai CSV), atau blok barisnya di Excel, tekan Ctrl+C, lalu klik <b>Tempel dari Excel</b>.</li>
+					<li>Pilih <b>Tambahkan</b> atau <b>Ganti semua</b>, lalu klik <b>Terapkan</b>. Baris yang bermasalah dilaporkan, dan komputer yang sudah ada diperbarui tanpa dobel.</li>
+				</ol>
+				<p><b>Ekspor…</b> menyimpan daftar saat ini ke CSV. Di aplikasi HP: Pengaturan → Ruangan &amp; komputer → ikon impor.</p>
+			</div>
+			<div class="shot"><figure><div class="window"><img class="zoomable" src="/img/mac-cfg-impor.webp" alt="Impor dan ekspor"></div><figcaption>Configurator → Lokasi &amp; komputer</figcaption></figure></div>
 		</div>
 	</div>
 </section>

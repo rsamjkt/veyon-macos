@@ -24,6 +24,7 @@
 
 #pragma once
 
+#include <QElapsedTimer>
 #include <QMap>
 #include <QPointer>
 
@@ -32,6 +33,7 @@
 #include "MessageContext.h"
 
 class AudioEngine;
+class BroadcastNotice;
 class VoiceWidget;
 class VeyonWorkerInterface;
 
@@ -48,13 +50,21 @@ public:
 	{
 		Audio,
 		Enabled,
+		Speaker,	// broadcast: name shown in the notice on the computers
 	};
 
 	enum Command
 	{
-		AudioData,
-		SetIntercom,
+		AudioData,		// voice + broadcast: PCM chunk (AudioEngine format)
+		SetIntercom,	// voice only
 	};
+
+	// one-to-many announcement (no audio comes back, no microphone use on the computers)
+	static constexpr auto BroadcastFeatureName = "AruniVoiceBroadcast";
+
+	// broadcast audio is sent in chunks of ~100 ms (16 kHz mono 16 bit) so the
+	// message rate stays low even for large classes
+	static constexpr int BroadcastChunkSize = 3200;
 
 	Plugin::Uid uid() const override
 	{
@@ -108,7 +118,13 @@ public:
 private:
 	void setupMasterSession( const ComputerControlInterface::Pointer& controlInterface );
 
+	void setupBroadcastWindow();
+	void sendBroadcastChunk( const QByteArray& pcm );
+	void flushBroadcast();
+	bool handleBroadcastOnWorker( const FeatureMessage& message );
+
 	const Feature m_voiceFeature;
+	const Feature m_broadcastFeature;
 	const FeatureList m_features;
 
 	// master side: one talk window + audio engine per computer
@@ -122,5 +138,19 @@ private:
 	QPointer<VoiceWidget> m_workerWidget;
 	AudioEngine* m_workerEngine{nullptr};
 	VeyonWorkerInterface* m_worker{nullptr};
+
+	// broadcast, master side: one window + engine for all selected computers
+	QPointer<VoiceWidget> m_broadcastWidget;
+	AudioEngine* m_broadcastEngine{nullptr};
+	ComputerControlInterfaceList m_broadcastTargets;
+	QByteArray m_broadcastBuffer;
+	QString m_broadcastSpeaker;
+
+	// broadcast, server side: don't hammer a user session that isn't there
+	QElapsedTimer m_broadcastWorkerStartAttempt;
+
+	// broadcast, worker side
+	AudioEngine* m_broadcastPlayer{nullptr};
+	QPointer<BroadcastNotice> m_broadcastNotice;
 
 };

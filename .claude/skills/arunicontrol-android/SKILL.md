@@ -277,3 +277,26 @@ Laptops taken home stay monitored through the office Aruni Gateway (hub).
   with a private key — `sharedKeyName` or the first private key — and waits for a non-uniform frame; the first updates are black).
   Agents report the foreground app (compiled from plugins/appmonitoring platform code).
 - Configurator screenshot helpers: `ARUNI_SCREENSHOT`, `ARUNI_SCREENSHOT_PAGE`, `ARUNI_SCREENSHOT_TAB`, `ARUNI_SCREENSHOT_HEIGHT`.
+
+## 1.5.0 "Fiona": site blocking, access log, timelapse, broadcast, CSV import
+
+- **Site blocking** `plugins/sitefilter` (feature uid c3a5e2d1-…): SetSites/Query/Status. Windows: marked block in the hosts
+  file (+ www./m./mobile.) and Chrome/Edge `DnsOverHttpsMode=off`, Firefox DNSOverHTTPS policy, `ipconfig /flushdns`.
+  macOS: osascript "with administrator privileges" **asynchronously** (a synchronous prompt would freeze veyon-server);
+  only works from a server running in the user's GUI session (LaunchAgent) — started from a plain shell it fails silently.
+  State in `%GLOBALAPPDATA%/sitefilter.json`. Mobile copy of the presets in `mobile/src/SiteFilterController`.
+- **Access log**: `core/src/AccessLog` written by `ComputerControlServer` (connected/disconnected+seconds/auth_failed/
+  access_denied/feature — features with Meta/Builtin flags skipped, same feature+command at most every 10 min) to
+  `%GLOBALAPPDATA%/logs/access.jsonl`; `plugins/accesslog` serves it (Query/Entries) with a Master dialog + CSV.
+  `AuthenticationCredentials::announcedUsername` lets the gateway's own visits appear as "Aruni Gateway" (filtered).
+- **Gateway `MonitoringCollector`** (replaced ScreenshotScheduler): visits online roaming laptops and — with
+  "Semua komputer kantor" — every host of the gateway's network discovery directory (max 4 parallel, 60 s timeout):
+  screenshots every N min, access logs every 15 min into the activity history (`access.*` events, original time via
+  `ActivityLog::appendAt`; read() sorts by time). Cursors in `gateway/access-cursors.json`. Tab "Rekaman" = TimelapseView.
+  A computer with two IPs appears twice (discovery lists addresses).
+- **Voice broadcast** feature `AruniVoiceBroadcast` (uid 6d3f8a52-…) in plugins/arunivoice: one engine, 100 ms chunks to all
+  targets, worker shows `BroadcastNotice` (paints its own rounded background — stylesheets aren't drawn on translucent windows).
+- **CSV import/export** `core/src/ComputerListFile` (Ruangan|Nama|Alamat IP|MAC; separator + header detection), used by
+  Configurator → Lokasi & komputer and the app (Ruangan & komputer → import icon).
+- Known: the app froze (ANR) on the emulator when typing into the site-block field opened over the live remote page;
+  not reproduced from the Home sheet — verify on a real phone.

@@ -24,9 +24,12 @@
 
 #include "AruniVoicePlugin.h"
 #include "AudioEngine.h"
+#include "BroadcastNotice.h"
 #include "VoiceWidget.h"
 #include "ComputerControlInterface.h"
 #include "FeatureWorkerManager.h"
+#include "PlatformPluginInterface.h"
+#include "PlatformUserFunctions.h"
 #include "VeyonServerInterface.h"
 #include "VeyonWorkerInterface.h"
 
@@ -41,7 +44,15 @@ AruniVoicePlugin::AruniVoicePlugin( QObject* parent ) :
 							 tr( "Use this function to talk to the user of a selected computer "
 								 "(push-to-talk or open intercom)." ),
 							 QStringLiteral(":/arunivoice/voice.png") ) ),
-	m_features( { m_voiceFeature } )
+	m_broadcastFeature( Feature( QLatin1String( BroadcastFeatureName ),
+								 Feature::Flag::Action | Feature::Flag::AllComponents,
+								 Feature::Uid( "6d3f8a52-e17b-4c90-a4d8-0b95c2e7f316" ),
+								 Feature::Uid(),
+								 tr( "Voice broadcast" ), {},
+								 tr( "Use this function to speak to all selected computers at once "
+									 "(announcement, no audio comes back)." ),
+								 QStringLiteral(":/arunivoice/voice.png") ) ),
+	m_features( { m_voiceFeature, m_broadcastFeature } )
 {
 }
 
@@ -59,6 +70,10 @@ AruniVoicePlugin::~AruniVoicePlugin()
 	}
 	delete m_workerWidget;
 	delete m_workerEngine;
+	delete m_broadcastWidget;
+	delete m_broadcastEngine;
+	delete m_broadcastPlayer;
+	delete m_broadcastNotice;
 }
 
 
@@ -138,10 +153,122 @@ void AruniVoicePlugin::setupMasterSession( const ComputerControlInterface::Point
 
 
 
+void AruniVoicePlugin::setupBroadcastWindow()
+{
+	if( m_broadcastEngine == nullptr )
+	{
+		m_broadcastEngine = new AudioEngine( this );
+		connect( m_broadcastEngine, &AudioEngine::chunkCaptured, this, &AruniVoicePlugin::sendBroadcastChunk );
+	}
+
+	if( m_broadcastWidget )
+	{
+		return;
+	}
+
+	auto& userFunctions = VeyonCore::platform().userFunctions();
+	m_broadcastSpeaker = userFunctions.queryCurrentUserProperty( PlatformUserFunctions::UserProperty::FullName );
+	if( m_broadcastSpeaker.isEmpty() )
+	{
+		m_broadcastSpeaker = userFunctions.queryCurrentUserProperty( PlatformUserFunctions::UserProperty::LoginName );
+	}
+
+	m_broadcastWidget = new VoiceWidget( tr( "Voice broadcast" ), true, tr( "Keep microphone open" ) );
+	m_broadcastWidget->setAttribute( Qt::WA_DeleteOnClose );
+
+	const auto engine = m_broadcastEngine;
+	const auto widget = m_broadcastWidget.data();
+
+	const auto startTalking = [this, engine, widget]() {
+		engine->startCapture();
+		widget->setStatus( engine->isCapturing() ?
+							   tr( "Speaking to %n computer(s)…", "", int( m_broadcastTargets.size() ) ) :
+							   tr( "No microphone available" ) );
+	};
+	const auto stopTalking = [this, engine, widget]() {
+		engine->stopCapture();
+		flushBroadcast();
+		widget->setStatus( tr( "Ready – %n computer(s)", "", int( m_broadcastTargets.size() ) ) );
+	};
+
+	// push-to-talk
+	connect( widget, &VoiceWidget::talkPressed, this, startTalking );
+	connect( widget, &VoiceWidget::talkReleased, this, [widget, stopTalking]() {
+		if( widget->intercomEnabled() == false )
+		{
+			stopTalking();
+		}
+	} );
+
+	// keep the microphone open (hands-free announcement)
+	connect( widget, &VoiceWidget::intercomToggled, this, [startTalking, stopTalking]( bool on ) {
+		if( on )
+		{
+			startTalking();
+		}
+		else
+		{
+			stopTalking();
+		}
+	} );
+
+	// closing the window always ends the broadcast
+	connect( widget, &VoiceWidget::closed, this, [this, engine]() {
+		engine->stopCapture();
+		flushBroadcast();
+		m_broadcastTargets.clear();
+	} );
+}
+
+
+
+void AruniVoicePlugin::sendBroadcastChunk( const QByteArray& pcm )
+{
+	m_broadcastBuffer.append( pcm );
+	if( m_broadcastBuffer.size() >= BroadcastChunkSize )
+	{
+		flushBroadcast();
+	}
+}
+
+
+
+void AruniVoicePlugin::flushBroadcast()
+{
+	if( m_broadcastBuffer.isEmpty() )
+	{
+		return;
+	}
+
+	sendFeatureMessage( FeatureMessage{ m_broadcastFeature.uid(), AudioData }
+							.addArgument( Argument::Audio, m_broadcastBuffer )
+							.addArgument( Argument::Speaker, m_broadcastSpeaker ),
+						m_broadcastTargets );
+	m_broadcastBuffer.clear();
+}
+
+
+
 bool AruniVoicePlugin::startFeature( VeyonMasterInterface& master, const Feature& feature,
 									 const ComputerControlInterfaceList& computerControlInterfaces )
 {
 	Q_UNUSED(master)
+
+	if( feature.uid() == m_broadcastFeature.uid() )
+	{
+		// one window for all computers; starting again updates the audience
+		flushBroadcast();
+		m_broadcastTargets = computerControlInterfaces;
+		setupBroadcastWindow();
+		if( m_broadcastEngine->isCapturing() == false )
+		{
+			m_broadcastWidget->setStatus( tr( "Ready – %n computer(s)", "", int( m_broadcastTargets.size() ) ) );
+		}
+		m_broadcastWidget->show();
+		m_broadcastWidget->raise();
+		m_broadcastWidget->activateWindow();
+		return true;
+	}
 
 	if( feature.uid() != m_voiceFeature.uid() )
 	{
@@ -188,6 +315,29 @@ bool AruniVoicePlugin::handleFeatureMessage( ComputerControlInterface::Pointer c
 bool AruniVoicePlugin::handleFeatureMessage( VeyonServerInterface& server, const MessageContext& messageContext,
 											 const FeatureMessage& message )
 {
+	if( message.featureUid() == m_broadcastFeature.uid() )
+	{
+		// play in the user's session; the audio is live, so chunks for a session
+		// that isn't there (yet) are dropped instead of queued for later - and
+		// starting the worker is only retried every few seconds
+		auto& workerManager = server.featureWorkerManager();
+		if( workerManager.isWorkerRunning( message.featureUid() ) == false )
+		{
+			if( m_broadcastWorkerStartAttempt.isValid() && m_broadcastWorkerStartAttempt.elapsed() < 5000 )
+			{
+				return true;
+			}
+			m_broadcastWorkerStartAttempt.start();
+			if( workerManager.startUnmanagedSessionWorker( message.featureUid() ) == false )
+			{
+				vDebug() << "AruniVoice broadcast: no user session to play the audio in";
+				return true;
+			}
+		}
+		workerManager.sendMessageToUnmanagedSessionWorker( message );
+		return true;
+	}
+
 	if( message.featureUid() != m_voiceFeature.uid() )
 	{
 		return false;
@@ -205,6 +355,11 @@ bool AruniVoicePlugin::handleFeatureMessage( VeyonServerInterface& server, const
 bool AruniVoicePlugin::handleFeatureMessageFromWorker( VeyonServerInterface& server,
 													   const FeatureMessage& message )
 {
+	if( message.featureUid() == m_broadcastFeature.uid() )
+	{
+		return true; // broadcasts are one-way
+	}
+
 	if( message.featureUid() != m_voiceFeature.uid() )
 	{
 		return false;
@@ -217,6 +372,11 @@ bool AruniVoicePlugin::handleFeatureMessageFromWorker( VeyonServerInterface& ser
 
 bool AruniVoicePlugin::handleFeatureMessage( VeyonWorkerInterface& worker, const FeatureMessage& message )
 {
+	if( message.featureUid() == m_broadcastFeature.uid() )
+	{
+		return handleBroadcastOnWorker( message );
+	}
+
 	if( message.featureUid() != m_voiceFeature.uid() )
 	{
 		return false;
@@ -271,6 +431,31 @@ bool AruniVoicePlugin::handleFeatureMessage( VeyonWorkerInterface& worker, const
 		}
 		m_workerWidget->show();
 	}
+
+	return true;
+}
+
+
+
+bool AruniVoicePlugin::handleBroadcastOnWorker( const FeatureMessage& message )
+{
+	if( message.command<Command>() != AudioData )
+	{
+		return true;
+	}
+
+	// playback only - the computer's microphone is never opened for broadcasts
+	if( m_broadcastPlayer == nullptr )
+	{
+		m_broadcastPlayer = new AudioEngine( this );
+	}
+	m_broadcastPlayer->playChunk( message.argument( Argument::Audio ).toByteArray() );
+
+	if( m_broadcastNotice == nullptr )
+	{
+		m_broadcastNotice = new BroadcastNotice;
+	}
+	m_broadcastNotice->ping( message.argument( Argument::Speaker ).toString() );
 
 	return true;
 }

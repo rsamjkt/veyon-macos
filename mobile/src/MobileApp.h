@@ -31,11 +31,14 @@
 #include "ComputerControlInterface.h"
 #include "FeatureProviderInterface.h"
 
+#include "AccessLogController.h"
 #include "AppMonitorController.h"
 #include "AppUpdater.h"
+#include "BroadcastController.h"
 #include "ChatController.h"
 #include "ComputerGridModel.h"
 #include "GatewayManager.h"
+#include "SiteFilterController.h"
 #include "VoiceController.h"
 #include "VpnController.h"
 
@@ -55,6 +58,9 @@ class MobileApp : public QObject
 	Q_PROPERTY(ChatController* chat READ chat CONSTANT)
 	Q_PROPERTY(VoiceController* voice READ voice CONSTANT)
 	Q_PROPERTY(AppMonitorController* appMonitor READ appMonitor CONSTANT)
+	Q_PROPERTY(BroadcastController* broadcast READ broadcast CONSTANT)
+	Q_PROPERTY(SiteFilterController* siteFilter READ siteFilter CONSTANT)
+	Q_PROPERTY(AccessLogController* accessLog READ accessLog CONSTANT)
 	Q_PROPERTY(AppUpdater* updater READ updater CONSTANT)
 	Q_PROPERTY(bool authenticated READ isAuthenticated NOTIFY authenticationChanged)
 	Q_PROPERTY(QString authMethod READ authMethod NOTIFY authenticationChanged)
@@ -106,6 +112,21 @@ public:
 	AppMonitorController* appMonitor() const
 	{
 		return m_appMonitor;
+	}
+
+	BroadcastController* broadcast() const
+	{
+		return m_broadcast;
+	}
+
+	SiteFilterController* siteFilter() const
+	{
+		return m_siteFilter;
+	}
+
+	AccessLogController* accessLog() const
+	{
+		return m_accessLog;
 	}
 
 	bool isAuthenticated() const;
@@ -204,5 +225,8 @@ private:
 	ChatController* m_chat;
 	VoiceController* m_voice;
 	AppMonitorController* m_appMonitor;
+	BroadcastController* m_broadcast;
+	SiteFilterController* m_siteFilter;
+	AccessLogController* m_accessLog;
 
 };

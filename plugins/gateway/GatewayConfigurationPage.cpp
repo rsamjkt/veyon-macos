@@ -899,7 +899,7 @@ QWidget* GatewayConfigurationPage::createActivityTab()
 	m_activity->horizontalHeader()->resizeSection( 2, 160 );
 	m_activity->horizontalHeader()->setSectionResizeMode( 3, QHeaderView::Stretch );
 	m_activity->setWordWrap( false );
-	m_activity->setTextElideMode( Qt::ElideMiddle );
+	m_activity->setTextElideMode( Qt::ElideRight );
 	m_activity->verticalHeader()->hide();
 	m_activity->setSelectionBehavior( QAbstractItemView::SelectRows );
 	m_activity->setEditTriggers( QAbstractItemView::NoEditTriggers );
