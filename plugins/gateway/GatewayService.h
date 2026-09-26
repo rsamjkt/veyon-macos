@@ -25,6 +25,7 @@
 #pragma once
 
 #include <QDateTime>
+#include <QHostAddress>
 #include <QJsonObject>
 #include <QLockFile>
 #include <QPointer>
@@ -102,6 +103,11 @@ private:
 	void updateDirectory();
 	void writeStatus();
 	QStringList localSubnets() const;
+	static QStringList localAddresses();
+
+public:
+	// loopback, private and link-local addresses
+	static bool isLocalNetworkAddress( const QHostAddress& address );
 
 	static constexpr int StateCheckInterval = 3000;
 	static constexpr int DirectoryUpdateInterval = 60 * 1000;

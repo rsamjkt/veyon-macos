@@ -227,27 +227,7 @@ bool GatewaySession::isAllowedTarget( const QHostAddress& address, quint16 port 
 	}
 
 	// ... on the local network - the gateway is no open proxy
-	if( address.isLoopback() )
-	{
-		return true;
-	}
-
-	if( address.protocol() == QAbstractSocket::IPv4Protocol )
-	{
-		for( const auto& subnet : { QStringLiteral("10.0.0.0/8"), QStringLiteral("172.16.0.0/12"),
-									QStringLiteral("192.168.0.0/16"), QStringLiteral("100.64.0.0/10"),
-									QStringLiteral("169.254.0.0/16") } )
-		{
-			if( address.isInSubnet( QHostAddress::parseSubnet( subnet ) ) )
-			{
-				return true;
-			}
-		}
-		return false;
-	}
-
-	return address.isInSubnet( QHostAddress::parseSubnet( QStringLiteral("fc00::/7") ) ) ||
-		   address.isLinkLocal();
+	return GatewayService::isLocalNetworkAddress( address );
 }
 
 

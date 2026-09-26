@@ -54,6 +54,9 @@ protected:
 	void attachStream( quint32 stream, QTcpSocket* socket );
 	void closeStream( quint32 stream, bool notify );
 	void closeAllStreams();
+	// for endpoints reusing their WebSocket: drops all streams and the flow
+	// control state of the previous connection
+	void resetStreams();
 
 	// Opened/Data/Close; returns false for other frame types
 	bool handleStreamFrame( AruniTunnel::FrameType type, quint32 stream, const QByteArray& payload );
@@ -85,5 +88,7 @@ private:
 	QHash<quint32, QPointer<QTcpSocket>> m_streams;
 	QSet<quint32> m_awaitingOpen;
 	qint64 m_pendingBytes{0};
+	// invalidates name lookups still running for a previous connection
+	quint64 m_epoch{0};
 
 };

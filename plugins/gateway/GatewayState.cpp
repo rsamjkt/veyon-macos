@@ -33,6 +33,7 @@
 #include "Filesystem.h"
 #include "GatewayState.h"
 #include "PlatformFilesystemFunctions.h"
+#include "VeyonConfiguration.h"
 #include "VeyonCore.h"
 
 
@@ -290,6 +291,20 @@ int GatewayState::freeAgentSlot() const
 		}
 	}
 	return 0;
+}
+
+
+
+quint16 GatewayState::agentPort( int slot )
+{
+	return quint16( VeyonCore::config().veyonServerPort() + RoamingPortOffset + slot );
+}
+
+
+
+quint16 GatewayState::directoryPort()
+{
+	return quint16( VeyonCore::config().veyonServerPort() + DirectoryPortOffset );
 }
 
 

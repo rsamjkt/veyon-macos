@@ -31,6 +31,7 @@
 #include <QNetworkInterface>
 #include <QSysInfo>
 
+#include "AccessControlRule.h"
 #include "PlatformFilesystemFunctions.h"
 #include "PlatformUserFunctions.h"
 #include "RoamingAgent.h"
@@ -104,22 +105,19 @@ RoamingAgent::~RoamingAgent()
 QJsonObject RoamingAgent::helloInfo()
 {
 	QJsonArray addresses;
-	if( qEnvironmentVariableIsSet( "ARUNI_ROAMING_HIDE_ADDRESSES" ) == false )
+	const auto interfaces = QNetworkInterface::allInterfaces();
+	for( const auto& iface : interfaces )
 	{
-		const auto interfaces = QNetworkInterface::allInterfaces();
-		for( const auto& iface : interfaces )
+		if( iface.flags().testFlag( QNetworkInterface::IsUp ) == false ||
+			iface.flags().testFlag( QNetworkInterface::IsLoopBack ) )
 		{
-			if( iface.flags().testFlag( QNetworkInterface::IsUp ) == false ||
-				iface.flags().testFlag( QNetworkInterface::IsLoopBack ) )
+			continue;
+		}
+		for( const auto& entry : iface.addressEntries() )
+		{
+			if( entry.ip().protocol() == QAbstractSocket::IPv4Protocol )
 			{
-				continue;
-			}
-			for( const auto& entry : iface.addressEntries() )
-			{
-				if( entry.ip().protocol() == QAbstractSocket::IPv4Protocol )
-				{
-					addresses.append( entry.ip().toString() );
-				}
+				addresses.append( entry.ip().toString() );
 			}
 		}
 	}
@@ -131,6 +129,32 @@ QJsonObject RoamingAgent::helloInfo()
 		{ QStringLiteral("user"), VeyonCore::platform().userFunctions().queryCurrentUserProperty( PlatformUserFunctions::UserProperty::LoginName ) },
 		{ QStringLiteral("addresses"), addresses },
 	};
+}
+
+
+
+QString RoamingAgent::forwardingBlockedReason()
+{
+	// forwarded connections reach the server from 127.0.0.1 - settings that
+	// trust local connections would let anyone reaching the gateway in
+	if( VeyonCore::config().localConnectOnly() )
+	{
+		return tr( "Not possible while \"Allow connections from localhost only\" is enabled" );
+	}
+
+	if( VeyonCore::config().isAccessControlRulesProcessingEnabled() )
+	{
+		const auto rules = VeyonCore::config().accessControlRules();
+		for( const auto& value : rules )
+		{
+			if( AccessControlRule( value ).isConditionEnabled( AccessControlRule::Condition::AccessFromLocalHost ) )
+			{
+				return tr( "Not possible with access control rules for connections from the local computer" );
+			}
+		}
+	}
+
+	return {};
 }
 
 
@@ -173,8 +197,10 @@ void RoamingAgent::checkState()
 		}
 	}
 
+	m_blockedReason = forwardingBlockedReason();
 	const bool wanted = m_state.roamingEnabled && m_state.roamingHub.gatewayId.isEmpty() == false &&
-						m_state.roamingHub.gatewayPublicKey.size() == AruniTunnel::KeySize;
+						m_state.roamingHub.gatewayPublicKey.size() == AruniTunnel::KeySize &&
+						m_blockedReason.isEmpty();
 
 	if( wanted == false )
 	{
@@ -182,13 +208,22 @@ void RoamingAgent::checkState()
 		{
 			m_reconnectTimer.stop();
 			m_socket.close();
-			GatewayState::writeStatus( { { QStringLiteral("running"), false }, { QStringLiteral("enabled"), false } },
-									   QLatin1String( StatusFile ) );
 			m_instanceLock.unlock();
 			m_haveLock = false;
 		}
+		// the laptop is not connected either way - report why (once per change)
+		const auto reason = m_state.roamingEnabled ? m_blockedReason : QString{};
+		if( m_haveLock == false && reason != m_reportedIdleReason )
+		{
+			m_reportedIdleReason = reason;
+			GatewayState::writeStatus( { { QStringLiteral("running"), reason.isEmpty() == false },
+										 { QStringLiteral("enabled"), m_state.roamingEnabled },
+										 { QStringLiteral("error"), reason } }, QLatin1String( StatusFile ) );
+		}
 		return;
 	}
+
+	m_reportedIdleReason = QStringLiteral("-");
 
 	// only one server instance per computer keeps the session
 	if( m_haveLock == false )
@@ -227,6 +262,8 @@ void RoamingAgent::connectToGateway()
 	m_established = false;
 	m_relayConnected = false;
 	m_attemptError.clear();
+	// nothing of the previous connection may leak into this one
+	resetStreams();
 	m_socket.open( url );
 	m_handshakeTimer.start( HandshakeTimeout );
 }
@@ -263,6 +300,11 @@ void RoamingAgent::onBinaryMessage( const QByteArray& message )
 		m_handshake.reset();
 		m_handshakeTimer.stop();
 		m_established = true;
+		m_hubAddresses.clear();
+		for( const auto& address : QJsonDocument::fromJson( gatewayInfo )[QStringLiteral("addresses")].toArray() )
+		{
+			m_hubAddresses.append( address.toString() );
+		}
 		m_rejected = false;
 		m_refusals = 0;
 		m_lastError.clear();
@@ -271,9 +313,16 @@ void RoamingAgent::onBinaryMessage( const QByteArray& message )
 
 		if( m_state.roamingRegistered == false )
 		{
-			GatewayState::update( []( GatewayState& state ) { state.roamingRegistered = true; } );
+			// only for the gateway this session belongs to - the user may have
+			// entered another code meanwhile; the next state check reloads
+			const auto hub = m_state.roamingHub;
+			GatewayState::update( [&hub]( GatewayState& state ) {
+				if( state.roamingHub.gatewayId == hub.gatewayId && state.roamingHub.token == hub.token )
+				{
+					state.roamingRegistered = true;
+				}
+			} );
 			m_state.roamingRegistered = true;
-			m_stateModified = QFileInfo( GatewayState::statePath() ).lastModified();
 		}
 
 		vInfo() << "roaming laptop connected to office gateway" << m_state.roamingHub.siteName;
@@ -368,7 +417,70 @@ void RoamingAgent::onDisconnected()
 
 void RoamingAgent::sendHello()
 {
-	sendFrame( AruniTunnel::FrameType::AgentHello, 0, QJsonDocument( helloInfo() ).toJson( QJsonDocument::Compact ) );
+	probeOffice( [this]( bool inOffice ) {
+		m_inOffice = inOffice;
+		auto hello = helloInfo();
+		hello[QStringLiteral("local")] = inOffice;
+		sendFrame( AruniTunnel::FrameType::AgentHello, 0, QJsonDocument( hello ).toJson( QJsonDocument::Compact ) );
+		writeStatus();
+	} );
+}
+
+
+
+void RoamingAgent::probeOffice( const std::function<void(bool)>& done )
+{
+	// for testing the away case on the gateway's own network
+	if( m_hubAddresses.isEmpty() || qEnvironmentVariableIsSet( "ARUNI_ROAMING_FORCE_AWAY" ) )
+	{
+		done( false );
+		return;
+	}
+
+	struct Probe
+	{
+		int pending{0};
+		bool found{false};
+		bool reported{false};
+	};
+	auto probe = std::make_shared<Probe>();
+	probe->pending = int( m_hubAddresses.size() );
+	const auto hubId = m_state.roamingHub.gatewayId;
+
+	const auto finishOne = [probe, done]( bool found ) {
+		probe->found = probe->found || found;
+		--probe->pending;
+		if( probe->reported == false && ( probe->found || probe->pending <= 0 ) )
+		{
+			probe->reported = true;
+			done( probe->found );
+		}
+	};
+
+	for( const auto& address : std::as_const( m_hubAddresses ) )
+	{
+		auto socket = new QTcpSocket( this );
+		auto buffer = std::make_shared<QByteArray>();
+		auto finished = std::make_shared<bool>( false );
+		const auto complete = [socket, buffer, finished, finishOne, hubId]( bool answered ) {
+			if( *finished )
+			{
+				return;
+			}
+			*finished = true;
+			socket->abort();
+			socket->deleteLater();
+			finishOne( answered && QJsonDocument::fromJson( *buffer )[QStringLiteral("id")].toString() == hubId );
+		};
+
+		connect( socket, &QTcpSocket::readyRead, socket, [socket, buffer]() { buffer->append( socket->readAll() ); } );
+		connect( socket, &QTcpSocket::disconnected, socket, [complete]() { complete( true ); } );
+		connect( socket, &QTcpSocket::errorOccurred, socket, [complete]( QAbstractSocket::SocketError error ) {
+			complete( error == QAbstractSocket::RemoteHostClosedError );
+		} );
+		QTimer::singleShot( OfficeProbeTimeout, socket, [complete]() { complete( false ); } );
+		socket->connectToHost( address, GatewayState::directoryPort() );
+	}
 }
 
 
@@ -387,6 +499,7 @@ void RoamingAgent::writeStatus()
 		{ QStringLiteral("rejected"), m_rejected },
 		{ QStringLiteral("error"), m_lastError },
 		{ QStringLiteral("site"), m_state.roamingHub.siteName },
+		{ QStringLiteral("inOffice"), m_established && m_inOffice },
 		{ QStringLiteral("since"), m_established ? m_connectedSince.toString( Qt::ISODate ) : QString{} },
 		{ QStringLiteral("updated"), QDateTime::currentDateTimeUtc().toString( Qt::ISODate ) },
 	}, QLatin1String( StatusFile ) );

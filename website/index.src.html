@@ -528,7 +528,7 @@
 				<h3>Lihat laptop dari HP atau Master kantor</h3>
 				<ul>
 					<li><b>Aplikasi HP</b> (yang sudah dipasangkan dengan gateway): laptop yang sedang di luar muncul di ruangan <b>"&lt;lokasi&gt; · Di luar kantor"</b>, lengkap dengan layar live, kontrol, kunci layar, dan pesan.</li>
-					<li><b>Master di kantor</b> (backend <i>Network discovery</i>): muncul otomatis di lokasi <b>"&lt;lokasi&gt; - outside the office"</b>. Dengan backend <i>Builtin</i>, tambahkan komputer dengan alamat <code>IP-gateway:port</code> (port ada di tabel langkah 1, mis. <code>192.168.1.10:11101</code>).</li>
+					<li><b>Master di kantor</b> (backend <i>Network discovery</i>): muncul otomatis di lokasi <b>"&lt;lokasi&gt; - outside the office"</b>. Dengan backend <i>Builtin</i>, tambahkan komputer dengan alamat <code>IP-gateway:port</code> (port ada di tabel langkah 1, mis. <code>192.168.1.10:11601</code>).</li>
 					<li>Begitu laptop kembali ke kantor, ia tampil lagi seperti komputer biasa di jaringan lokal.</li>
 				</ul>
 				<div class="callout"><svg><use href="#i-error"/></svg><p>Selama di luar kantor, <b>Demo</b> (menampilkan layar guru ke laptop) dan <b>Nyalakan (Wake-on-LAN)</b> tidak bisa dipakai, karena laptop tidak bisa dijangkau langsung. Fitur lain tetap jalan: pantau, kendalikan, kunci layar, pesan, kirim file, dan blokir internet.</p></div>
@@ -589,7 +589,7 @@
 					<li><b>"The office gateway refused this laptop"</b>: laptop sudah dihapus dari daftar, atau kode diganti sebelum laptop sempat terdaftar. Masukkan kode terbaru dari gateway.</li>
 					<li>Laptop harus menyala dan terhubung internet, dan layanan AruniControl harus berjalan (Configurator → Service).</li>
 				</ul>
-				<p>Di Master kantor, laptop hanya muncul otomatis bila backend direktori adalah <i>Network discovery</i> dan port <code>11100</code>–<code>11199</code> di PC gateway tidak diblokir firewall. Installer Windows versi 1.3.0 sudah membukanya.</p>
+				<p>Di Master kantor, laptop hanya muncul otomatis bila backend direktori adalah <i>Network discovery</i> dan port <code>11100</code>–<code>11699</code> di PC gateway tidak diblokir firewall. Installer Windows versi 1.3.0 sudah membukanya.</p>
 			</div></details>
 			<details class="card"><summary>Port apa saja yang dipakai?</summary><div>
 				<div class="table-wrap"><table class="table">
@@ -597,8 +597,8 @@
 					<tr><td><code>11100</code> TCP</td><td>Koneksi Master → komputer (wajib dibuka di firewall)</td></tr>
 					<tr><td><code>11200</code> TCP</td><td>Server layar internal (hanya lokal)</td></tr>
 					<tr><td><code>11300</code> TCP</td><td>Fitur internal (hanya lokal)</td></tr>
-					<tr><td><code>11101</code>–<code>11198</code> TCP</td><td>Di PC gateway: penerusan ke laptop jelajah (satu port per laptop)</td></tr>
-					<tr><td><code>11199</code> TCP</td><td>Di PC gateway: daftar laptop jelajah untuk Master di kantor</td></tr>
+					<tr><td><code>11601</code>–<code>11698</code> TCP</td><td>Di PC gateway: penerusan ke laptop jelajah (satu port per laptop)</td></tr>
+					<tr><td><code>11699</code> TCP</td><td>Di PC gateway: daftar laptop jelajah untuk Master di kantor</td></tr>
 					<tr><td><code>443</code> keluar</td><td>Aruni Gateway &amp; laptop jelajah → relay (tidak perlu port forwarding)</td></tr>
 				</table></div>
 			</div></details>

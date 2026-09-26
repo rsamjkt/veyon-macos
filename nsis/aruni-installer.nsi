@@ -6,7 +6,7 @@
 ;   OUTFILE  - output installer path
 ;   ICON     - .ico used for the installer/uninstaller
 ; Optional:
-;   VERSION  - product version string (default 1.3.0)
+;   VERSION  - product version string (default 1.3.1)
 ;
 ; Command line of the installer (besides /S for a silent install):
 ;   /ENROLL=<code> - make this laptop a roaming laptop of the office gateway
@@ -17,7 +17,7 @@ Unicode true
 !define PRODUCT "AruniControl"
 !define PUBLISHER "Arunika"
 !ifndef VERSION
-  !define VERSION "1.3.0"
+  !define VERSION "1.3.1"
 !endif
 !ifndef ICON
   !define ICON "installer.ico"
@@ -69,11 +69,12 @@ Section "AruniControl Server" SecMain
   nsExec::ExecToLog '"$INSTDIR\veyon-wcli.exe" service start'
 
   ; allow the server through Windows Firewall (inbound): 11100 control port,
-  ; 11101-11198 roaming laptops forwarded by the Aruni Gateway, 11199 its
-  ; directory for Masters on the office network
+  ; 11601-11698 roaming laptops forwarded by the Aruni Gateway, 11699 its
+  ; directory for Masters on the office network (both LAN only, see
+  ; GatewayService::isLocalNetworkAddress)
   DetailPrint "Menambah aturan firewall..."
   nsExec::ExecToLog 'netsh advfirewall firewall delete rule name="AruniControl Server"'
-  nsExec::ExecToLog 'netsh advfirewall firewall add rule name="AruniControl Server" dir=in action=allow program="$INSTDIR\veyon-server.exe" protocol=TCP localport=11100-11199 enable=yes'
+  nsExec::ExecToLog 'netsh advfirewall firewall add rule name="AruniControl Server" dir=in action=allow program="$INSTDIR\veyon-server.exe" protocol=TCP localport=11100,11601-11699 enable=yes'
 
   ; roaming laptop enrollment for mass deployment: setup.exe /S /ENROLL=ARUNIL1:...
   ${GetParameters} $0

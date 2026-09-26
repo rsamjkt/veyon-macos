@@ -159,7 +159,10 @@ export class GatewayRoom {
 			} catch {}
 		}
 
-		await this.state.storage.setAlarm(Date.now() + ACCEPT_TIMEOUT_MS);
+		// an earlier alarm (another waiting session) is due first and reschedules
+		if ((await this.state.storage.getAlarm()) === null) {
+			await this.state.storage.setAlarm(Date.now() + ACCEPT_TIMEOUT_MS);
+		}
 		return new Response(null, { status: 101, webSocket: client });
 	}
 
@@ -245,7 +248,7 @@ export class GatewayRoom {
 	// masters whose gateway never picked the session up
 	async alarm() {
 		const now = Date.now();
-		let next = 0;
+		let next = Infinity;
 		for (const ws of this.state.getWebSockets("master")) {
 			const info = ws.deserializeAttachment() ?? {};
 			if (this.state.getWebSockets(`g:${info.sessionId}`).length > 0) {
@@ -257,10 +260,12 @@ export class GatewayRoom {
 				} catch {}
 				await this.state.storage.delete(`pending:${info.sessionId}`);
 			} else {
-				next = Math.max(next, (info.created ?? now) + ACCEPT_TIMEOUT_MS);
+				// the earliest remaining deadline, so no master waits longer than
+				// ACCEPT_TIMEOUT_MS for an answer
+				next = Math.min(next, (info.created ?? now) + ACCEPT_TIMEOUT_MS);
 			}
 		}
-		if (next > 0) {
+		if (next !== Infinity) {
 			await this.state.storage.setAlarm(next);
 		}
 	}

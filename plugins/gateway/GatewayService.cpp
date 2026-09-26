@@ -95,7 +95,10 @@ GatewayService::GatewayService( QObject* parent ) :
 		while( auto socket = m_directoryServer.nextPendingConnection() )
 		{
 			connect( socket, &QTcpSocket::disconnected, socket, &QObject::deleteLater );
-			socket->write( roamingDirectoryJson() );
+			if( isLocalNetworkAddress( socket->peerAddress() ) )
+			{
+				socket->write( roamingDirectoryJson() );
+			}
 			socket->disconnectFromHost();
 		}
 	} );
@@ -154,7 +157,6 @@ bool GatewayService::authorizeDevice( const QByteArray& deviceKey, const QByteAr
 	{
 		m_state.devices.append( device );
 		m_state.pairingToken.clear();
-		m_stateModified = QFileInfo( GatewayState::statePath() ).lastModified();
 		vInfo() << "Aruni Gateway: paired new device" << device.name;
 	}
 
@@ -188,7 +190,6 @@ void GatewayService::markDeviceSeen( const QByteArray& deviceKey )
 			}
 		}
 	} );
-	m_stateModified = QFileInfo( GatewayState::statePath() ).lastModified();
 }
 
 
@@ -201,6 +202,8 @@ QByteArray GatewayService::gatewayInfo() const
 		{ QStringLiteral("version"), VeyonCore::versionString() },
 		{ QStringLiteral("port"), VeyonCore::config().veyonServerPort() },
 		{ QStringLiteral("subnets"), QJsonArray::fromStringList( localSubnets() ) },
+		// lets a roaming laptop find out whether it is in the office
+		{ QStringLiteral("addresses"), QJsonArray::fromStringList( localAddresses() ) },
 		{ QStringLiteral("keyAvailable"), sharedKeyJson().isEmpty() == false },
 	} ).toJson( QJsonDocument::Compact );
 }
@@ -322,8 +325,7 @@ bool GatewayService::authorizeAgent( const QByteArray& agentKey, const QByteArra
 	}
 
 	m_state.agents.append( agent );
-	m_stateModified = QFileInfo( GatewayState::statePath() ).lastModified();
-	vInfo() << "Aruni Gateway: registered roaming laptop" << agent.name << "on port" << VeyonCore::config().veyonServerPort() + agent.slot;
+	vInfo() << "Aruni Gateway: registered roaming laptop" << agent.name << "on port" << GatewayState::agentPort( agent.slot );
 	return true;
 }
 
@@ -351,7 +353,7 @@ void GatewayService::agentConnected( GatewaySession* session )
 	dropAgent( key );
 
 	auto server = new QTcpServer( this );
-	const auto port = quint16( VeyonCore::config().veyonServerPort() + agent->slot );
+	const auto port = GatewayState::agentPort( agent->slot );
 	if( server->listen( QHostAddress::Any, port ) == false )
 	{
 		vWarning() << "Aruni Gateway: cannot listen on port" << port << "for" << agent->name << server->errorString();
@@ -364,7 +366,8 @@ void GatewayService::agentConnected( GatewaySession* session )
 	connect( server, &QTcpServer::newConnection, this, [server, sessionPointer]() {
 		while( auto socket = server->nextPendingConnection() )
 		{
-			if( sessionPointer )
+			// Masters of the office network only - never the internet
+			if( sessionPointer && isLocalNetworkAddress( socket->peerAddress() ) )
 			{
 				sessionPointer->forwardToAgent( socket );
 			}
@@ -408,7 +411,6 @@ void GatewayService::agentDisconnected( GatewaySession* session )
 			}
 		}
 	} );
-	m_stateModified = QFileInfo( GatewayState::statePath() ).lastModified();
 
 	writeStatus();
 }
@@ -434,7 +436,7 @@ quint16 GatewayService::agentPort( const QString& host ) const
 		const auto agent = findAgent( it.key() );
 		if( agent && agent->id().compare( host, Qt::CaseInsensitive ) == 0 )
 		{
-			return quint16( VeyonCore::config().veyonServerPort() + agent->slot );
+			return GatewayState::agentPort( agent->slot );
 		}
 	}
 	return 0;
@@ -453,8 +455,7 @@ bool GatewayService::isRoamingForward( const QString& host )
 		return false;
 	}
 	const auto port = host.mid( separator + 1 ).toInt();
-	const auto basePort = VeyonCore::config().veyonServerPort();
-	return port > basePort && port <= basePort + GatewayState::MaxAgentSlot;
+	return port >= GatewayState::agentPort( 1 ) && port <= GatewayState::agentPort( GatewayState::MaxAgentSlot );
 }
 
 
@@ -475,31 +476,9 @@ const GatewayState::Agent* GatewayService::findAgent( const QByteArray& agentKey
 
 bool GatewayService::isAgentLocal( const OnlineAgent& agent ) const
 {
-	// the laptop is in the office if this gateway's network discovery found an
-	// AruniControl server at one of its addresses
-	if( m_directory == nullptr )
-	{
-		return false;
-	}
-
-	const auto addresses = agent.hello[QStringLiteral("addresses")].toArray();
-	if( addresses.isEmpty() )
-	{
-		return false;
-	}
-
-	const auto objects = m_directory->queryObjects( NetworkObject::Type::Host, NetworkObject::Attribute::None, {} );
-	for( const auto& object : objects )
-	{
-		for( const auto& address : addresses )
-		{
-			if( object.hostAddress() == address.toString() )
-			{
-				return true;
-			}
-		}
-	}
-	return false;
+	// the laptop reports whether it reached this gateway's directory service on
+	// the local network (see RoamingAgent::probeOffice())
+	return agent.hello[QStringLiteral("local")].toBool();
 }
 
 
@@ -543,7 +522,7 @@ void GatewayService::updateDirectoryServer()
 	const bool wanted = m_haveLock && m_state.enabled;
 	if( wanted && m_directoryServer.isListening() == false )
 	{
-		const auto port = quint16( VeyonCore::config().veyonServerPort() + GatewayState::DirectoryPortOffset );
+		const auto port = GatewayState::directoryPort();
 		if( m_directoryServer.listen( QHostAddress::Any, port ) == false )
 		{
 			vWarning() << "Aruni Gateway: cannot listen on directory port" << port << m_directoryServer.errorString();
@@ -567,13 +546,14 @@ QByteArray GatewayService::roamingDirectoryJson() const
 		{
 			laptops.append( QJsonObject{
 				{ QStringLiteral("name"), agent->name },
-				{ QStringLiteral("port"), VeyonCore::config().veyonServerPort() + agent->slot },
+				{ QStringLiteral("port"), GatewayState::agentPort( agent->slot ) },
 				{ QStringLiteral("id"), agent->id() },
 			} );
 		}
 	}
 
 	return QJsonDocument( QJsonObject{
+		{ QStringLiteral("id"), m_state.gatewayId },
 		{ QStringLiteral("site"), m_state.siteName },
 		{ QStringLiteral("laptops"), laptops },
 	} ).toJson( QJsonDocument::Compact );
@@ -799,6 +779,64 @@ void GatewayService::writeStatus()
 		{ QStringLiteral("relay"), m_state.relayUrl },
 		{ QStringLiteral("updated"), QDateTime::currentDateTimeUtc().toString( Qt::ISODate ) },
 	} );
+}
+
+
+
+bool GatewayService::isLocalNetworkAddress( const QHostAddress& address )
+{
+	if( address.isLoopback() )
+	{
+		return true;
+	}
+
+	// IPv4-mapped IPv6 addresses (dual-stack sockets)
+	bool isIPv4 = false;
+	const QHostAddress ipv4( address.toIPv4Address( &isIPv4 ) );
+	if( isIPv4 )
+	{
+		if( ipv4.isLoopback() )
+		{
+			return true;
+		}
+		for( const auto& subnet : { QStringLiteral("10.0.0.0/8"), QStringLiteral("172.16.0.0/12"),
+									QStringLiteral("192.168.0.0/16"), QStringLiteral("100.64.0.0/10"),
+									QStringLiteral("169.254.0.0/16") } )
+		{
+			if( ipv4.isInSubnet( QHostAddress::parseSubnet( subnet ) ) )
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+
+	return address.isInSubnet( QHostAddress::parseSubnet( QStringLiteral("fc00::/7") ) ) ||
+		   address.isLinkLocal();
+}
+
+
+
+QStringList GatewayService::localAddresses()
+{
+	QStringList addresses;
+	const auto interfaces = QNetworkInterface::allInterfaces();
+	for( const auto& iface : interfaces )
+	{
+		if( iface.flags().testFlag( QNetworkInterface::IsUp ) == false ||
+			iface.flags().testFlag( QNetworkInterface::IsLoopBack ) )
+		{
+			continue;
+		}
+		for( const auto& entry : iface.addressEntries() )
+		{
+			if( entry.ip().protocol() == QAbstractSocket::IPv4Protocol )
+			{
+				addresses.append( entry.ip().toString() );
+			}
+		}
+	}
+	return addresses;
 }
 
 

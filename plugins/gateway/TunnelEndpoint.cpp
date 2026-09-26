@@ -104,8 +104,9 @@ void TunnelEndpoint::openStream( quint32 stream, const QByteArray& payload )
 		return;
 	}
 
-	QHostInfo::lookupHost( host, this, [this, stream, port, host, connectTo]( const QHostInfo& info ) {
-		if( m_streams.contains( stream ) == false )
+	QHostInfo::lookupHost( host, this, [this, stream, port, host, connectTo, epoch = m_epoch]( const QHostInfo& info ) {
+		// the stream must still be the placeholder reserved above
+		if( epoch != m_epoch || m_streams.contains( stream ) == false || m_streams.value( stream ).isNull() == false )
 		{
 			return;
 		}
@@ -188,6 +189,16 @@ void TunnelEndpoint::closeAllStreams()
 	{
 		closeStream( stream, false );
 	}
+}
+
+
+
+void TunnelEndpoint::resetStreams()
+{
+	closeAllStreams();
+	m_awaitingOpen.clear();
+	m_pendingBytes = 0;
+	++m_epoch;
 }
 
 

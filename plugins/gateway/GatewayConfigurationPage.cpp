@@ -49,6 +49,7 @@
 #include "GatewayConfigurationPage.h"
 #include "Filesystem.h"
 #include "GatewayState.h"
+#include "RoamingAgent.h"
 #include "VeyonConfiguration.h"
 #include "VeyonCore.h"
 
@@ -516,7 +517,7 @@ void GatewayConfigurationPage::refreshRoaming()
 				}
 			}
 			m_laptops->setItem( row, 1, statusItem );
-			m_laptops->setItem( row, 2, new QTableWidgetItem( QString::number( VeyonCore::config().veyonServerPort() + agent.slot ) ) );
+			m_laptops->setItem( row, 2, new QTableWidgetItem( QString::number( GatewayState::agentPort( agent.slot ) ) ) );
 			m_laptops->setItem( row, 3, new QTableWidgetItem( online.contains( key ) ? tr( "now" ) :
 				QLocale().toString( agent.lastSeen.toLocalTime(), QLocale::ShortFormat ) ) );
 			++row;
@@ -539,14 +540,22 @@ void GatewayConfigurationPage::refreshRoaming()
 	{
 		const auto status = GatewayState::readStatus( QStringLiteral("roaming-status.json") );
 		const auto site = state.roamingHub.siteName.toHtmlEscaped();
-		if( status.value( QStringLiteral("running") ).toBool() == false )
+		const auto blocked = RoamingAgent::forwardingBlockedReason();
+		if( blocked.isEmpty() == false )
+		{
+			text = blocked.toHtmlEscaped();
+			color = QStringLiteral("#dc3b3f");
+		}
+		else if( status.value( QStringLiteral("running") ).toBool() == false )
 		{
 			text = tr( "Enabled - waiting for the AruniControl service" );
 			color = QStringLiteral("#d48e00");
 		}
 		else if( status.value( QStringLiteral("connected") ).toBool() )
 		{
-			text = tr( "Connected to \"%1\" - this laptop can be monitored from anywhere" ).arg( site );
+			text = status.value( QStringLiteral("inOffice") ).toBool() ?
+					   tr( "Connected to \"%1\" - currently in the office" ).arg( site ) :
+					   tr( "Connected to \"%1\" - this laptop can be monitored from anywhere" ).arg( site );
 			color = QStringLiteral("#1f9d55");
 		}
 		else

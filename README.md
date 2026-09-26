@@ -7,7 +7,7 @@
 **Kendalikan banyak komputer dari satu layar — lintas macOS dan Windows.**
 
 [![Lisensi](https://img.shields.io/badge/lisensi-GPLv2-green.svg)](COPYING)
-[![Versi](https://img.shields.io/badge/versi-1.3.0_"Diana"-F2812F.svg)](https://github.com/rsamjkt/veyon-macos/releases)
+[![Versi](https://img.shields.io/badge/versi-1.3.1_"Diana"-F2812F.svg)](https://github.com/rsamjkt/veyon-macos/releases)
 [![Platform](https://img.shields.io/badge/platform-macOS_•_Windows-blue.svg)](#-platform-yang-didukung)
 
 </div>
@@ -67,14 +67,14 @@ AruniControl adalah bagian dari keluarga produk **Arunika** (AruniHealth, Arunik
 
 ## 📥 Download
 
-Ambil rilis terbaru di **[halaman Releases](https://github.com/rsamjkt/veyon-macos/releases/tag/v1.3.0)** — versi **1.3.0 "Diana"**:
+Ambil rilis terbaru di **[halaman Releases](https://github.com/rsamjkt/veyon-macos/releases/tag/v1.3.1)** — versi **1.3.1 "Diana"**:
 
 | Paket | Untuk |
 |-------|-------|
-| `AruniControl-1.3.0-Diana-macOS-arm64.zip` | Master & Configurator di **macOS** (Apple Silicon) |
-| `AruniControl-Setup-1.3.0-Diana-Windows-x64.exe` | Installer client **Windows** sekali klik |
-| `AruniControl-Server-1.3.0-Diana-Windows-x64.zip` | Client **Windows** lengkap (mandiri) |
-| `AruniControl-1.3.0-Diana-Android-arm64.apk` | **AruniControl Mobile**: Master di HP Android (layar live, kontrol sentuh, semua fitur) |
+| `AruniControl-1.3.1-Diana-macOS-arm64.zip` | Master & Configurator di **macOS** (Apple Silicon) |
+| `AruniControl-Setup-1.3.1-Diana-Windows-x64.exe` | Installer client **Windows** sekali klik |
+| `AruniControl-Server-1.3.1-Diana-Windows-x64.zip` | Client **Windows** lengkap (mandiri) |
+| `AruniControl-1.3.1-Diana-Android-arm64.apk` | **AruniControl Mobile**: Master di HP Android (layar live, kontrol sentuh, semua fitur) |
 
 ---
 

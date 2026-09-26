@@ -28,6 +28,7 @@
 #include <QLockFile>
 #include <QTimer>
 
+#include <functional>
 #include <memory>
 
 #include "GatewayState.h"
@@ -45,6 +46,8 @@ public:
 	~RoamingAgent() override;
 
 	static QJsonObject helloInfo();
+	// why this computer must not accept forwarded connections, empty if fine
+	static QString forwardingBlockedReason();
 
 protected:
 	bool isAllowedTarget( const QHostAddress& address, quint16 port ) const override;
@@ -56,6 +59,9 @@ private:
 	void onBinaryMessage( const QByteArray& message );
 	void onDisconnected();
 	void sendHello();
+	// in the office when the gateway's directory service answers with its id
+	// on one of its LAN addresses - a home network with the same subnet does not
+	void probeOffice( const std::function<void(bool)>& done );
 	void writeStatus();
 
 	static constexpr int StateCheckInterval = 3000;
@@ -64,6 +70,7 @@ private:
 	static constexpr int MaxReconnectDelay = 60 * 1000;
 	static constexpr int RejectedRetryDelay = 5 * 60 * 1000;
 	static constexpr int HandshakeTimeout = 20 * 1000;
+	static constexpr int OfficeProbeTimeout = 1500;
 
 	QLockFile m_instanceLock;
 	bool m_haveLock{false};
@@ -77,7 +84,11 @@ private:
 	int m_refusals{0};
 	QString m_lastError;
 	QString m_attemptError;
+	QString m_blockedReason;
+	QString m_reportedIdleReason{QStringLiteral("-")};
 	QDateTime m_connectedSince;
+	QStringList m_hubAddresses;
+	bool m_inOffice{false};
 	int m_reconnectDelay{2000};
 	QTimer m_reconnectTimer;
 	QTimer m_stateTimer;

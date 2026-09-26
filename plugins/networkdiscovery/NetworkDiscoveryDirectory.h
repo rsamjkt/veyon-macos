@@ -75,8 +75,9 @@ private:
 	QSet<QString> m_pendingRoamingQueries;
 	NetworkObjectUidList m_roamingLocationUids;
 
-	// an Aruni Gateway lists its roaming laptops on Veyon server port + 99
-	static constexpr int RoamingDirectoryPortOffset = 99;
+	// an Aruni Gateway lists its roaming laptops on Veyon server port + 599
+	// (GatewayState::DirectoryPortOffset)
+	static constexpr int RoamingDirectoryPortOffset = 599;
 	static constexpr int RoamingQueryTimeoutMs = 3000;
 
 	// long enough for a host behind a VPN overlay such as ZeroTier to answer,

@@ -18,7 +18,7 @@ FRAMEWORKS_DIR="${CONTENTS}/Frameworks"
 PLUGIN_DIR="${CONTENTS}/lib/veyon"
 RES_DIR="${CONTENTS}/Resources"
 
-VERSION="1.3.0"
+VERSION="1.3.1"
 BUNDLE_ID="id.arunika.arunicontrol"
 
 if ! command -v brew >/dev/null 2>&1; then echo "error: Homebrew required" >&2; exit 1; fi

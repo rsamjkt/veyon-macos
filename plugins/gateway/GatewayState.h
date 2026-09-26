@@ -53,8 +53,8 @@ public:
 	{
 		QByteArray publicKey;
 		QString name;
-		// the gateway forwards connections to <Veyon server port> + slot to the
-		// laptop, so Masters on the office LAN reach it as "<gateway>:<port>"
+		// the gateway forwards connections to agentPort( slot ) to the laptop,
+		// so Masters on the office LAN reach it as "<gateway>:<port>"
 		int slot{0};
 		QDateTime added;
 		QDateTime lastSeen;
@@ -109,9 +109,15 @@ public:
 	int freeAgentSlot() const;
 
 	static constexpr int MaxAgentSlot = 98;
-	// port offset of the service listing the roaming laptops for Masters on
-	// the office LAN (see NetworkDiscoveryDirectory)
-	static constexpr int DirectoryPortOffset = 99;
+	// Roaming laptops are forwarded on <Veyon server port> + 500 + slot, i.e.
+	// 11601-11698 by default - clear of the ports Veyon itself uses per session
+	// (server, VNC, feature worker manager and demo server, 11100-11499). The
+	// service listing them for Masters on the office LAN (see
+	// NetworkDiscoveryDirectory) is on + 599.
+	static constexpr int RoamingPortOffset = 500;
+	static constexpr int DirectoryPortOffset = RoamingPortOffset + 99;
+	static quint16 agentPort( int slot );
+	static quint16 directoryPort();
 
 	// status reported by the running gateway / roaming agent
 	static void writeStatus( const QJsonObject& status, const QString& fileName = QStringLiteral("status.json") );
