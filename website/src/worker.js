@@ -13,15 +13,19 @@
 //
 // Rilis baru: unggah file ke R2 dengan awalan tag-nya, lalu ubah RELEASE.
 
+// Each download may come from its own release (e.g. while one platform's
+// build is still pending); the update manifest only lists the platforms
+// whose package belongs to the current tag, so older clients never
+// "update" to the version they already run.
 const RELEASE = {
-	tag: "v1.4.0",
-	codename: "Elena",
+	tag: "v1.5.0",
+	codename: "Fiona",
 	files: {
-		windows: "AruniControl-Setup-1.4.0-Elena-Windows-x64.exe",
-		"windows-zip": "AruniControl-Server-1.4.0-Elena-Windows-x64.zip",
-		macos: "AruniControl-1.4.0-Elena-macOS-arm64.zip",
-		android: "AruniControl-1.4.0-Elena-Android-arm64.apk",
-		sha256: "SHA256SUMS.txt",
+		windows: { tag: "v1.4.0", name: "AruniControl-Setup-1.4.0-Elena-Windows-x64.exe" },
+		"windows-zip": { tag: "v1.4.0", name: "AruniControl-Server-1.4.0-Elena-Windows-x64.zip" },
+		macos: { tag: "v1.5.0", name: "AruniControl-1.5.0-Fiona-macOS-arm64.zip" },
+		android: { tag: "v1.5.0", name: "AruniControl-1.5.0-Fiona-Android-arm64.apk" },
+		sha256: { tag: "v1.5.0", name: "SHA256SUMS.txt" },
 	},
 };
 
@@ -29,7 +33,7 @@ const RELEASE = {
 // app). The checksums come from SHA256SUMS.txt of the release in R2, so a
 // release is only offered once all its files are uploaded.
 async function manifest(env, origin) {
-	const sums = await env.FILES.get(`${RELEASE.tag}/${RELEASE.files.sha256}`);
+	const sums = await env.FILES.get(`${RELEASE.files.sha256.tag}/${RELEASE.files.sha256.name}`);
 	if (sums === null) {
 		return new Response("manifest not available", { status: 503 });
 	}
@@ -42,16 +46,16 @@ async function manifest(env, origin) {
 	}
 
 	const files = {};
-	for (const [platform, name] of Object.entries(RELEASE.files)) {
-		if (platform === "sha256" || !checksums[name]) {
+	for (const [platform, { tag, name }] of Object.entries(RELEASE.files)) {
+		if (platform === "sha256" || tag !== RELEASE.tag || !checksums[name]) {
 			continue;
 		}
-		const head = await env.FILES.head(`${RELEASE.tag}/${name}`);
+		const head = await env.FILES.head(`${tag}/${name}`);
 		if (head === null) {
 			continue;
 		}
 		files[platform] = {
-			url: `${origin}/unduh/${RELEASE.tag}/${name}`,
+			url: `${origin}/unduh/${tag}/${name}`,
 			name,
 			sha256: checksums[name],
 			size: head.size,
@@ -89,7 +93,7 @@ export default {
 		}
 		let key;
 		if (RELEASE.files[path]) {
-			key = `${RELEASE.tag}/${RELEASE.files[path]}`;
+			key = `${RELEASE.files[path].tag}/${RELEASE.files[path].name}`;
 		} else if (/^v\d+\.\d+\.\d+\/[A-Za-z0-9._-]+$/.test(path)) {
 			key = path;
 		} else {
