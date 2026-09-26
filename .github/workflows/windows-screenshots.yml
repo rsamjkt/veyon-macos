@@ -12,7 +12,7 @@ on:
         default: v1.2.0
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   screenshots:
@@ -99,8 +99,11 @@ jobs:
           [System.Drawing.Graphics]::FromImage($bmp).CopyFromScreen(0, 0, 0, 0, $bmp.Size)
           $bmp.Save("shots\windows-desktop.png")
 
-      - uses: actions/upload-artifact@v4
-        with:
-          name: windows-screenshots
-          path: shots
-          retention-days: 3
+      # artifact storage is often full - hand the images over through a
+      # draft release instead (delete it after downloading)
+      - name: Upload
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release delete ci-screenshots --repo ${{ github.repository }} --yes 2>$null
+          gh release create ci-screenshots --repo ${{ github.repository }} --draft --title "CI screenshots" --notes "temporary" (Get-ChildItem shots\*.png).FullName
