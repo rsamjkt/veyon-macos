@@ -323,3 +323,6 @@ footer a { color: var(--muted); }
 	.band { padding: 36px 24px; }
 	section { padding: 64px 0; }
 }
+.terminal { background: #1e1b18; color: #f1e9df; border-radius: 12px; padding: 18px 20px; font: .85rem/1.6 ui-monospace, SFMono-Regular, Menlo, monospace; white-space: pre-wrap; max-width: 520px; box-shadow: 0 10px 30px rgba(0,0,0,.18); }
+.terminal .c { color: #a79d92; }
+.terminal .ok { color: #7fd48a; }

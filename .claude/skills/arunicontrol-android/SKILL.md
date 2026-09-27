@@ -327,3 +327,30 @@ Laptops taken home stay monitored through the office Aruni Gateway (hub).
   Alt+F4/Ctrl+Esc) + open Url; `DisableTaskMgr` HKLM policy. Each server instance re-checks the state file (another
   session's instance may have ended the exam). `controlFeature(Start)` drops localhost targets (teacher PC) — test
   locally by commenting that out. App: `ExamSheet.qml`, `MobileApp::startExam/endExam`.
+
+## 1.7.0 "Hana": inventory, software deployment, admin roles
+
+- **Admin roles** `core/src/AdminRoles` (policy `%GLOBALAPPDATA%/roles.json`: key, name, public PEM, rooms, hosts,
+  allowed ⊂ lock/restrict/apps/power/software; feature uid → permission map in AdminRoles.cpp, unknown features =
+  always allowed; "admin" = the AdminRoles feature itself, never granted). `VncServerClient::authKeyName` is set by
+  key auth; `ServerAccessControlManager::addClient` refuses keys whose role hosts don't match this computer (names or
+  local IPs); `ComputerControlServer::handleFeatureMessage` drops disallowed features, logs `feature_denied` and replies
+  AdminRoles Status{Error} → the desktop Master shows a notice. Access log entries carry `key`.
+  Distribution: Configurator tab "Peran admin" (`RolesView`) saves roles.json locally, creates the role's key pair
+  (private stays on the admin PC for the teacher's installation code) and requests `@roles` from the Scheduler, which
+  sends `AdminRoles SetPolicy{policy}` to every builtin-directory computer; `applyPolicy` writes the roles' public keys
+  and deletes the keys of removed roles. Keys WITH a role sort last in `initKeyFileAuthentication` and are skipped by
+  `MonitoringCollector::availableKeyName` (the admin PC keeps teachers' private keys).
+- **Inventory** plugin `inventory` (uid 4d9a7e3c-…, Meta) Query → Info{JSON}: QSysInfo, CPU/BIOS via registry (Win) /
+  sysctl (Mac), RAM, QStorageInfo disks, NICs, serial (async powershell/ioreg, cached, filled from the 2nd query),
+  `core/src/InstalledSoftware` (Uninstall registry keys 64+32 bit / /Applications). Gateway `MonitoringCollector`
+  asks every 6 h (`collectInventory`), `InventoryStore` = gateway/inventory/<key>.json with lastSeen (updated on every
+  visit), alerts disk < diskAlertPercent (once a day) and not seen for inventoryOfflineDays (Telegram + activity log).
+  "Perbarui sekarang" = file inventory/collect-now. Tab "Inventaris" (`InventoryView`) + CSV exports.
+- **Software deployment** plugin `softwaredeploy` (uid 7e4c2a19-…, permission "software"): Begin/Chunk(512 KB, 4 in
+  flight, acked by Status receiving)/Run → SHA-256 check → msiexec /i / exe with silent args (Win, as LocalSystem) or
+  osascript+installer (Mac .pkg); Uninstall by InstalledSoftware id (QuietUninstallString, msiexec /I→/X /qn, Inno/NSIS
+  flags guessed); List → Software. Jobs in %GLOBALAPPDATA%/deploy/<job>, removed after finishing / 10 min idle. The
+  server is single-threaded, so later statuses are sent with the stored MessageContext. `FeatureMessage` is not
+  copyable — build it inline. CLI `veyon-cli softwaredeploy install <hosts> <file> [args]` / `list <host>` (call
+  `initAuthentication()` first). ~12 MB/s locally.

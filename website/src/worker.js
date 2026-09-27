@@ -18,14 +18,14 @@
 // whose package belongs to the current tag, so older clients never
 // "update" to the version they already run.
 const RELEASE = {
-	tag: "v1.6.0",
-	codename: "Gita",
+	tag: "v1.7.0",
+	codename: "Hana",
 	files: {
-		windows: { tag: "v1.6.0", name: "AruniControl-Setup-1.6.0-Gita-Windows-x64.exe" },
-		"windows-zip": { tag: "v1.6.0", name: "AruniControl-Server-1.6.0-Gita-Windows-x64.zip" },
-		macos: { tag: "v1.6.0", name: "AruniControl-1.6.0-Gita-macOS-arm64.zip" },
-		android: { tag: "v1.6.0", name: "AruniControl-1.6.0-Gita-Android-arm64.apk" },
-		sha256: { tag: "v1.6.0", name: "SHA256SUMS.txt" },
+		windows: { tag: "v1.7.0", name: "AruniControl-Setup-1.7.0-Hana-Windows-x64.exe" },
+		"windows-zip": { tag: "v1.7.0", name: "AruniControl-Server-1.7.0-Hana-Windows-x64.zip" },
+		macos: { tag: "v1.7.0", name: "AruniControl-1.7.0-Hana-macOS-arm64.zip" },
+		android: { tag: "v1.7.0", name: "AruniControl-1.7.0-Hana-Android-arm64.apk" },
+		sha256: { tag: "v1.7.0", name: "SHA256SUMS.txt" },
 	},
 };
 
