@@ -44,6 +44,16 @@ build_veyon_plugin(gateway
 	GatewayState.cpp
 	GatewayState.h
 	RoamingAgent.cpp
+	Schedules.cpp
+	Schedules.h
+	Scheduler.cpp
+	Scheduler.h
+	ScheduleView.cpp
+	ScheduleView.h
+	SetupCode.cpp
+	SetupCode.h
+	SetupCodeView.cpp
+	SetupCodeView.h
 	RoamingAgent.h
 	TunnelEndpoint.cpp
 	TunnelEndpoint.h

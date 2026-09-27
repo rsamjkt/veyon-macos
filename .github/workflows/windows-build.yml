@@ -23,8 +23,8 @@ on:
   workflow_dispatch:
 
 env:
-  APP_VERSION: 1.5.0
-  APP_CODENAME: Fiona
+  APP_VERSION: 1.6.0
+  APP_CODENAME: Gita
 
 permissions:
   contents: write   # allow uploading assets to the release

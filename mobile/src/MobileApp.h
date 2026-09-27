@@ -177,6 +177,10 @@ public:
 	Q_INVOKABLE void startApplication( const QString& command, const QStringList& uids );
 	Q_INVOKABLE void setInternetBlocked( bool blocked, const QStringList& uids );
 	Q_INVOKABLE void setAudioMuted( bool muted, const QStringList& uids );
+	// exam mode (ExamMode plugin): settings { sites, url, blockInternet, closeApps, lockKeys }
+	Q_INVOKABLE QVariantMap examSettings() const;
+	Q_INVOKABLE void startExam( const QVariantMap& settings, const QStringList& uids );
+	Q_INVOKABLE void endExam( const QStringList& uids );
 	Q_INVOKABLE int saveScreenshots( const QStringList& uids );
 	Q_INVOKABLE void lockInput( bool lock, const QStringList& uids );
 	Q_INVOKABLE void loginUser( const QString& username, const QString& password, const QStringList& uids );

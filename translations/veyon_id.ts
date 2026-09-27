@@ -26,7 +26,7 @@
     <message>
         <source>Current language not translated yet (or native English).
 
-If you&apos;re interested in translating AruniControl into your local or another language or want to improve an existing translation, please contact a AruniControl developer!</source>
+If you're interested in translating AruniControl into your local or another language or want to improve an existing translation, please contact a AruniControl developer!</source>
         <translation>Bahasa saat ini belum diterjemahkan (atau bahasa Inggris asli).
 
 Jika Anda tertarik menerjemahkan AruniControl ke bahasa lokal atau bahasa lain, atau ingin memperbaiki terjemahan yang ada, silakan hubungi pengembang AruniControl!</translation>
@@ -169,8 +169,8 @@ Jika Anda tertarik menerjemahkan AruniControl ke bahasa lokal atau bahasa lain, 
         <translation>Penjelasan aturan:</translation>
     </message>
     <message>
-        <source>Invert all conditions (&quot;is/has&quot; interpreted as &quot;is/has not&quot;)</source>
-        <translation>Balikkan semua kondisi (&quot;adalah/telah&quot; diartikan sebagai &quot;adalah/belum&quot;)</translation>
+        <source>Invert all conditions ("is/has" interpreted as "is/has not")</source>
+        <translation>Balikkan semua kondisi ("adalah/telah" diartikan sebagai "adalah/belum")</translation>
     </message>
     <message>
         <source>Always process rule and ignore conditions</source>
@@ -509,6 +509,10 @@ Jika Anda tertarik menerjemahkan AruniControl ke bahasa lokal atau bahasa lain, 
         <translation>Akses: fungsi dipakai</translation>
     </message>
     <message>
+        <source>Schedule</source>
+        <translation>Jadwal</translation>
+    </message>
+    <message>
         <source>in the office</source>
         <translation>di kantor</translation>
     </message>
@@ -583,12 +587,12 @@ Jika Anda tertarik menerjemahkan AruniControl ke bahasa lokal atau bahasa lain, 
         <translation>Tutup aplikasi</translation>
     </message>
     <message>
-        <source>Close &quot;%1&quot; on %2?</source>
-        <translation>Tutup &quot;%1&quot; di %2?</translation>
+        <source>Close "%1" on %2?</source>
+        <translation>Tutup "%1" di %2?</translation>
     </message>
     <message>
-        <source>Active application: &lt;b style=&quot;color:#c25c1f&quot;&gt;%1&lt;/b&gt;</source>
-        <translation>Aplikasi aktif: &lt;b style=&quot;color:#c25c1f&quot;&gt;%1&lt;/b&gt;</translation>
+        <source>Active application: &lt;b style="color:#c25c1f"&gt;%1&lt;/b&gt;</source>
+        <translation>Aplikasi aktif: &lt;b style="color:#c25c1f"&gt;%1&lt;/b&gt;</translation>
     </message>
 </context>
 <context>
@@ -715,8 +719,8 @@ Jika Anda tertarik menerjemahkan AruniControl ke bahasa lokal atau bahasa lain, 
         <translation>3) Ekspor kunci publik dan impor pada semua komputer klien dengan nama yang sama.</translation>
     </message>
     <message>
-        <source>Please refer to the &lt;a href=&quot;https://veyon.readthedocs.io/en/latest/admin/index.html&quot;&gt;AruniControl Administrator Manual&lt;/a&gt; for more information.</source>
-        <translation>Silakan lihat &lt;a href=&quot;https://veyon.readthedocs.io/en/latest/admin/index.html&quot;&gt;Panduan Administrator AruniControl&lt;/a&gt; untuk informasi lebih lanjut.</translation>
+        <source>Please refer to the &lt;a href="https://veyon.readthedocs.io/en/latest/admin/index.html"&gt;AruniControl Administrator Manual&lt;/a&gt; for more information.</source>
+        <translation>Silakan lihat &lt;a href="https://veyon.readthedocs.io/en/latest/admin/index.html"&gt;Panduan Administrator AruniControl&lt;/a&gt; untuk informasi lebih lanjut.</translation>
     </message>
     <message>
         <source>Key file directories</source>
@@ -777,8 +781,8 @@ Kunci publik digunakan pada komputer klien untuk mengautentikasi permintaan kone
         <translation>Silakan masukkan nama grup pengguna atau peran yang akan dibuat pasangan kunci autentikasi:</translation>
     </message>
     <message>
-        <source>Do you really want to delete authentication key &quot;%1/%2&quot;?</source>
-        <translation>Anda yakin ingin mengapus kunci autentikasi &quot;%1/%2&quot;?</translation>
+        <source>Do you really want to delete authentication key "%1/%2"?</source>
+        <translation>Anda yakin ingin mengapus kunci autentikasi "%1/%2"?</translation>
     </message>
     <message>
         <source>Please select a key to delete!</source>
@@ -789,8 +793,8 @@ Kunci publik digunakan pada komputer klien untuk mengautentikasi permintaan kone
         <translation>Pilih kunci yang akan diekspor!</translation>
     </message>
     <message>
-        <source>Please select a user group which to grant access to key &quot;%1&quot;:</source>
-        <translation>Silakan pilih grup pengguna yang akan diberikan akses ke kunci &quot;%1&quot;:</translation>
+        <source>Please select a user group which to grant access to key "%1":</source>
+        <translation>Silakan pilih grup pengguna yang akan diberikan akses ke kunci "%1":</translation>
     </message>
     <message>
         <source>Please select a key which to set the access group for!</source>
@@ -816,120 +820,120 @@ Pastikan nama kunci milik satu sama lain sama di semua komputer.</translation>
         <translation>Nama kunci berisi karakter invalid!</translation>
     </message>
     <message>
-        <source>Invalid key type specified! Please specify &quot;%1&quot; or &quot;%2&quot;.</source>
-        <translation>Jenis kunci yang ditentukan tidak valid! Silakan tentukan &quot;%1&quot; atau &quot;%2&quot;.</translation>
+        <source>Invalid key type specified! Please specify "%1" or "%2".</source>
+        <translation>Jenis kunci yang ditentukan tidak valid! Silakan tentukan "%1" atau "%2".</translation>
     </message>
     <message>
-        <source>Specified key does not exist! Please use the &quot;list&quot; command to list all installed keys.</source>
-        <translation>Kunci yang ditentukan tidak ada! Silakan gunakan perintah &quot;daftar&quot; untuk mendaftar semua kunci yang diinstal.</translation>
+        <source>Specified key does not exist! Please use the "list" command to list all installed keys.</source>
+        <translation>Kunci yang ditentukan tidak ada! Silakan gunakan perintah "daftar" untuk mendaftar semua kunci yang diinstal.</translation>
     </message>
     <message>
-        <source>One or more key files already exist! Please delete them using the &quot;delete&quot; command.</source>
-        <translation>Satu atau lebih file kunci sudah ada! Harap hapus dengan menggunakan perintah &quot;hapus&quot;.</translation>
+        <source>One or more key files already exist! Please delete them using the "delete" command.</source>
+        <translation>Satu atau lebih file kunci sudah ada! Harap hapus dengan menggunakan perintah "hapus".</translation>
     </message>
     <message>
-        <source>Creating new key pair for &quot;%1&quot;</source>
-        <translation>Membuat pasangan kunci baru untuk &quot;%1&quot;</translation>
+        <source>Creating new key pair for "%1"</source>
+        <translation>Membuat pasangan kunci baru untuk "%1"</translation>
     </message>
     <message>
         <source>Failed to create public or private key!</source>
         <translation>Gagal membuat kunci public atau private!</translation>
     </message>
     <message>
-        <source>Newly created key pair has been saved to &quot;%1&quot; and &quot;%2&quot;.</source>
-        <translation>Pasangan kunci yang baru dibuat telah disimpan ke &quot;%1&quot; dan &quot;%2&quot;.</translation>
+        <source>Newly created key pair has been saved to "%1" and "%2".</source>
+        <translation>Pasangan kunci yang baru dibuat telah disimpan ke "%1" dan "%2".</translation>
     </message>
     <message>
-        <source>Could not remove key file &quot;%1&quot;!</source>
-        <translation>Tidak dapat menghaps file kunci &quot;%1&quot;!</translation>
+        <source>Could not remove key file "%1"!</source>
+        <translation>Tidak dapat menghaps file kunci "%1"!</translation>
     </message>
     <message>
-        <source>Could not remove key file directory &quot;%1&quot;!</source>
-        <translation>Tidak dapat menghapus kunci file direktori &quot;%1&quot;!</translation>
+        <source>Could not remove key file directory "%1"!</source>
+        <translation>Tidak dapat menghapus kunci file direktori "%1"!</translation>
     </message>
     <message>
         <source>Failed to create directory for output file.</source>
         <translation>Gagal dalam membuat direktori untuk output file.</translation>
     </message>
     <message>
-        <source>File &quot;%1&quot; already exists.</source>
-        <translation>File &quot;%1&quot; telah tersedia&apos;</translation>
+        <source>File "%1" already exists.</source>
+        <translation>File "%1" telah tersedia'</translation>
     </message>
     <message>
         <source>Failed to write output file.</source>
         <translation>Gagal menulis file keluaran.</translation>
     </message>
     <message>
-        <source>Key &quot;%1/%2&quot; has been exported to &quot;%3&quot; successfully.</source>
-        <translation>Kunci &quot;%1/%2&quot; berhasil diekspor ke &quot;%3&quot;.</translation>
+        <source>Key "%1/%2" has been exported to "%3" successfully.</source>
+        <translation>Kunci "%1/%2" berhasil diekspor ke "%3".</translation>
     </message>
     <message>
         <source>Failed read input file.</source>
         <translation>Gagal membaca file input.</translation>
     </message>
     <message>
-        <source>File &quot;%1&quot; does not contain a valid private key!</source>
-        <translation>Berkas &quot;%1&quot; tidak berisi kunci privat yang valid!</translation>
+        <source>File "%1" does not contain a valid private key!</source>
+        <translation>Berkas "%1" tidak berisi kunci privat yang valid!</translation>
     </message>
     <message>
-        <source>File &quot;%1&quot; does not contain a valid public key!</source>
-        <translation>Berkas &quot;%1&quot; tidak berisi kunci publik yang valid!</translation>
+        <source>File "%1" does not contain a valid public key!</source>
+        <translation>Berkas "%1" tidak berisi kunci publik yang valid!</translation>
     </message>
     <message>
         <source>Failed to create directory for key file.</source>
         <translation>Gagal membuat direktori untuk file kunci.</translation>
     </message>
     <message>
-        <source>Failed to write key file &quot;%1&quot;.</source>
-        <translation>Gagal menulis berkas kunci &quot;%1&quot;.</translation>
+        <source>Failed to write key file "%1".</source>
+        <translation>Gagal menulis berkas kunci "%1".</translation>
     </message>
     <message>
-        <source>Failed to set permissions for key file &quot;%1&quot;!</source>
-        <translation>Gagal menyetel izin untuk file kunci &quot;%1&quot;!</translation>
+        <source>Failed to set permissions for key file "%1"!</source>
+        <translation>Gagal menyetel izin untuk file kunci "%1"!</translation>
     </message>
     <message>
-        <source>Key &quot;%1/%2&quot; has been imported successfully. Please check file permissions of &quot;%3&quot; in order to prevent unauthorized accesses.</source>
-        <translation>Kunci &quot;%1/%2&quot; berhasil diimpor. Harap periksa izin file &quot;%3&quot; untuk mencegah akses tidak sah.</translation>
+        <source>Key "%1/%2" has been imported successfully. Please check file permissions of "%3" in order to prevent unauthorized accesses.</source>
+        <translation>Kunci "%1/%2" berhasil diimpor. Harap periksa izin file "%3" untuk mencegah akses tidak sah.</translation>
     </message>
     <message>
         <source>Failed to convert private key to public key</source>
         <translation>Gagal mengubah kunci privat menjadi kunci publik</translation>
     </message>
     <message>
-        <source>Failed to create directory for private key file &quot;%1&quot;.</source>
-        <translation>Gagal membuat direktori untuk file kunci pribadi &quot;%1&quot;.</translation>
+        <source>Failed to create directory for private key file "%1".</source>
+        <translation>Gagal membuat direktori untuk file kunci pribadi "%1".</translation>
     </message>
     <message>
-        <source>Failed to save private key in file &quot;%1&quot;!</source>
-        <translation>Gagal menyimpan kunci pribadi di file &quot;%1&quot;!</translation>
+        <source>Failed to save private key in file "%1"!</source>
+        <translation>Gagal menyimpan kunci pribadi di file "%1"!</translation>
     </message>
     <message>
-        <source>Failed to set permissions for private key file &quot;%1&quot;!</source>
-        <translation>Gagal menyetel izin untuk file kunci pribadi &quot;%1&quot;!</translation>
+        <source>Failed to set permissions for private key file "%1"!</source>
+        <translation>Gagal menyetel izin untuk file kunci pribadi "%1"!</translation>
     </message>
     <message>
-        <source>Failed to create directory for public key file &quot;%1&quot;.</source>
-        <translation>Gagal membuat direktori untuk file kunci publik &quot;%1&quot;.</translation>
+        <source>Failed to create directory for public key file "%1".</source>
+        <translation>Gagal membuat direktori untuk file kunci publik "%1".</translation>
     </message>
     <message>
-        <source>Failed to save public key in file &quot;%1&quot;!</source>
-        <translation>Gagal menyimpan kunci publik di berkas &quot;%1&quot;!</translation>
+        <source>Failed to save public key in file "%1"!</source>
+        <translation>Gagal menyimpan kunci publik di berkas "%1"!</translation>
     </message>
     <message>
-        <source>Failed to set permissions for public key file &quot;%1&quot;!</source>
-        <translation>Gagal menyetel izin untuk file kunci publik &quot;%1&quot;!</translation>
+        <source>Failed to set permissions for public key file "%1"!</source>
+        <translation>Gagal menyetel izin untuk file kunci publik "%1"!</translation>
     </message>
     <message>
-        <source>Failed to set owner of key file &quot;%1&quot; to &quot;%2&quot;.</source>
-        <translation>Gagal menyetel pemilik untuk file kunci &quot;%1&quot; menjadi &quot;%2&quot;.</translation>
+        <source>Failed to set owner of key file "%1" to "%2".</source>
+        <translation>Gagal menyetel pemilik untuk file kunci "%1" menjadi "%2".</translation>
     </message>
     <message>
-        <source>Failed to set permissions for key file &quot;%1&quot;.</source>
-        <translation>Gagal menyetel izin untuk file kunci &quot;%1&quot;.</translation>
+        <source>Failed to set permissions for key file "%1".</source>
+        <translation>Gagal menyetel izin untuk file kunci "%1".</translation>
     </message>
     <message>
-        <source>Key &quot;%1&quot; is now accessible by user group &quot;%2&quot;.</source>
-        <translation>Kunci &quot;%1&quot; sekarang dapat diakses oleh grup pengguna &quot;%2&quot;.</translation>
+        <source>Key "%1" is now accessible by user group "%2".</source>
+        <translation>Kunci "%1" sekarang dapat diakses oleh grup pengguna "%2".</translation>
     </message>
     <message>
         <source>&lt;N/A&gt;</source>
@@ -987,7 +991,7 @@ Pastikan nama kunci milik satu sama lain sama di semua komputer.</translation>
         <translation>KUNCI</translation>
     </message>
     <message>
-        <source>This command deletes the authentication key &lt;KEY&gt; from the configured key directory. Please note that a key can&apos;t be recovered once it has been deleted.</source>
+        <source>This command deletes the authentication key &lt;KEY&gt; from the configured key directory. Please note that a key can't be recovered once it has been deleted.</source>
         <translation>Perintah ini menghapus kunci autentikasi &lt;KEY&gt; dari direktori kunci yang dikonfigurasi. Harap dicatat bahwa kunci tidak dapat dipulihkan setelah dihapus.</translation>
     </message>
     <message>
@@ -1007,8 +1011,8 @@ Pastikan nama kunci milik satu sama lain sama di semua komputer.</translation>
         <translation>Perintah ini mengimpor kunci autentikasi &lt;KEY&gt; dari &lt;FILE&gt;. Jika &lt;FILE&gt; tidak ditentukan, nama akan dibuat dari nama dan tipe &lt;KEY&gt;.</translation>
     </message>
     <message>
-        <source>This command lists all available authentication keys in the configured key directory. If the option &quot;%1&quot; is specified a table with key details will be displayed instead. Some details might be missing if a key is not accessible e.g. due to the lack of read permissions.</source>
-        <translation>Perintah ini mencantumkan semua kunci autentikasi yang tersedia di direktori kunci yang dikonfigurasi. Jika opsi &quot;%1&quot; ditentukan sebagai gantinya, tabel dengan detail kunci akan ditampilkan. Beberapa detail mungkin hilang jika kunci tidak dapat diakses, mis. karena kurangnya izin membaca.</translation>
+        <source>This command lists all available authentication keys in the configured key directory. If the option "%1" is specified a table with key details will be displayed instead. Some details might be missing if a key is not accessible e.g. due to the lack of read permissions.</source>
+        <translation>Perintah ini mencantumkan semua kunci autentikasi yang tersedia di direktori kunci yang dikonfigurasi. Jika opsi "%1" ditentukan sebagai gantinya, tabel dengan detail kunci akan ditampilkan. Beberapa detail mungkin hilang jika kunci tidak dapat diakses, mis. karena kurangnya izin membaca.</translation>
     </message>
     <message>
         <source>ACCESS GROUP</source>
@@ -1023,8 +1027,8 @@ Pastikan nama kunci milik satu sama lain sama di semua komputer.</translation>
         <translation>Perintah yang ditentukan tidak ada atau tidak ada bantuan yang tersedia untuk itu.</translation>
     </message>
     <message>
-        <source>Please specify the key name (e.g. &quot;teacher/public&quot;) as the first argument.</source>
-        <translation>Silakan tentukan nama kunci (misalnya &quot;guru/umum&quot;) sebagai argumen pertama.</translation>
+        <source>Please specify the key name (e.g. "teacher/public") as the first argument.</source>
+        <translation>Silakan tentukan nama kunci (misalnya "guru/umum") sebagai argumen pertama.</translation>
     </message>
     <message>
         <source>TYPE</source>
@@ -1206,16 +1210,16 @@ Pastikan nama kunci milik satu sama lain sama di semua komputer.</translation>
         <translation>Pindahkan lokasi yang dipilih ke bawah</translation>
     </message>
     <message>
-        <source>The import of CSV files is possible through the command line interface. For more information, see the &lt;a href=&quot;https://docs.veyon.io/en/latest/admin/cli.html#network-object-directory&quot;&gt;online documentation&lt;/a&gt;.</source>
-        <translation>Impor berkas CSV  dimungkinkan melalui antarmuka baris perintah. Informasi lebih lanjut, lihat &lt;a href=&quot;https://docs.veyon.io/en/latest/admin/cli.html#network-object-directory&quot;&gt;dokumentasi daring&lt;/a&gt;.</translation>
+        <source>The import of CSV files is possible through the command line interface. For more information, see the &lt;a href="https://docs.veyon.io/en/latest/admin/cli.html#network-object-directory"&gt;online documentation&lt;/a&gt;.</source>
+        <translation>Impor berkas CSV  dimungkinkan melalui antarmuka baris perintah. Informasi lebih lanjut, lihat &lt;a href="https://docs.veyon.io/en/latest/admin/cli.html#network-object-directory"&gt;dokumentasi daring&lt;/a&gt;.</translation>
     </message>
     <message>
         <source>Import and export</source>
         <translation>Impor dan ekspor</translation>
     </message>
     <message>
-        <source>Make a table in Excel with the columns Room, Name, IP address and MAC (optional), save it as CSV and import it - or copy the rows in Excel and click &quot;Paste from Excel&quot;.</source>
-        <translation>Buat tabel di Excel dengan kolom Ruangan, Nama, Alamat IP, dan MAC (opsional), simpan sebagai CSV lalu impor - atau salin baris-barisnya di Excel lalu klik &quot;Tempel dari Excel&quot;.</translation>
+        <source>Make a table in Excel with the columns Room, Name, IP address and MAC (optional), save it as CSV and import it - or copy the rows in Excel and click "Paste from Excel".</source>
+        <translation>Buat tabel di Excel dengan kolom Ruangan, Nama, Alamat IP, dan MAC (opsional), simpan sebagai CSV lalu impor - atau salin baris-barisnya di Excel lalu klik "Tempel dari Excel".</translation>
     </message>
     <message>
         <source>Import from file…</source>
@@ -1409,8 +1413,8 @@ Pastikan nama kunci milik satu sama lain sama di semua komputer.</translation>
         <translation>INDUK</translation>
     </message>
     <message>
-        <source>Adds an object where %1 can be one of &quot;%2&quot; or &quot;%3&quot;. %4 can be specified by name or UUID.</source>
-        <translation>Menambahkan objek yang %1 dapat berupa salah satu dari &quot;%2&quot; atau &quot;%3&quot;. %4 dapat ditentukan berdasarkan nama atau UUID.</translation>
+        <source>Adds an object where %1 can be one of "%2" or "%3". %4 can be specified by name or UUID.</source>
+        <translation>Menambahkan objek yang %1 dapat berupa salah satu dari "%2" atau "%3". %4 dapat ditentukan berdasarkan nama atau UUID.</translation>
     </message>
     <message>
         <source>Add a room</source>
@@ -1441,8 +1445,8 @@ Pastikan nama kunci milik satu sama lain sama di semua komputer.</translation>
         <translation>Perintah yang ditentukan tidak ada atau tidak ada bantuan yang tersedia untuk itu.</translation>
     </message>
     <message>
-        <source>Invalid type specified. Valid values are &quot;%1&quot; or &quot;%2&quot;.</source>
-        <translation>Jenis yang ditentukan tidak valid. Nilai yang valid adalah &quot;%1&quot; atau &quot;%2&quot;.</translation>
+        <source>Invalid type specified. Valid values are "%1" or "%2".</source>
+        <translation>Jenis yang ditentukan tidak valid. Nilai yang valid adalah "%1" atau "%2".</translation>
     </message>
     <message>
         <source>Object UUID</source>
@@ -1473,40 +1477,40 @@ Pastikan nama kunci milik satu sama lain sama di semua komputer.</translation>
         <translation>Obyek yang dimaksud tidak ditemukan</translation>
     </message>
     <message>
-        <source>File &quot;%1&quot; does not exist!</source>
-        <translation>Berkas &quot;%1&quot; tidak ada!</translation>
+        <source>File "%1" does not exist!</source>
+        <translation>Berkas "%1" tidak ada!</translation>
     </message>
     <message>
-        <source>Can&apos;t open file &quot;%1&quot; for reading!</source>
-        <translation>Tidak dapat membuka berkas &quot;%1&quot; untuk dibaca!</translation>
+        <source>Can't open file "%1" for reading!</source>
+        <translation>Tidak dapat membuka berkas "%1" untuk dibaca!</translation>
     </message>
     <message>
-        <source>Unknown argument &quot;%1&quot;.</source>
-        <translation>Argumen &quot;%1&quot; tidak diketahui.</translation>
+        <source>Unknown argument "%1".</source>
+        <translation>Argumen "%1" tidak diketahui.</translation>
     </message>
     <message>
         <source>No format string or regular expression specified!</source>
         <translation>Tidak ada string format atau ekspresi reguler yang ditentukan!</translation>
     </message>
     <message>
-        <source>Can&apos;t open file &quot;%1&quot; for writing!</source>
-        <translation>Tidak dapat membuka berkas &quot;%1&quot; untuk ditulisi!</translation>
+        <source>Can't open file "%1" for writing!</source>
+        <translation>Tidak dapat membuka berkas "%1" untuk ditulisi!</translation>
     </message>
     <message>
         <source>No format string specified!</source>
         <translation>Tidak ada string format yang ditentukan!</translation>
     </message>
     <message>
-        <source>Location &quot;%1&quot;</source>
-        <translation>Lokasi  &quot;%1&quot;</translation>
+        <source>Location "%1"</source>
+        <translation>Lokasi  "%1"</translation>
     </message>
     <message>
-        <source>Computer &quot;%1&quot; (host address: &quot;%2&quot; MAC address: &quot;%3&quot;)</source>
-        <translation>Komputer &quot;%1&quot; (alamat host: &quot;%2&quot; MAC address: &quot;%3&quot;)</translation>
+        <source>Computer "%1" (host address: "%2" MAC address: "%3")</source>
+        <translation>Komputer "%1" (alamat host: "%2" MAC address: "%3")</translation>
     </message>
     <message>
-        <source>Unclassified object &quot;%1&quot; with ID &quot;%2&quot;</source>
-        <translation>Objek tidak terklasifikasi &quot;%1&quot; dengan ID &quot;%2&quot;</translation>
+        <source>Unclassified object "%1" with ID "%2"</source>
+        <translation>Objek tidak terklasifikasi "%1" dengan ID "%2"</translation>
     </message>
     <message>
         <source>None</source>
@@ -1545,16 +1549,16 @@ Pastikan nama kunci milik satu sama lain sama di semua komputer.</translation>
         <translation>Root</translation>
     </message>
     <message>
-        <source>&quot;Room 01&quot;</source>
-        <translation>&quot;Ruang 01&quot;</translation>
+        <source>"Room 01"</source>
+        <translation>"Ruang 01"</translation>
     </message>
     <message>
-        <source>&quot;Computer 01&quot;</source>
-        <translation>&quot;Komputer 01&quot;</translation>
+        <source>"Computer 01"</source>
+        <translation>"Komputer 01"</translation>
     </message>
     <message>
-        <source>Location &quot;%1&quot; not found.</source>
-        <translation>Lokasi &quot;%1&quot; tidak ditemukan.</translation>
+        <source>Location "%1" not found.</source>
+        <translation>Lokasi "%1" tidak ditemukan.</translation>
     </message>
 </context>
 <context>
@@ -1695,24 +1699,24 @@ Pastikan nama kunci milik satu sama lain sama di semua komputer.</translation>
         <translation>Autentikasi gagal</translation>
     </message>
     <message>
-        <source>User &quot;%1&quot; at host &quot;%2&quot; attempted to access this computer but could not authenticate successfully.</source>
-        <translation>Pengguna &quot;%1&quot; di host &quot;%2&quot; mencoba mengakses komputer ini tetapi tidak berhasil mengautentikasi.</translation>
+        <source>User "%1" at host "%2" attempted to access this computer but could not authenticate successfully.</source>
+        <translation>Pengguna "%1" di host "%2" mencoba mengakses komputer ini tetapi tidak berhasil mengautentikasi.</translation>
     </message>
     <message>
         <source>Remote access</source>
         <translation>Akses jarak jauh</translation>
     </message>
     <message>
-        <source>User &quot;%1&quot; at host &quot;%2&quot; is now accessing this computer.</source>
-        <translation>Pengguna &quot;%1&quot; di host &quot;%2&quot; sekarang mengakses komputer ini.</translation>
+        <source>User "%1" at host "%2" is now accessing this computer.</source>
+        <translation>Pengguna "%1" di host "%2" sekarang mengakses komputer ini.</translation>
     </message>
     <message>
         <source>Access control error</source>
         <translation>Kesalahan kontrol akses</translation>
     </message>
     <message>
-        <source>User &quot;%1&quot; at host &quot;%2&quot; attempted to access this computer but has been blocked due to access control settings.</source>
-        <translation>Pengguna &quot;%1&quot; di host &quot;%2&quot; mencoba mengakses komputer ini, tetapi diblokir oleh pengaturan kontrol akses.</translation>
+        <source>User "%1" at host "%2" attempted to access this computer but has been blocked due to access control settings.</source>
+        <translation>Pengguna "%1" di host "%2" mencoba mengakses komputer ini, tetapi diblokir oleh pengaturan kontrol akses.</translation>
     </message>
     <message>
         <source>AruniControl Service %1 at %2:%3</source>
@@ -1734,16 +1738,16 @@ Pastikan nama kunci milik satu sama lain sama di semua komputer.</translation>
         <translation>%1: nama atau alamat IP kosong - dilewati</translation>
     </message>
     <message>
-        <source>%1: &quot;%2&quot; is not a valid address - skipped</source>
-        <translation>%1: &quot;%2&quot; bukan alamat yang valid - dilewati</translation>
+        <source>%1: "%2" is not a valid address - skipped</source>
+        <translation>%1: "%2" bukan alamat yang valid - dilewati</translation>
     </message>
     <message>
         <source>%1: no room given - skipped</source>
         <translation>%1: ruangan kosong - dilewati</translation>
     </message>
     <message>
-        <source>%1: MAC address &quot;%2&quot; ignored (invalid)</source>
-        <translation>%1: alamat MAC &quot;%2&quot; diabaikan (tidak valid)</translation>
+        <source>%1: MAC address "%2" ignored (invalid)</source>
+        <translation>%1: alamat MAC "%2" diabaikan (tidak valid)</translation>
     </message>
     <message>
         <source>Room</source>
@@ -1793,8 +1797,8 @@ Pastikan nama kunci milik satu sama lain sama di semua komputer.</translation>
         <translation>Deteksi lokasi gagal</translation>
     </message>
     <message>
-        <source>The location of this computer could not be determined. This indicates a problem with the system configuration. No locations and computers will be displayed in the &quot;Locations &amp; computers&quot; panel.</source>
-        <translation>Lokasi komputer ini tidak dapat ditentukan. Ini menandakan ada masalah pada konfigurasi sistem. Tidak ada lokasi dan komputer yang akan ditampilkan di panel &quot;Lokasi &amp; komputer&quot;.</translation>
+        <source>The location of this computer could not be determined. This indicates a problem with the system configuration. No locations and computers will be displayed in the "Locations &amp; computers" panel.</source>
+        <translation>Lokasi komputer ini tidak dapat ditentukan. Ini menandakan ada masalah pada konfigurasi sistem. Tidak ada lokasi dan komputer yang akan ditampilkan di panel "Lokasi &amp; komputer".</translation>
     </message>
     <message>
         <source>Unknown location</source>
@@ -2023,7 +2027,7 @@ Pastikan nama kunci milik satu sama lain sama di semua komputer.</translation>
         <translation>Dalam mode ini layar Anda ditampilkan dalam jendela di semua komputer. Pengguna dapat berpindah ke jendela lain sesuai kebutuhan.</translation>
     </message>
     <message>
-        <source>Share selected user&apos;s screen in fullscreen mode</source>
+        <source>Share selected user's screen in fullscreen mode</source>
         <translation>Bagikan layar pengguna yang dipilih dalam mode layar penuh</translation>
     </message>
     <message>
@@ -2031,7 +2035,7 @@ Pastikan nama kunci milik satu sama lain sama di semua komputer.</translation>
         <translation>Dalam mode ini layar pengguna yang dipilih ditampilkan dalam mode layar penuh di semua komputer, sementara perangkat input pengguna dikunci.</translation>
     </message>
     <message>
-        <source>Share selected user&apos;s screen in a window</source>
+        <source>Share selected user's screen in a window</source>
         <translation>Bagikan layar pengguna yang dipilih dalam jendela</translation>
     </message>
     <message>
@@ -2148,16 +2152,16 @@ Pastikan nama kunci milik satu sama lain sama di semua komputer.</translation>
         <translation>Klik tombol ini untuk membuka situs web di semua komputer.</translation>
     </message>
     <message>
-        <source>Start application &quot;%1&quot;</source>
-        <translation>Jalankan aplikasi &quot;%1&quot;</translation>
+        <source>Start application "%1"</source>
+        <translation>Jalankan aplikasi "%1"</translation>
     </message>
     <message>
         <source>Custom application</source>
         <translation>Aplikasi kustom</translation>
     </message>
     <message>
-        <source>Open website &quot;%1&quot;</source>
-        <translation>Buka situs web &quot;%1&quot;</translation>
+        <source>Open website "%1"</source>
+        <translation>Buka situs web "%1"</translation>
     </message>
     <message>
         <source>Custom website</source>
@@ -2213,6 +2217,94 @@ Pastikan nama kunci milik satu sama lain sama di semua komputer.</translation>
     <message>
         <source>Texts to read</source>
         <translation>Teks untuk dibaca</translation>
+    </message>
+</context>
+<context>
+    <name>ExamModeDialog</name>
+    <message>
+        <source>Exam mode</source>
+        <translation>Mode ujian</translation>
+    </message>
+    <message numerus="yes">
+        <source>Start the exam mode on %n selected computer(s). Ending it with the same button restores everything.</source>
+        <translation>
+            <numerusform>Mulai mode ujian di %n komputer terpilih. Mengakhirinya dengan tombol yang sama mengembalikan semuanya seperti semula.</numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>Block the internet except for these exam websites</source>
+        <translation>Blokir internet kecuali situs ujian berikut</translation>
+    </message>
+    <message>
+        <source>One website per line, e.g.
+cbt.school.sch.id
+forms.gle</source>
+        <translation>Satu situs per baris, mis.
+cbt.sekolah.sch.id
+forms.gle</translation>
+    </message>
+    <message>
+        <source>Subdomains are not included automatically: if the exam website loads files from other addresses (e.g. fonts.googleapis.com), add them too. The office network always stays reachable.</source>
+        <translation>Subdomain tidak otomatis ikut: jika situs ujian memuat file dari alamat lain (mis. fonts.googleapis.com), tambahkan juga. Jaringan kantor selalu tetap bisa diakses.</translation>
+    </message>
+    <message>
+        <source>Open this website on the computers (optional):</source>
+        <translation>Buka situs ini di komputer (opsional):</translation>
+    </message>
+    <message>
+        <source>Close these applications and keep them closed:</source>
+        <translation>Tutup aplikasi berikut dan jaga agar tetap tertutup:</translation>
+    </message>
+    <message>
+        <source>Program names as in the Task Manager, one per line (".exe" is optional)</source>
+        <translation>Nama program seperti di Task Manager, satu per baris (".exe" boleh tidak ditulis)</translation>
+    </message>
+    <message>
+        <source>Lock system shortcuts (Windows key, Alt+Tab, Alt+F4, Ctrl+Esc, Task Manager)</source>
+        <translation>Kunci tombol pintas sistem (tombol Windows, Alt+Tab, Alt+F4, Ctrl+Esc, Task Manager)</translation>
+    </message>
+    <message>
+        <source>Start exam</source>
+        <translation>Mulai ujian</translation>
+    </message>
+    <message>
+        <source>No exam website is entered - the computers will have no internet at all. Continue?</source>
+        <translation>Belum ada situs ujian - komputer tidak akan bisa internet sama sekali. Lanjutkan?</translation>
+    </message>
+</context>
+<context>
+    <name>ExamModeFeaturePlugin</name>
+    <message>
+        <source>Exam mode</source>
+        <translation>Mode ujian</translation>
+    </message>
+    <message>
+        <source>End exam mode</source>
+        <translation>Akhiri mode ujian</translation>
+    </message>
+    <message>
+        <source>Internet only for the exam website, other applications closed and system shortcuts locked - with one click, and undone with one click.</source>
+        <translation>Internet hanya untuk situs ujian, aplikasi lain ditutup dan tombol pintas sistem dikunci - dengan sekali klik, dan dikembalikan dengan sekali klik.</translation>
+    </message>
+    <message>
+        <source>Could not change the Windows Firewall</source>
+        <translation>Tidak dapat mengubah Windows Firewall</translation>
+    </message>
+    <message>
+        <source>Cannot prepare the firewall rules</source>
+        <translation>Tidak dapat menyiapkan aturan firewall</translation>
+    </message>
+    <message>
+        <source>Waiting for the administrator password on this Mac</source>
+        <translation>Menunggu password administrator di Mac ini</translation>
+    </message>
+    <message>
+        <source>Blocking the internet is not supported on this operating system</source>
+        <translation>Memblokir internet tidak didukung di sistem operasi ini</translation>
+    </message>
+    <message>
+        <source>One-click exam mode for selected computers</source>
+        <translation>Mode ujian sekali klik untuk komputer terpilih</translation>
     </message>
 </context>
 <context>
@@ -2447,8 +2539,8 @@ Pastikan nama kunci milik satu sama lain sama di semua komputer.</translation>
         <translation>Gagal membuat direktori keluaran</translation>
     </message>
     <message>
-        <source>The output directory &quot;%1&quot; does not exist and could not be created. Please check the configuration and the file permissions for the configured destination directory.</source>
-        <translation>Direktori keluaran &quot;%1&quot; tidak ada dan tidak dapat dibuat. Periksa konfigurasi dan izin berkas untuk direktori tujuan yang dikonfigurasi.</translation>
+        <source>The output directory "%1" does not exist and could not be created. Please check the configuration and the file permissions for the configured destination directory.</source>
+        <translation>Direktori keluaran "%1" tidak ada dan tidak dapat dibuat. Periksa konfigurasi dan izin berkas untuk direktori tujuan yang dikonfigurasi.</translation>
     </message>
 </context>
 <context>
@@ -2765,8 +2857,8 @@ Pastikan nama kunci milik satu sama lain sama di semua komputer.</translation>
         <translation>Hubungkan HP</translation>
     </message>
     <message>
-        <source>Open the AruniControl app, choose &quot;Scan QR code&quot; and scan the code below. Each code works once and expires after 15 minutes.</source>
-        <translation>Buka aplikasi AruniControl, pilih &quot;Pindai kode QR&quot; dan pindai kode di bawah. Setiap kode hanya berlaku sekali dan kedaluwarsa setelah 15 menit.</translation>
+        <source>Open the AruniControl app, choose "Scan QR code" and scan the code below. Each code works once and expires after 15 minutes.</source>
+        <translation>Buka aplikasi AruniControl, pilih "Pindai kode QR" dan pindai kode di bawah. Setiap kode hanya berlaku sekali dan kedaluwarsa setelah 15 menit.</translation>
     </message>
     <message>
         <source>Show pairing QR code</source>
@@ -2809,8 +2901,8 @@ Pastikan nama kunci milik satu sama lain sama di semua komputer.</translation>
         <translation>Laptop di luar kantor</translation>
     </message>
     <message>
-        <source>Laptops that are taken home stay monitored: enter this enrollment code on the laptop (AruniControl Configurator → Aruni Gateway → &quot;This laptop outside the office&quot;, or &quot;veyon-cli gateway enroll &lt;code&gt;&quot; for many laptops at once). Outside the office they appear in the app as &quot;Outside the office&quot; and in the Master on this network as &quot;&lt;this computer&gt;:&lt;port&gt;&quot;.</source>
-        <translation>Laptop yang dibawa pulang tetap terpantau: masukkan kode pendaftaran ini di laptop (AruniControl Configurator → Aruni Gateway → &quot;Laptop ini di luar kantor&quot;, atau &quot;veyon-cli gateway enroll &lt;code&gt;&quot; untuk banyak laptop sekaligus). Di luar kantor, laptop muncul di aplikasi sebagai &quot;Di luar kantor&quot; dan di Master pada jaringan ini sebagai &quot;&lt;komputer ini&gt;:&lt;port&gt;&quot;.</translation>
+        <source>Laptops that are taken home stay monitored: enter this enrollment code on the laptop (AruniControl Configurator → Aruni Gateway → "This laptop outside the office", or "veyon-cli gateway enroll &lt;code&gt;" for many laptops at once). Outside the office they appear in the app as "Outside the office" and in the Master on this network as "&lt;this computer&gt;:&lt;port&gt;".</source>
+        <translation>Laptop yang dibawa pulang tetap terpantau: masukkan kode pendaftaran ini di laptop (AruniControl Configurator → Aruni Gateway → "Laptop ini di luar kantor", atau "veyon-cli gateway enroll &lt;code&gt;" untuk banyak laptop sekaligus). Di luar kantor, laptop muncul di aplikasi sebagai "Di luar kantor" dan di Master pada jaringan ini sebagai "&lt;komputer ini&gt;:&lt;port&gt;".</translation>
     </message>
     <message>
         <source>Copy</source>
@@ -2853,6 +2945,14 @@ Pastikan nama kunci milik satu sama lain sama di semua komputer.</translation>
         <translation>Rekaman</translation>
     </message>
     <message>
+        <source>Schedules</source>
+        <translation>Jadwal</translation>
+    </message>
+    <message>
+        <source>Installation</source>
+        <translation>Pemasangan</translation>
+    </message>
+    <message>
         <source>This laptop outside the office</source>
         <translation>Laptop ini di luar kantor</translation>
     </message>
@@ -2885,8 +2985,8 @@ Pastikan nama kunci milik satu sama lain sama di semua komputer.</translation>
         <translation>Kode pemasangan tidak dapat disimpan. Jalankan Configurator sebagai administrator.</translation>
     </message>
     <message>
-        <source>Scan this code with the AruniControl app (location &quot;%1&quot;). Valid until %2.</source>
-        <translation>Pindai kode ini dengan aplikasi AruniControl (lokasi &quot;%1&quot;). Berlaku hingga %2.</translation>
+        <source>Scan this code with the AruniControl app (location "%1"). Valid until %2.</source>
+        <translation>Pindai kode ini dengan aplikasi AruniControl (lokasi "%1"). Berlaku hingga %2.</translation>
     </message>
     <message>
         <source>Off</source>
@@ -2909,8 +3009,8 @@ Pastikan nama kunci milik satu sama lain sama di semua komputer.</translation>
         <translation>Menghubungkan ke server relay…</translation>
     </message>
     <message>
-        <source>Remove access for &quot;%1&quot;? The phone has to be paired again to connect.</source>
-        <translation>Cabut akses untuk &quot;%1&quot;? HP harus dipasangkan ulang agar dapat terhubung.</translation>
+        <source>Remove access for "%1"? The phone has to be paired again to connect.</source>
+        <translation>Cabut akses untuk "%1"? HP harus dipasangkan ulang agar dapat terhubung.</translation>
     </message>
     <message>
         <source>Offline</source>
@@ -2937,24 +3037,24 @@ Pastikan nama kunci milik satu sama lain sama di semua komputer.</translation>
         <translation>Komputer ini memerlukan kunci autentikasi privat (Kunci autentikasi) untuk tersambung ke laptop</translation>
     </message>
     <message>
-        <source>Active, using the key &quot;%1&quot;</source>
-        <translation>Aktif, memakai kunci &quot;%1&quot;</translation>
+        <source>Active, using the key "%1"</source>
+        <translation>Aktif, memakai kunci "%1"</translation>
     </message>
     <message>
         <source>Not available on the Aruni Gateway itself</source>
         <translation>Tidak tersedia di Aruni Gateway itu sendiri</translation>
     </message>
     <message>
-        <source>Connected to &quot;%1&quot; - currently in the office</source>
-        <translation>Terhubung ke &quot;%1&quot; - sedang di kantor</translation>
+        <source>Connected to "%1" - currently in the office</source>
+        <translation>Terhubung ke "%1" - sedang di kantor</translation>
     </message>
     <message>
-        <source>Connected to &quot;%1&quot; - this laptop can be monitored from anywhere</source>
-        <translation>Terhubung ke &quot;%1&quot; - laptop ini dapat dipantau dari mana saja</translation>
+        <source>Connected to "%1" - this laptop can be monitored from anywhere</source>
+        <translation>Terhubung ke "%1" - laptop ini dapat dipantau dari mana saja</translation>
     </message>
     <message>
-        <source>Connecting to &quot;%1&quot;…</source>
-        <translation>Menghubungkan ke &quot;%1&quot;…</translation>
+        <source>Connecting to "%1"…</source>
+        <translation>Menghubungkan ke "%1"…</translation>
     </message>
     <message>
         <source>New enrollment code</source>
@@ -2965,12 +3065,12 @@ Pastikan nama kunci milik satu sama lain sama di semua komputer.</translation>
         <translation>Buat kode pendaftaran baru? Kode saat ini tidak dapat lagi digunakan untuk menambahkan laptop. Laptop yang sudah terdaftar tetap berfungsi.</translation>
     </message>
     <message>
-        <source>Remove &quot;%1&quot;? It can no longer be reached outside the office until it is enrolled again with a new enrollment code.</source>
-        <translation>Hapus &quot;%1&quot;? Laptop ini tidak dapat lagi dijangkau di luar kantor sampai didaftarkan ulang dengan kode pendaftaran baru.</translation>
+        <source>Remove "%1"? It can no longer be reached outside the office until it is enrolled again with a new enrollment code.</source>
+        <translation>Hapus "%1"? Laptop ini tidak dapat lagi dijangkau di luar kantor sampai didaftarkan ulang dengan kode pendaftaran baru.</translation>
     </message>
     <message>
-        <source>Please enter the enrollment code shown by the Aruni Gateway of the office (section &quot;Laptops outside the office&quot;). It starts with ARUNIL1:</source>
-        <translation>Masukkan kode pendaftaran yang ditampilkan oleh Aruni Gateway kantor (bagian &quot;Laptop di luar kantor&quot;). Kode diawali dengan ARUNIL1:</translation>
+        <source>Please enter the enrollment code shown by the Aruni Gateway of the office (section "Laptops outside the office"). It starts with ARUNIL1:</source>
+        <translation>Masukkan kode pendaftaran yang ditampilkan oleh Aruni Gateway kantor (bagian "Laptop di luar kantor"). Kode diawali dengan ARUNIL1:</translation>
     </message>
     <message>
         <source>The settings could not be saved. Please run the Configurator as administrator.</source>
@@ -3019,11 +3119,11 @@ Pastikan nama kunci milik satu sama lain sama di semua komputer.</translation>
     <message>
         <source>1. In Telegram, open @BotFather, send /newbot and follow the steps. Copy the bot token.
 2. Paste the token below, then open your new bot in Telegram and send /start.
-3. Click &quot;Detect&quot; to fill in the chat ID, click &quot;Send test&quot; and then Apply.
+3. Click "Detect" to fill in the chat ID, click "Send test" and then Apply.
 Tip: add the bot to a group and send /start there to alert the whole IT team.</source>
         <translation>1. Di Telegram, buka @BotFather, kirim /newbot lalu ikuti langkahnya. Salin token bot.
 2. Tempel token di bawah, lalu buka bot baru Anda di Telegram dan kirim /start.
-3. Klik &quot;Deteksi&quot; untuk mengisi chat ID, klik &quot;Kirim tes&quot;, lalu Terapkan.
+3. Klik "Deteksi" untuk mengisi chat ID, klik "Kirim tes", lalu Terapkan.
 Tips: tambahkan bot ke grup dan kirim /start di sana agar seluruh tim IT mendapat peringatan.</translation>
     </message>
     <message>
@@ -3127,8 +3227,8 @@ Tips: tambahkan bot ke grup dan kirim /start di sana agar seluruh tim IT mendapa
         <translation>Mendeteksi…</translation>
     </message>
     <message>
-        <source>Chat found. Click &quot;Send test&quot;.</source>
-        <translation>Chat ditemukan. Klik &quot;Kirim tes&quot;.</translation>
+        <source>Chat found. Click "Send test".</source>
+        <translation>Chat ditemukan. Klik "Kirim tes".</translation>
     </message>
     <message>
         <source>Sending…</source>
@@ -3168,6 +3268,18 @@ Tips: tambahkan bot ke grup dan kirim /start di sana agar seluruh tim IT mendapa
     <message>
         <source>Show the activity history of the gateway, or export it: activity &lt;file.csv&gt; [days]</source>
         <translation>Tampilkan riwayat aktivitas gateway, atau ekspor: activity &lt;berkas.csv&gt; [hari]</translation>
+    </message>
+    <message>
+        <source>Run the schedules in the foreground (for testing)</source>
+        <translation>Jalankan jadwal di latar depan (untuk pengujian)</translation>
+    </message>
+    <message>
+        <source>Print an installation code with all public keys of this computer: setupcode [private] [computers] [roaming]</source>
+        <translation>Tampilkan kode pemasangan berisi semua kunci publik komputer ini: setupcode [private] [computers] [roaming]</translation>
+    </message>
+    <message>
+        <source>Set up this computer with an installation code (ARUNISETUP1:... or a file containing it)</source>
+        <translation>Siapkan komputer ini dengan kode pemasangan (ARUNISETUP1:... atau file yang berisi kode itu)</translation>
     </message>
     <message>
         <source>Aruni Gateway: %1</source>
@@ -3222,12 +3334,20 @@ Tips: tambahkan bot ke grup dan kirim /start di sana agar seluruh tim IT mendapa
         <translation>Tidak dapat menyimpan pengaturan (jalankan sebagai administrator).</translation>
     </message>
     <message>
-        <source>This laptop stays reachable for &quot;%1&quot; outside the office.</source>
-        <translation>Laptop ini tetap terjangkau oleh &quot;%1&quot; di luar kantor.</translation>
+        <source>This laptop stays reachable for "%1" outside the office.</source>
+        <translation>Laptop ini tetap terjangkau oleh "%1" di luar kantor.</translation>
     </message>
     <message>
         <source>The Aruni Gateway is not enabled on this computer yet.</source>
         <translation>Aruni Gateway belum diaktifkan di komputer ini.</translation>
+    </message>
+    <message>
+        <source>This code contains private keys - keep it secret.</source>
+        <translation>Kode ini berisi kunci privat - rahasiakan.</translation>
+    </message>
+    <message>
+        <source>Cannot read %1</source>
+        <translation>Tidak dapat membaca %1</translation>
     </message>
     <message>
         <source>Could not write %1.</source>
@@ -3265,12 +3385,12 @@ Tips: tambahkan bot ke grup dan kirim /start di sana agar seluruh tim IT mendapa
         <translation>✅ %1 online kembali</translation>
     </message>
     <message>
-        <source>⛔ A laptop was refused by the gateway &quot;%1&quot; (removed, or an old enrollment code)</source>
-        <translation>⛔ Sebuah laptop ditolak oleh gateway &quot;%1&quot; (sudah dihapus, atau kode pendaftaran lama)</translation>
+        <source>⛔ A laptop was refused by the gateway "%1" (removed, or an old enrollment code)</source>
+        <translation>⛔ Sebuah laptop ditolak oleh gateway "%1" (sudah dihapus, atau kode pendaftaran lama)</translation>
     </message>
     <message>
-        <source>⛔ Refused access attempt at the gateway &quot;%1&quot; (unknown phone or invalid pairing code)</source>
-        <translation>⛔ Percobaan akses ditolak di gateway &quot;%1&quot; (HP tidak dikenal atau kode pemasangan tidak valid)</translation>
+        <source>⛔ Refused access attempt at the gateway "%1" (unknown phone or invalid pairing code)</source>
+        <translation>⛔ Percobaan akses ditolak di gateway "%1" (HP tidak dikenal atau kode pemasangan tidak valid)</translation>
     </message>
     <message>
         <source>⚠️ %1 has been offline since %2</source>
@@ -3656,7 +3776,7 @@ Tips: tambahkan bot ke grup dan kirim /start di sana agar seluruh tim IT mendapa
     </message>
     <message>
         <source>e.g. room or computerLab</source>
-        <translation>misalnya ruangan atau &quot;laboratorium komputer&quot;</translation>
+        <translation>misalnya ruangan atau "laboratorium komputer"</translation>
     </message>
     <message>
         <source>User login name attribute</source>
@@ -3917,8 +4037,8 @@ Tips: tambahkan bot ke grup dan kirim /start di sana agar seluruh tim IT mendapa
         <translation>Grup tidak ditemukan</translation>
     </message>
     <message>
-        <source>Could not find a group with the name &quot;%1&quot;. Please check the group name or the group tree parameter.</source>
-        <translation>Tidak dapat menemukan grup dengan nama &quot;%1&quot;. Periksa nama grup atau parameter pohon grup.</translation>
+        <source>Could not find a group with the name "%1". Please check the group name or the group tree parameter.</source>
+        <translation>Tidak dapat menemukan grup dengan nama "%1". Periksa nama grup atau parameter pohon grup.</translation>
     </message>
     <message>
         <source>Enter computer display name</source>
@@ -4013,8 +4133,8 @@ Tips: tambahkan bot ke grup dan kirim /start di sana agar seluruh tim IT mendapa
         <translation>Pengguna tidak ditemukan</translation>
     </message>
     <message>
-        <source>Could not find a user with the name &quot;%1&quot;. Please check the username or the user tree parameter.</source>
-        <translation>Tidak dapat menemukan pengguna dengan nama &quot;%1&quot;. Periksa nama pengguna atau parameter pohon pengguna.</translation>
+        <source>Could not find a user with the name "%1". Please check the username or the user tree parameter.</source>
+        <translation>Tidak dapat menemukan pengguna dengan nama "%1". Periksa nama pengguna atau parameter pohon pengguna.</translation>
     </message>
     <message>
         <source>Enter hostname</source>
@@ -4033,8 +4153,8 @@ Tips: tambahkan bot ke grup dan kirim /start di sana agar seluruh tim IT mendapa
         <translation>komputer tidak ditemukan</translation>
     </message>
     <message>
-        <source>Could not find a computer with the hostname &quot;%1&quot;. Please check the hostname or the computer tree parameter.</source>
-        <translation>Tidak dapat menemukan komputer dengan nama host &quot;%1&quot;. Periksa nama host atau parameter pohon komputer.</translation>
+        <source>Could not find a computer with the hostname "%1". Please check the hostname or the computer tree parameter.</source>
+        <translation>Tidak dapat menemukan komputer dengan nama host "%1". Periksa nama host atau parameter pohon komputer.</translation>
     </message>
     <message>
         <source>Enter computer IP address</source>
@@ -4101,10 +4221,10 @@ Tips: tambahkan bot ke grup dan kirim /start di sana agar seluruh tim IT mendapa
         <translation>Tes LDAP %1 gagal</translation>
     </message>
     <message>
-        <source>Could not query any entries in configured %1. Please check the parameter &quot;%2&quot;.
+        <source>Could not query any entries in configured %1. Please check the parameter "%2".
 
 %3</source>
-        <translation>Tidak dapat mengkueri entri apa pun di %1 yang dikonfigurasi. Periksa parameter &quot;%2&quot;.
+        <translation>Tidak dapat mengkueri entri apa pun di %1 yang dikonfigurasi. Periksa parameter "%2".
 
 %3</translation>
     </message>
@@ -4184,8 +4304,8 @@ Tips: tambahkan bot ke grup dan kirim /start di sana agar seluruh tim IT mendapa
         <translation>Tunjukkan bantuan tentang perintah</translation>
     </message>
     <message>
-        <source>Please specify a valid LDAP url following the schema &quot;ldap[s]://[user[:password]@]hostname[:port]&quot;</source>
-        <translation>Tentukan URL LDAP yang valid sesuai skema &quot;ldap[s]://[user[:password]@]hostname[:port]&quot;</translation>
+        <source>Please specify a valid LDAP url following the schema "ldap[s]://[user[:password]@]hostname[:port]"</source>
+        <translation>Tentukan URL LDAP yang valid sesuai skema "ldap[s]://[user[:password]@]hostname[:port]"</translation>
     </message>
     <message>
         <source>No naming context attribute name given - falling back to configured value.</source>
@@ -4477,7 +4597,7 @@ Tips: tambahkan bot ke grup dan kirim /start di sana agar seluruh tim IT mendapa
         <translation>Autentikasi tidak dimungkinkan</translation>
     </message>
     <message>
-        <source>No authentication key files were found or your current ones are outdated. Please create new key files using AruniControl Configurator. Alternatively set up logon authentication using AruniControl Configurator. Otherwise you won&apos;t be able to access computers using AruniControl.</source>
+        <source>No authentication key files were found or your current ones are outdated. Please create new key files using AruniControl Configurator. Alternatively set up logon authentication using AruniControl Configurator. Otherwise you won't be able to access computers using AruniControl.</source>
         <translation>Berkas kunci autentikasi tidak ditemukan atau sudah usang. Buat berkas kunci baru menggunakan AruniControl Configurator. Sebagai alternatif, atur autentikasi logon menggunakan AruniControl Configurator. Jika tidak, Anda tidak akan dapat mengakses komputer dengan AruniControl.</translation>
     </message>
     <message>
@@ -4485,7 +4605,7 @@ Tips: tambahkan bot ke grup dan kirim /start di sana agar seluruh tim IT mendapa
         <translation>Akses ditolak</translation>
     </message>
     <message>
-        <source>According to the local configuration you&apos;re not allowed to access computers in the network. Please log in with a different account or let your system administrator check the local configuration.</source>
+        <source>According to the local configuration you're not allowed to access computers in the network. Please log in with a different account or let your system administrator check the local configuration.</source>
         <translation>Menurut konfigurasi lokal Anda tidak diperbolehkan mengakses komputer di jaringan. Silakan masuk dengan akun lain atau biarkan administrator sistem Anda memeriksa konfigurasi lokal.</translation>
     </message>
     <message>
@@ -4493,8 +4613,8 @@ Tips: tambahkan bot ke grup dan kirim /start di sana agar seluruh tim IT mendapa
         <translation>Fitur aktif</translation>
     </message>
     <message>
-        <source>The feature &quot;%1&quot; is still active. Please stop it before closing AruniControl.</source>
-        <translation>Fitur &quot;%1&quot; masih aktif. Hentikan fitur tersebut sebelum menutup AruniControl.</translation>
+        <source>The feature "%1" is still active. Please stop it before closing AruniControl.</source>
+        <translation>Fitur "%1" masih aktif. Hentikan fitur tersebut sebelum menutup AruniControl.</translation>
     </message>
     <message>
         <source>Use custom computer arrangement.
@@ -4831,8 +4951,8 @@ Tekan dan tahan untuk memuat susunan dari berkas atau menyimpan susunan saat ini
         <translation>Tidak ada kunci autentikasi privat di komputer ini</translation>
     </message>
     <message>
-        <source>The computer &quot;%1&quot; refused the key &quot;%2&quot;</source>
-        <translation>Komputer &quot;%1&quot; menolak kunci &quot;%2&quot;</translation>
+        <source>The computer "%1" refused the key "%2"</source>
+        <translation>Komputer "%1" menolak kunci "%2"</translation>
     </message>
     <message>
         <source>Cannot save screenshots to %1</source>
@@ -4922,8 +5042,8 @@ Tekan dan tahan untuk memuat susunan dari berkas atau menyimpan susunan saat ini
         <translation>Token bot tidak valid</translation>
     </message>
     <message>
-        <source>No message found - send &quot;/start&quot; to your bot in Telegram first</source>
-        <translation>Belum ada pesan - kirim &quot;/start&quot; ke bot Anda di Telegram terlebih dahulu</translation>
+        <source>No message found - send "/start" to your bot in Telegram first</source>
+        <translation>Belum ada pesan - kirim "/start" ke bot Anda di Telegram terlebih dahulu</translation>
     </message>
 </context>
 <context>
@@ -5277,7 +5397,7 @@ Simpan pekerjaan Anda dan tutup semua program.</translation>
         <translation>Kembalikan bawaan</translation>
     </message>
     <message>
-        <source>Don&apos;t Save</source>
+        <source>Don't Save</source>
         <translation>Jangan simpan</translation>
     </message>
     <message>
@@ -5421,8 +5541,8 @@ Simpan pekerjaan Anda dan tutup semua program.</translation>
         <translation>Gateway kantor tidak menjawab</translation>
     </message>
     <message>
-        <source>Not possible while &quot;Allow connections from localhost only&quot; is enabled</source>
-        <translation>Tidak dapat dilakukan saat &quot;Izinkan koneksi hanya dari localhost&quot; aktif</translation>
+        <source>Not possible while "Allow connections from localhost only" is enabled</source>
+        <translation>Tidak dapat dilakukan saat "Izinkan koneksi hanya dari localhost" aktif</translation>
     </message>
     <message>
         <source>Not possible with access control rules for connections from the local computer</source>
@@ -5450,6 +5570,280 @@ Simpan pekerjaan Anda dan tutup semua program.</translation>
     </message>
 </context>
 <context>
+    <name>ScheduleRuleDialog</name>
+    <message>
+        <source>Schedule</source>
+        <translation>Jadwal</translation>
+    </message>
+    <message>
+        <source>e.g. Closing time</source>
+        <translation>mis. Jam pulang</translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <translation>Nama</translation>
+    </message>
+    <message>
+        <source>Action</source>
+        <translation>Aksi</translation>
+    </message>
+    <message>
+        <source>Time</source>
+        <translation>Waktu</translation>
+    </message>
+    <message>
+        <source>Days</source>
+        <translation>Hari</translation>
+    </message>
+    <message>
+        <source>All computers</source>
+        <translation>Semua komputer</translation>
+    </message>
+    <message>
+        <source>Room</source>
+        <translation>Ruangan</translation>
+    </message>
+    <message>
+        <source>One website per line</source>
+        <translation>Satu situs per baris</translation>
+    </message>
+    <message>
+        <source>Schedule is active</source>
+        <translation>Jadwal aktif</translation>
+    </message>
+    <message>
+        <source>Choose at least one day.</source>
+        <translation>Pilih paling sedikit satu hari.</translation>
+    </message>
+    <message>
+        <source>Enter the message.</source>
+        <translation>Isi pesannya.</translation>
+    </message>
+    <message>
+        <source>Enter the websites to block.</source>
+        <translation>Isi situs yang akan diblokir.</translation>
+    </message>
+    <message>
+        <source>Exam websites
+(the only ones reachable)</source>
+        <translation>Situs ujian
+(hanya ini yang bisa dibuka)</translation>
+    </message>
+    <message>
+        <source>Websites to block</source>
+        <translation>Situs yang diblokir</translation>
+    </message>
+    <message>
+        <source>Open website</source>
+        <translation>Buka situs web</translation>
+    </message>
+    <message>
+        <source>Message</source>
+        <translation>Pesan</translation>
+    </message>
+    <message>
+        <source>e.g. 10 minutes until closing time - please save your work.</source>
+        <translation>mis. 10 menit lagi jam pulang - simpan pekerjaan Anda.</translation>
+    </message>
+</context>
+<context>
+    <name>ScheduleView</name>
+    <message>
+        <source>Actions done automatically at set times, e.g. power on the computers in the morning, lock the screens during the break or power them down in the evening. This computer runs the schedules, so it has to be on at those times.</source>
+        <translation>Tindakan yang dijalankan otomatis pada jam tertentu, mis. menyalakan komputer di pagi hari, mengunci layar saat istirahat, atau mematikannya di sore hari. Komputer ini yang menjalankan jadwal, jadi harus menyala pada jam-jam tersebut.</translation>
+    </message>
+    <message>
+        <source>On</source>
+        <translation>Aktif</translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <translation>Nama</translation>
+    </message>
+    <message>
+        <source>Action</source>
+        <translation>Aksi</translation>
+    </message>
+    <message>
+        <source>When</source>
+        <translation>Kapan</translation>
+    </message>
+    <message>
+        <source>Room</source>
+        <translation>Ruangan</translation>
+    </message>
+    <message>
+        <source>Last run</source>
+        <translation>Terakhir dijalankan</translation>
+    </message>
+    <message>
+        <source>Add</source>
+        <translation>Tambahkan</translation>
+    </message>
+    <message>
+        <source>Edit</source>
+        <translation>Ubah</translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation>Hapus</translation>
+    </message>
+    <message>
+        <source>Run now</source>
+        <translation>Jalankan sekarang</translation>
+    </message>
+    <message>
+        <source>Add examples</source>
+        <translation>Tambah contoh</translation>
+    </message>
+    <message>
+        <source>Power on 07:00, lock screens 12:00-13:00, power down 17:00 (Monday-Friday)</source>
+        <translation>Nyalakan 07:00, kunci layar 12:00-13:00, matikan 17:00 (Senin-Jumat)</translation>
+    </message>
+    <message>
+        <source>Power on needs Wake-on-LAN enabled in the BIOS and the MAC addresses in the list of computers. Power down warns the users 2 minutes before. Results appear in the Activity tab and, if set up, on Telegram.</source>
+        <translation>Menyalakan butuh Wake-on-LAN aktif di BIOS dan alamat MAC di daftar komputer. Sebelum dimatikan, pengguna diberi peringatan 2 menit. Hasilnya muncul di tab Riwayat dan, jika diatur, di Telegram.</translation>
+    </message>
+    <message>
+        <source>All computers</source>
+        <translation>Semua komputer</translation>
+    </message>
+    <message>
+        <source>This computer has no private authentication key, so it cannot connect to the computers. Create or import one on the "Authentication keys" page.</source>
+        <translation>Komputer ini tidak punya kunci autentikasi privat, jadi tidak bisa terhubung ke komputer lain. Buat atau impor kunci di halaman "Kunci autentikasi".</translation>
+    </message>
+    <message>
+        <source>Schedules</source>
+        <translation>Jadwal</translation>
+    </message>
+    <message>
+        <source>Could not save the schedules (run as administrator).</source>
+        <translation>Jadwal tidak dapat disimpan (jalankan sebagai administrator).</translation>
+    </message>
+    <message>
+        <source>Delete the schedule "%1"?</source>
+        <translation>Hapus jadwal "%1"?</translation>
+    </message>
+    <message>
+        <source>Run "%1" (%2) now?</source>
+        <translation>Jalankan "%1" (%2) sekarang?</translation>
+    </message>
+    <message>
+        <source>The schedule runs within half a minute - the result appears in the list.</source>
+        <translation>Jadwal dijalankan dalam setengah menit - hasilnya muncul di daftar.</translation>
+    </message>
+    <message>
+        <source>Morning</source>
+        <translation>Pagi</translation>
+    </message>
+    <message>
+        <source>Break</source>
+        <translation>Istirahat</translation>
+    </message>
+    <message>
+        <source>Break over</source>
+        <translation>Selesai istirahat</translation>
+    </message>
+    <message>
+        <source>Closing time</source>
+        <translation>Jam pulang</translation>
+    </message>
+    <message>
+        <source>Four example schedules were added. Adjust the times with "Edit" or switch off the ones you do not need.</source>
+        <translation>Empat contoh jadwal ditambahkan. Sesuaikan jamnya dengan "Ubah" atau matikan yang tidak diperlukan.</translation>
+    </message>
+</context>
+<context>
+    <name>Scheduler</name>
+    <message>
+        <source>no private authentication key on this computer</source>
+        <translation>tidak ada kunci autentikasi privat di komputer ini</translation>
+    </message>
+    <message>
+        <source>No computers configured</source>
+        <translation>Belum ada komputer di daftar</translation>
+    </message>
+    <message>
+        <source>No computers in room %1</source>
+        <translation>Tidak ada komputer di ruangan %1</translation>
+    </message>
+    <message>
+        <source>%1 of %2 computers</source>
+        <translation>%1 dari %2 komputer</translation>
+    </message>
+    <message>
+        <source>not reached: %1</source>
+        <translation>tidak terjangkau: %1</translation>
+    </message>
+</context>
+<context>
+    <name>Schedules</name>
+    <message>
+        <source>Power on (Wake-on-LAN)</source>
+        <translation>Nyalakan (Wake-on-LAN)</translation>
+    </message>
+    <message>
+        <source>Power down</source>
+        <translation>Matikan</translation>
+    </message>
+    <message>
+        <source>Reboot</source>
+        <translation>Nyalakan Ulang</translation>
+    </message>
+    <message>
+        <source>Lock screen</source>
+        <translation>Kunci layar</translation>
+    </message>
+    <message>
+        <source>Unlock screen</source>
+        <translation>Buka kunci layar</translation>
+    </message>
+    <message>
+        <source>Block internet</source>
+        <translation>Blokir internet</translation>
+    </message>
+    <message>
+        <source>Allow internet</source>
+        <translation>Izinkan internet</translation>
+    </message>
+    <message>
+        <source>Block websites</source>
+        <translation>Blokir situs</translation>
+    </message>
+    <message>
+        <source>Unblock websites</source>
+        <translation>Buka blokir situs</translation>
+    </message>
+    <message>
+        <source>Send message</source>
+        <translation>Kirim pesan</translation>
+    </message>
+    <message>
+        <source>Start exam mode</source>
+        <translation>Mulai mode ujian</translation>
+    </message>
+    <message>
+        <source>End exam mode</source>
+        <translation>Akhiri mode ujian</translation>
+    </message>
+    <message>
+        <source>Every day</source>
+        <translation>Setiap hari</translation>
+    </message>
+    <message>
+        <source>Monday-Friday</source>
+        <translation>Senin-Jumat</translation>
+    </message>
+    <message>
+        <source>Monday-Saturday</source>
+        <translation>Senin-Sabtu</translation>
+    </message>
+    <message>
+        <source>Never</source>
+        <translation>Tidak pernah</translation>
+    </message>
+</context>
+<context>
     <name>ScreenLockFeaturePlugin</name>
     <message>
         <source>Lock</source>
@@ -5460,7 +5854,7 @@ Simpan pekerjaan Anda dan tutup semua program.</translation>
         <translation>Buka kunci</translation>
     </message>
     <message>
-        <source>To reclaim all user&apos;s full attention you can lock their computers using this button. In this mode all input devices are locked and the screens are blacked.</source>
+        <source>To reclaim all user's full attention you can lock their computers using this button. In this mode all input devices are locked and the screens are blacked.</source>
         <translation>Untuk merebut kembali perhatian penuh semua pengguna, Anda dapat mengunci komputer mereka dengan tombol ini. Dalam mode ini semua perangkat input dikunci dan layar dibuat hitam.</translation>
     </message>
     <message>
@@ -5472,7 +5866,7 @@ Simpan pekerjaan Anda dan tutup semua program.</translation>
         <translation>Buka kunci perangkat input</translation>
     </message>
     <message>
-        <source>To reclaim all user&apos;s full attention you can lock their computers using this button. In this mode all input devices are locked while the desktop is still visible.</source>
+        <source>To reclaim all user's full attention you can lock their computers using this button. In this mode all input devices are locked while the desktop is still visible.</source>
         <translation>Untuk merebut kembali perhatian penuh semua pengguna, Anda dapat mengunci komputer mereka dengan tombol ini. Dalam mode ini semua perangkat input dikunci, sementara desktop tetap terlihat.</translation>
     </message>
     <message>
@@ -5516,7 +5910,7 @@ Simpan pekerjaan Anda dan tutup semua program.</translation>
         <translation>tidak dikenal</translation>
     </message>
     <message>
-        <source>Could not take a screenshot as directory %1 doesn&apos;t exist and couldn&apos;t be created.</source>
+        <source>Could not take a screenshot as directory %1 doesn't exist and couldn't be created.</source>
         <translation>Tidak dapat mengambil tangkapan layar karena direktori %1 tidak ada dan tidak dapat dibuat.</translation>
     </message>
     <message>
@@ -5554,8 +5948,8 @@ Simpan pekerjaan Anda dan tutup semua program.</translation>
 <context>
     <name>ScreenshotManagementPanel</name>
     <message>
-        <source>All screenshots taken by you are listed here. You can take screenshots by clicking the &quot;Screenshot&quot; item in the context menu of a computer. The screenshots can be managed using the buttons below.</source>
-        <translation>Semua tangkapan layar yang Anda ambil tercantum di sini. Anda dapat mengambil tangkapan layar dengan mengklik item &quot;Tangkapan layar&quot; di menu konteks komputer. Tangkapan layar dapat dikelola dengan tombol di bawah.</translation>
+        <source>All screenshots taken by you are listed here. You can take screenshots by clicking the "Screenshot" item in the context menu of a computer. The screenshots can be managed using the buttons below.</source>
+        <translation>Semua tangkapan layar yang Anda ambil tercantum di sini. Anda dapat mengambil tangkapan layar dengan mengklik item "Tangkapan layar" di menu konteks komputer. Tangkapan layar dapat dikelola dengan tombol di bawah.</translation>
     </message>
     <message>
         <source>User:</source>
@@ -5597,12 +5991,12 @@ Simpan pekerjaan Anda dan tutup semua program.</translation>
         <translation>Metode autentikasi yang diminta tidak tersedia</translation>
     </message>
     <message>
-        <source>Access allowed by rule &quot;%1&quot;</source>
-        <translation>Akses diizinkan oleh aturan &quot;%1&quot;</translation>
+        <source>Access allowed by rule "%1"</source>
+        <translation>Akses diizinkan oleh aturan "%1"</translation>
     </message>
     <message>
-        <source>Access denied by rule &quot;%1&quot;</source>
-        <translation>Akses ditolak oleh aturan &quot;%1&quot;</translation>
+        <source>Access denied by rule "%1"</source>
+        <translation>Akses ditolak oleh aturan "%1"</translation>
     </message>
     <message>
         <source>No rule allowed access</source>
@@ -5861,14 +6255,214 @@ Contoh: [^-]*-(PC[0-9]*)</translation>
     </message>
 </context>
 <context>
+    <name>SetupCode</name>
+    <message>
+        <source>Cannot read the public key "%1".</source>
+        <translation>Kunci publik "%1" tidak dapat dibaca.</translation>
+    </message>
+    <message>
+        <source>Cannot read the private key "%1" (run as administrator).</source>
+        <translation>Kunci privat "%1" tidak dapat dibaca (jalankan sebagai administrator).</translation>
+    </message>
+    <message>
+        <source>Roaming laptops need the Aruni Gateway enabled on this computer.</source>
+        <translation>Laptop jelajah butuh Aruni Gateway aktif di komputer ini.</translation>
+    </message>
+    <message>
+        <source>From: %1</source>
+        <translation>Dari: %1</translation>
+    </message>
+    <message>
+        <source>Authentication key "%1" (public)</source>
+        <translation>Kunci autentikasi "%1" (publik)</translation>
+    </message>
+    <message>
+        <source>Authentication key "%1" (public and private - for Master computers)</source>
+        <translation>Kunci autentikasi "%1" (publik dan privat - untuk komputer Master)</translation>
+    </message>
+    <message>
+        <source>List of rooms and computers (%1 computers)</source>
+        <translation>Daftar ruangan dan komputer (%1 komputer)</translation>
+    </message>
+    <message>
+        <source>Roaming laptop: stays reachable outside the office</source>
+        <translation>Laptop jelajah: tetap terpantau di luar kantor</translation>
+    </message>
+    <message>
+        <source>This is not a valid installation code.</source>
+        <translation>Ini bukan kode pemasangan yang valid.</translation>
+    </message>
+    <message>
+        <source>The key "%1" in the code is damaged.</source>
+        <translation>Kunci "%1" di dalam kode rusak.</translation>
+    </message>
+    <message>
+        <source>Cannot write the key "%1" (run as administrator).</source>
+        <translation>Kunci "%1" tidak dapat ditulis (jalankan sebagai administrator).</translation>
+    </message>
+    <message>
+        <source>Authentication key "%1" installed</source>
+        <translation>Kunci autentikasi "%1" terpasang</translation>
+    </message>
+    <message>
+        <source>Cannot write the private key "%1" (run as administrator).</source>
+        <translation>Kunci privat "%1" tidak dapat ditulis (jalankan sebagai administrator).</translation>
+    </message>
+    <message>
+        <source>Private key "%1" installed (this computer can act as Master)</source>
+        <translation>Kunci privat "%1" terpasang (komputer ini bisa menjadi Master)</translation>
+    </message>
+    <message>
+        <source>Authentication method: key files</source>
+        <translation>Metode autentikasi: file kunci</translation>
+    </message>
+    <message>
+        <source>List of rooms and computers imported</source>
+        <translation>Daftar ruangan dan komputer diimpor</translation>
+    </message>
+    <message>
+        <source>Roaming laptop skipped: this computer is the Aruni Gateway</source>
+        <translation>Laptop jelajah dilewati: komputer ini adalah Aruni Gateway</translation>
+    </message>
+    <message>
+        <source>Could not save the roaming laptop settings (run as administrator).</source>
+        <translation>Pengaturan laptop jelajah tidak dapat disimpan (jalankan sebagai administrator).</translation>
+    </message>
+    <message>
+        <source>Roaming laptop of "%1"</source>
+        <translation>Laptop jelajah milik "%1"</translation>
+    </message>
+</context>
+<context>
+    <name>SetupCodeView</name>
+    <message>
+        <source>Create an installation code (on the admin computer)</source>
+        <translation>Buat kode pemasangan (di komputer admin)</translation>
+    </message>
+    <message>
+        <source>One code sets up any number of computers: no key import on each computer.</source>
+        <translation>Satu kode untuk menyiapkan berapa pun komputer: tidak perlu impor kunci di tiap komputer.</translation>
+    </message>
+    <message>
+        <source>Authentication keys:</source>
+        <translation>Kunci autentikasi:</translation>
+    </message>
+    <message>
+        <source>Include private keys (teacher/Master computers only)</source>
+        <translation>Sertakan kunci privat (khusus komputer guru/Master)</translation>
+    </message>
+    <message>
+        <source>Whoever has a code with private keys can control the computers - keep it secret.</source>
+        <translation>Siapa pun yang memegang kode berisi kunci privat bisa mengendalikan komputer - rahasiakan.</translation>
+    </message>
+    <message>
+        <source>Include the list of rooms and computers</source>
+        <translation>Sertakan daftar ruangan dan komputer</translation>
+    </message>
+    <message>
+        <source>Roaming laptops: stay reachable outside the office</source>
+        <translation>Laptop jelajah: tetap terpantau di luar kantor</translation>
+    </message>
+    <message>
+        <source>Create code</source>
+        <translation>Buat kode</translation>
+    </message>
+    <message>
+        <source>Copy</source>
+        <translation>Salin</translation>
+    </message>
+    <message>
+        <source>Save as aruni-setup.txt...</source>
+        <translation>Simpan sebagai aruni-setup.txt...</translation>
+    </message>
+    <message>
+        <source>Set up this computer with a code</source>
+        <translation>Siapkan komputer ini dengan kode</translation>
+    </message>
+    <message>
+        <source>Apply code</source>
+        <translation>Terapkan kode</translation>
+    </message>
+    <message>
+        <source>No keys yet - create them on the "Authentication keys" page.</source>
+        <translation>Belum ada kunci - buat di halaman "Kunci autentikasi".</translation>
+    </message>
+    <message>
+        <source>Enable the Aruni Gateway on the "Gateway" tab first.</source>
+        <translation>Aktifkan dulu Aruni Gateway di tab "Gateway".</translation>
+    </message>
+    <message>
+        <source>Installation code</source>
+        <translation>Kode pemasangan</translation>
+    </message>
+    <message>
+        <source>Choose at least one key or option.</source>
+        <translation>Pilih paling sedikit satu kunci atau pilihan.</translation>
+    </message>
+    <message>
+        <source>Install silently on each computer (e.g. from a network share):
+AruniControl-Setup.exe /S /SETUP=%1
+
+Or save the code as aruni-setup.txt next to AruniControl-Setup.exe - the installer uses it automatically.</source>
+        <translation>Pasang tanpa jendela di tiap komputer (mis. dari folder bersama di jaringan):
+AruniControl-Setup.exe /S /SETUP=%1
+
+Atau simpan kode sebagai aruni-setup.txt di samping AruniControl-Setup.exe - installer memakainya otomatis.</translation>
+    </message>
+    <message>
+        <source>The code is long: save it as aruni-setup.txt next to AruniControl-Setup.exe (e.g. on a USB stick or network share) - the installer uses it automatically, also with /S for a silent installation.</source>
+        <translation>Kodenya panjang: simpan sebagai aruni-setup.txt di samping AruniControl-Setup.exe (mis. di flashdisk atau folder bersama) - installer memakainya otomatis, juga dengan /S untuk pemasangan tanpa jendela.</translation>
+    </message>
+    <message>
+        <source>Macs: veyon-cli gateway setup &lt;code&gt; or paste it below on the Mac.</source>
+        <translation>Mac: veyon-cli gateway setup &lt;kode&gt; atau tempel kode di bawah ini pada Mac tersebut.</translation>
+    </message>
+    <message>
+        <source>Keep this code secret: whoever has it can control the computers.</source>
+        <translation>Rahasiakan kode ini: siapa pun yang memilikinya bisa mengendalikan komputer.</translation>
+    </message>
+    <message>
+        <source>Save installation code</source>
+        <translation>Simpan kode pemasangan</translation>
+    </message>
+    <message>
+        <source>Text files (*.txt)</source>
+        <translation>File teks (*.txt)</translation>
+    </message>
+    <message>
+        <source>Cannot write %1</source>
+        <translation>Tidak dapat menulis %1</translation>
+    </message>
+    <message>
+        <source>This is not a valid installation code.</source>
+        <translation>Ini bukan kode pemasangan yang valid.</translation>
+    </message>
+    <message>
+        <source>Set up this computer with:
+
+%1
+
+Continue?</source>
+        <translation>Siapkan komputer ini dengan:
+
+%1
+
+Lanjutkan?</translation>
+    </message>
+    <message>
+        <source>Close and reopen the Configurator to see the changes.</source>
+        <translation>Tutup lalu buka lagi Configurator untuk melihat perubahannya.</translation>
+    </message>
+</context>
+<context>
     <name>ShellCommands</name>
     <message>
         <source>Run command file</source>
         <translation>Jalankan berkas perintah</translation>
     </message>
     <message>
-        <source>File &quot;%1&quot; does not exist!</source>
-        <translation>Berkas &quot;%1&quot; tidak ada!</translation>
+        <source>File "%1" does not exist!</source>
+        <translation>Berkas "%1" tidak ada!</translation>
     </message>
     <message>
         <source>Interactive shell and script execution for AruniControl CLI</source>
@@ -6034,8 +6628,8 @@ Contoh: [^-]*-(PC[0-9]*)</translation>
         <translation>Nama:</translation>
     </message>
     <message>
-        <source>e.g. &quot;C:\Program Files\VideoLAN\VLC\vlc.exe&quot;</source>
-        <translation>mis. &quot;C:\Program Files\VideoLAN\VLC\vlc.exe&quot;</translation>
+        <source>e.g. "C:\Program Files\VideoLAN\VLC\vlc.exe"</source>
+        <translation>mis. "C:\Program Files\VideoLAN\VLC\vlc.exe"</translation>
     </message>
     <message>
         <source>Remember and add to application menu</source>
@@ -6291,8 +6885,8 @@ Contoh: [^-]*-(PC[0-9]*)</translation>
         <translation>Argumen yang diberikan tidak valid</translation>
     </message>
     <message>
-        <source>Not enough arguments given - use &quot;%1 help&quot; for more information</source>
-        <translation>Argumen tidak cukup - gunakan &quot;%1 help&quot; untuk informasi lebih lanjut</translation>
+        <source>Not enough arguments given - use "%1 help" for more information</source>
+        <translation>Argumen tidak cukup - gunakan "%1 help" untuk informasi lebih lanjut</translation>
     </message>
     <message>
         <source>No command given</source>
@@ -6594,36 +7188,36 @@ Contoh: [^-]*-(PC[0-9]*)</translation>
 <context>
     <name>WindowsServiceControl</name>
     <message>
-        <source>The service &quot;%1&quot; is already installed.</source>
-        <translation>Layanan &quot;%1&quot; sudah terpasang.</translation>
+        <source>The service "%1" is already installed.</source>
+        <translation>Layanan "%1" sudah terpasang.</translation>
     </message>
     <message>
-        <source>The service &quot;%1&quot; could not be installed (error %2).</source>
-        <translation>Layanan &quot;%1&quot; tidak dapat dipasang (kesalahan %2).</translation>
+        <source>The service "%1" could not be installed (error %2).</source>
+        <translation>Layanan "%1" tidak dapat dipasang (kesalahan %2).</translation>
     </message>
     <message>
-        <source>Could not change the failure actions config for service &quot;%1&quot; (error %2).</source>
-        <translation>Tidak dapat mengubah konfigurasi tindakan kegagalan untuk layanan &quot;%1&quot; (galat %2).</translation>
+        <source>Could not change the failure actions config for service "%1" (error %2).</source>
+        <translation>Tidak dapat mengubah konfigurasi tindakan kegagalan untuk layanan "%1" (galat %2).</translation>
     </message>
     <message>
-        <source>The service &quot;%1&quot; has been installed successfully.</source>
-        <translation>Layanan &quot;%1&quot; berhasil dipasang.</translation>
+        <source>The service "%1" has been installed successfully.</source>
+        <translation>Layanan "%1" berhasil dipasang.</translation>
     </message>
     <message>
-        <source>The service &quot;%1&quot; could not be uninstalled (error %2).</source>
-        <translation>Layanan &quot;%1&quot; tidak dapat dilepaskan (kesalahan %2).</translation>
+        <source>The service "%1" could not be uninstalled (error %2).</source>
+        <translation>Layanan "%1" tidak dapat dilepaskan (kesalahan %2).</translation>
     </message>
     <message>
-        <source>The service &quot;%1&quot; has been uninstalled successfully.</source>
-        <translation>Layanan &quot;%1&quot; berhasil dicopot.</translation>
+        <source>The service "%1" has been uninstalled successfully.</source>
+        <translation>Layanan "%1" berhasil dicopot.</translation>
     </message>
     <message>
-        <source>The start type of service &quot;%1&quot; could not be changed (error %2).</source>
-        <translation>Jenis mulai layanan &quot;%1&quot; tidak dapat diubah (galat %2).</translation>
+        <source>The start type of service "%1" could not be changed (error %2).</source>
+        <translation>Jenis mulai layanan "%1" tidak dapat diubah (galat %2).</translation>
     </message>
     <message>
-        <source>Service &quot;%1&quot; could not be found.</source>
-        <translation>Layanan &quot;%1&quot; tidak dapat ditemukan</translation>
+        <source>Service "%1" could not be found.</source>
+        <translation>Layanan "%1" tidak dapat ditemukan</translation>
     </message>
 </context>
 <context>

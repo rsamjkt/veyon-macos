@@ -31,6 +31,7 @@
 
 class GatewayService;
 class RoamingAgent;
+class Scheduler;
 
 class GatewayPlugin : public QObject, PluginInterface, ConfigurationPagePluginInterface,
 		CommandLinePluginInterface, CommandLineIO
@@ -94,10 +95,14 @@ public Q_SLOTS:
 	CommandLinePluginInterface::RunResult handle_enrollmentcode( const QStringList& arguments );
 	CommandLinePluginInterface::RunResult handle_runroaming( const QStringList& arguments );
 	CommandLinePluginInterface::RunResult handle_activity( const QStringList& arguments );
+	CommandLinePluginInterface::RunResult handle_runschedules( const QStringList& arguments );
+	CommandLinePluginInterface::RunResult handle_setupcode( const QStringList& arguments );
+	CommandLinePluginInterface::RunResult handle_setup( const QStringList& arguments );
 
 private:
 	GatewayService* m_service{nullptr};
 	RoamingAgent* m_roamingAgent{nullptr};
+	Scheduler* m_scheduler{nullptr};
 	QMap<QString, QString> m_commands;
 
 };

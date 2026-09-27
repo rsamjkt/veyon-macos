@@ -105,9 +105,10 @@ int main( int argc, char **argv )
 			}
 		}
 		const auto height = qEnvironmentVariableIntValue( "ARUNI_SCREENSHOT_HEIGHT" );
-		if( height > 0 )
+		const auto width = qEnvironmentVariableIntValue( "ARUNI_SCREENSHOT_WIDTH" );
+		if( height > 0 || width > 0 )
 		{
-			mainWindow->resize( mainWindow->width(), height );
+			mainWindow->resize( width > 0 ? width : mainWindow->width(), height > 0 ? height : mainWindow->height() );
 		}
 		QTimer::singleShot( 1500, mainWindow, [=]() {
 			mainWindow->grab().save( screenshotFile );

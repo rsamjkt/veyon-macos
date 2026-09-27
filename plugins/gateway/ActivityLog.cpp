@@ -219,6 +219,7 @@ QString ActivityLog::eventName( const QString& event )
 		{ QStringLiteral("access.auth_failed"), QT_TR_NOOP( "Access: authentication failed" ) },
 		{ QStringLiteral("access.access_denied"), QT_TR_NOOP( "Access: denied" ) },
 		{ QStringLiteral("access.feature"), QT_TR_NOOP( "Access: function used" ) },
+		{ QStringLiteral("schedule.run"), QT_TR_NOOP( "Schedule" ) },
 	};
 	const auto name = names.value( event );
 	return name ? tr( name ) : event;
@@ -269,6 +270,10 @@ QString ActivityLog::describe( const Entry& entry )
 			text += QStringLiteral(", ") + tr( "after %1" ).arg( duration( d[QStringLiteral("seconds")].toInteger() ) );
 		}
 		return text;
+	}
+	if( entry.event == QStringLiteral("schedule.run") )
+	{
+		return QStringLiteral("%1: %2").arg( d[QStringLiteral("action")].toString(), d[QStringLiteral("result")].toString() );
 	}
 	if( entry.event == QStringLiteral("phone.rejected") || entry.event == QStringLiteral("laptop.rejected") )
 	{

@@ -54,6 +54,8 @@
 #include "GatewayConfigurationPage.h"
 #include "Notifier.h"
 #include "MonitoringCollector.h"
+#include "ScheduleView.h"
+#include "SetupCodeView.h"
 #include "TimelapseView.h"
 #include "Filesystem.h"
 #include "GatewayState.h"
@@ -212,6 +214,10 @@ GatewayConfigurationPage::GatewayConfigurationPage( QWidget* parent ) :
 	m_activityTabIndex = m_tabs->addTab( createActivityTab(), tr( "Activity" ) );
 	m_timelapse = new TimelapseView;
 	m_recordingsTabIndex = m_tabs->addTab( m_timelapse, tr( "Recordings" ) );
+	m_schedules = new ScheduleView;
+	m_schedulesTabIndex = m_tabs->addTab( m_schedules, tr( "Schedules" ) );
+	m_setupCode = new SetupCodeView;
+	m_setupTabIndex = m_tabs->addTab( m_setupCode, tr( "Installation" ) );
 
 	// --- this computer as roaming laptop
 	auto roamingBox = new QGroupBox( tr( "This laptop outside the office" ) );
@@ -269,6 +275,10 @@ GatewayConfigurationPage::GatewayConfigurationPage( QWidget* parent ) :
 		{
 			refreshActivity();
 		}
+		else if( m_tabs->currentIndex() == m_schedulesTabIndex && m_schedules->isActiveWindow() )
+		{
+			m_schedules->refresh();
+		}
 	} );
 	connect( m_tabs, &QTabWidget::currentChanged, this, [this]( int index ) {
 		if( index == m_activityTabIndex )
@@ -278,6 +288,14 @@ GatewayConfigurationPage::GatewayConfigurationPage( QWidget* parent ) :
 		else if( index == m_recordingsTabIndex )
 		{
 			m_timelapse->refresh();
+		}
+		else if( index == m_schedulesTabIndex )
+		{
+			m_schedules->refresh();
+		}
+		else if( index == m_setupTabIndex )
+		{
+			m_setupCode->refresh();
 		}
 	} );
 	m_refreshTimer.start( 2000 );

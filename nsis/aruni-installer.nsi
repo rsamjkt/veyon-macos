@@ -6,18 +6,23 @@
 ;   OUTFILE  - output installer path
 ;   ICON     - .ico used for the installer/uninstaller
 ; Optional:
-;   VERSION  - product version string (default 1.5.0)
+;   VERSION  - product version string (default 1.6.0)
 ;
 ; Command line of the installer (besides /S for a silent install):
 ;   /ENROLL=<code> - make this laptop a roaming laptop of the office gateway
 ;                    with the given enrollment code (ARUNIL1:...)
+;   /SETUP=<code>  - installation code from the admin computer (ARUNISETUP1:...,
+;                    or the path of a file containing it): authentication
+;                    keys, rooms/computers, roaming laptop - see SetupCode.h.
+;                    Without /SETUP a file "aruni-setup.txt" next to the
+;                    installer is used, so long codes need no command line.
 
 Unicode true
 
 !define PRODUCT "AruniControl"
 !define PUBLISHER "Arunika"
 !ifndef VERSION
-  !define VERSION "1.5.0"
+  !define VERSION "1.6.0"
 !endif
 !ifndef ICON
   !define ICON "installer.ico"
@@ -74,6 +79,23 @@ Section "AruniControl Server" SecMain
 
   ; payload (self-contained server + plugins + Qt/QCA/OpenSSL/Interception)
   File /r "${SRC}\*.*"
+
+  ; installation code of the admin computer - before the service starts so
+  ; it uses the keys and settings right away
+  ${GetParameters} $0
+  ClearErrors
+  ${GetOptions} $0 "/SETUP=" $1
+  ${If} ${Errors}
+  ${OrIf} $1 == ""
+    StrCpy $1 ""
+    ${If} ${FileExists} "$EXEDIR\aruni-setup.txt"
+      StrCpy $1 "$EXEDIR\aruni-setup.txt"
+    ${EndIf}
+  ${EndIf}
+  ${If} $1 != ""
+    DetailPrint "Menerapkan kode pemasangan..."
+    nsExec::ExecToLog '"$INSTDIR\veyon-wcli.exe" gateway setup "$1"'
+  ${EndIf}
 
   ; register + start the background service (runs as LocalSystem)
   DetailPrint "Mendaftarkan service AruniControl..."

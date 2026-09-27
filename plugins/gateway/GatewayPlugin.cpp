@@ -23,6 +23,7 @@
  */
 
 #include <QCoreApplication>
+#include <QFile>
 #include <QJsonArray>
 #include <QTimer>
 
@@ -31,6 +32,8 @@
 #include "GatewayPlugin.h"
 #include "GatewayService.h"
 #include "RoamingAgent.h"
+#include "Scheduler.h"
+#include "SetupCode.h"
 #include "VeyonCore.h"
 
 
@@ -43,6 +46,9 @@ GatewayPlugin::GatewayPlugin( QObject* parent ) :
 		{ QStringLiteral("enrollmentcode"), tr( "Print the enrollment code for roaming laptops (on the office gateway)" ) },
 		{ QStringLiteral("runroaming"), tr( "Run the roaming laptop connection in the foreground (for testing)" ) },
 		{ QStringLiteral("activity"), tr( "Show the activity history of the gateway, or export it: activity <file.csv> [days]" ) },
+		{ QStringLiteral("runschedules"), tr( "Run the schedules in the foreground (for testing)" ) },
+		{ QStringLiteral("setupcode"), tr( "Print an installation code with all public keys of this computer: setupcode [private] [computers] [roaming]" ) },
+		{ QStringLiteral("setup"), tr( "Set up this computer with an installation code (ARUNISETUP1:... or a file containing it)" ) },
 	} )
 {
 	// the gateway and the roaming laptop mode live in the always-running
@@ -52,6 +58,7 @@ GatewayPlugin::GatewayPlugin( QObject* parent ) :
 		{
 			m_service = new GatewayService( this );
 			m_roamingAgent = new RoamingAgent( this );
+			m_scheduler = new Scheduler( this );
 		}
 	} );
 }
@@ -188,6 +195,81 @@ CommandLinePluginInterface::RunResult GatewayPlugin::handle_runroaming( const QS
 
 	RoamingAgent agent;
 	QCoreApplication::exec();
+	return Successful;
+}
+
+
+
+CommandLinePluginInterface::RunResult GatewayPlugin::handle_runschedules( const QStringList& arguments )
+{
+	Q_UNUSED(arguments)
+
+	Scheduler scheduler;
+	QCoreApplication::exec();
+	return Successful;
+}
+
+
+
+CommandLinePluginInterface::RunResult GatewayPlugin::handle_setupcode( const QStringList& arguments )
+{
+	SetupCode::Options options;
+	options.keyNames = SetupCode::availableKeys();
+	options.includePrivateKeys = arguments.contains( QStringLiteral("private") );
+	options.includeComputers = arguments.contains( QStringLiteral("computers") );
+	options.includeRoaming = arguments.contains( QStringLiteral("roaming") );
+
+	QString errorMessage;
+	const auto code = SetupCode::create( options, &errorMessage );
+	if( code.isEmpty() )
+	{
+		error( errorMessage );
+		return Failed;
+	}
+
+	if( options.includePrivateKeys )
+	{
+		warning( tr( "This code contains private keys - keep it secret." ) );
+	}
+	print( code );
+	return NoResult;
+}
+
+
+
+CommandLinePluginInterface::RunResult GatewayPlugin::handle_setup( const QStringList& arguments )
+{
+	if( arguments.isEmpty() )
+	{
+		return NotEnoughArguments;
+	}
+
+	// the code itself or a file containing it (long codes, see the installer)
+	auto code = arguments.first();
+	if( code.startsWith( QString::fromLatin1( SetupCode::Prefix ), Qt::CaseInsensitive ) == false )
+	{
+		QFile file( code );
+		if( file.open( QFile::ReadOnly ) == false )
+		{
+			error( tr( "Cannot read %1" ).arg( code ) );
+			return Failed;
+		}
+		code = QString::fromUtf8( file.readAll() );
+	}
+
+	const auto content = SetupCode::decode( code );
+	QStringList report;
+	QString errorMessage;
+	const bool ok = SetupCode::apply( content, report, errorMessage );
+	for( const auto& line : std::as_const( report ) )
+	{
+		info( line );
+	}
+	if( ok == false )
+	{
+		error( errorMessage );
+		return Failed;
+	}
 	return Successful;
 }
 

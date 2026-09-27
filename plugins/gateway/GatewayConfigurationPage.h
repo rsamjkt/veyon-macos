@@ -114,6 +114,10 @@ private:
 	QCheckBox* m_collectAccessLogs;
 	class TimelapseView* m_timelapse;
 	int m_recordingsTabIndex{-1};
+	class ScheduleView* m_schedules;
+	int m_schedulesTabIndex{-1};
+	class SetupCodeView* m_setupCode;
+	int m_setupTabIndex{-1};
 	QLabel* m_screenshotStatus;
 
 	// notifications

@@ -862,6 +862,77 @@ void MobileApp::setAudioMuted( bool muted, const QStringList& uids )
 
 
 
+QVariantMap MobileApp::examSettings() const
+{
+	auto settings = mobileSettings();
+	settings.beginGroup( QStringLiteral("exam") );
+	return {
+		{ QStringLiteral("sites"), settings.value( QStringLiteral("sites") ).toStringList().join( QLatin1Char(' ') ) },
+		{ QStringLiteral("url"), settings.value( QStringLiteral("url") ).toString() },
+		{ QStringLiteral("blockInternet"), settings.value( QStringLiteral("blockInternet"), true ).toBool() },
+		{ QStringLiteral("closeApps"), settings.value( QStringLiteral("closeApps"), true ).toBool() },
+		{ QStringLiteral("lockKeys"), settings.value( QStringLiteral("lockKeys"), true ).toBool() },
+	};
+}
+
+
+
+void MobileApp::startExam( const QVariantMap& examSettings, const QStringList& uids )
+{
+	const auto sites = examSettings.value( QStringLiteral("sites") ).toString()
+						   .split( QRegularExpression( QStringLiteral("[\\s,;]+") ), Qt::SkipEmptyParts );
+	const auto url = examSettings.value( QStringLiteral("url") ).toString().trimmed();
+	const auto blockInternet = examSettings.value( QStringLiteral("blockInternet"), true ).toBool();
+	const auto closeApps = examSettings.value( QStringLiteral("closeApps"), true ).toBool();
+	const auto lockKeys = examSettings.value( QStringLiteral("lockKeys"), true ).toBool();
+
+	auto settings = mobileSettings();
+	settings.beginGroup( QStringLiteral("exam") );
+	settings.setValue( QStringLiteral("sites"), sites );
+	settings.setValue( QStringLiteral("url"), url );
+	settings.setValue( QStringLiteral("blockInternet"), blockInternet );
+	settings.setValue( QStringLiteral("closeApps"), closeApps );
+	settings.setValue( QStringLiteral("lockKeys"), lockKeys );
+	settings.endGroup();
+
+	QVariantMap arguments{
+		{ QStringLiteral("sites"), sites },
+		{ QStringLiteral("url"), url },
+		{ QStringLiteral("blockInternet"), blockInternet },
+		{ QStringLiteral("lockKeys"), lockKeys },
+	};
+	// without "apps" the plugin closes its default list
+	if( closeApps == false )
+	{
+		arguments[QStringLiteral("apps")] = QStringList{};
+	}
+
+	if( runFeature( QStringLiteral("ExamMode"), true, arguments, uids ) )
+	{
+		Q_EMIT notify( tr("Mode ujian dimulai di %1 komputer").arg( targetCount( uids ) ), QStringLiteral("success") );
+	}
+	else
+	{
+		Q_EMIT notify( tr("Tidak ada komputer tujuan yang terhubung."), QStringLiteral("error") );
+	}
+}
+
+
+
+void MobileApp::endExam( const QStringList& uids )
+{
+	if( runFeature( QStringLiteral("ExamMode"), false, {}, uids ) )
+	{
+		Q_EMIT notify( tr("Mode ujian diakhiri di %1 komputer").arg( targetCount( uids ) ), QStringLiteral("success") );
+	}
+	else
+	{
+		Q_EMIT notify( tr("Tidak ada komputer tujuan yang terhubung."), QStringLiteral("error") );
+	}
+}
+
+
+
 int MobileApp::saveScreenshots( const QStringList& uids )
 {
 	const auto directory = screenshotDirectory();

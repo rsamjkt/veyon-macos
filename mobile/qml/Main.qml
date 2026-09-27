@@ -68,6 +68,7 @@ ApplicationWindow {
 	// tools for many computers at once (an empty uid list = all visible computers)
 	function openBroadcast(uids, label) { broadcastSheet.start(uids, label) }
 	function openSiteBlock(uids, label) { siteBlockSheet.start(uids, label) }
+	function openExam(uids, label) { examSheet.start(uids, label) }
 
 	function goHome() {
 		stack.replace(null, Qt.resolvedUrl("HomePage.qml"))
@@ -128,6 +129,7 @@ ApplicationWindow {
 				break
 			case "broadcast": window.openBroadcast([], qsTr("Semua komputer")); break
 			case "siteblock": window.openSiteBlock([], qsTr("Semua komputer")); break
+			case "exam": window.openExam([], qsTr("Semua komputer")); break
 			case "accesslog":
 				if (App.computers.count > 0)
 					window.openAccessLog(App.computers.uidAt(0))
@@ -152,6 +154,7 @@ ApplicationWindow {
 	VoiceSheet { id: voiceSheet }
 	BroadcastSheet { id: broadcastSheet }
 	SiteBlockSheet { id: siteBlockSheet }
+	ExamSheet { id: examSheet }
 
 	// in-app notification for chat replies that arrive while that chat is closed
 	Rectangle {

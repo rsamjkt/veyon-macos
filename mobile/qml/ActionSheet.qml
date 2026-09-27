@@ -54,6 +54,7 @@ Sheet {
 			actions: [
 				{ key: "internetOff", icon: "public_off", label: qsTr("Blokir internet"), feature: "InternetAccessControl" },
 				{ key: "internetOn", icon: "public", label: qsTr("Buka internet"), feature: "InternetAccessControl" },
+				{ key: "exam", icon: "assignment", label: qsTr("Mode ujian"), feature: "ExamMode" },
 				{ key: "siteBlock", icon: "block", label: qsTr("Blokir situs"), feature: "" },
 				{ key: "mute", icon: "volume_off", label: qsTr("Bisukan suara"), feature: "AruniMediaMute" },
 				{ key: "unmute", icon: "volume_up", label: qsTr("Nyalakan suara"), feature: "AruniMediaMute" }
@@ -108,6 +109,10 @@ Sheet {
 		case "siteBlock":
 			sheet.close()
 			window.openSiteBlock(uids, targetLabel)
+			return
+		case "exam":
+			sheet.close()
+			window.openExam(uids, targetLabel)
 			return
 		case "chat":
 		case "voice":
