@@ -300,3 +300,30 @@ Laptops taken home stay monitored through the office Aruni Gateway (hub).
   Configurator → Lokasi & komputer and the app (Ruangan & komputer → import icon).
 - Known: the app froze (ANR) on the emulator when typing into the site-block field opened over the live remote page;
   not reproduced from the Home sheet — verify on a real phone.
+
+## 1.6.0 "Gita": installation code, schedules, exam mode
+
+- **Installation code** `plugins/gateway/SetupCode` — `ARUNISETUP1:` + base64url(qCompress(JSON {v, site, keys[{name,
+  public, private?}], computers (BuiltinDirectory/NetworkObjects array), enroll (ARUNIL1 code)})). Apply = write key
+  files (authkeys permissions), `setAuthenticationMethod(KeyFile)` + `NetworkObjects` in ONE `flushStore()`, roaming
+  enroll via GatewayState. CLI `veyon-cli gateway setupcode [private] [computers] [roaming]` / `gateway setup <code|file>`.
+  Configurator tab "Pemasangan" (`SetupCodeView`, restarts the service after applying). NSIS: `/SETUP=` or
+  `$EXEDIR\aruni-setup.txt`, run BEFORE `service register/start`. NSIS options are limited to 1024 chars, a code with
+  one public key is ~850, with the computer list longer → the txt file is the main path.
+- **Schedules** `Schedules` (model, `gateway/schedules.json`, status `schedules-status.json`, run requests
+  `schedules-run`) + `Scheduler` (created in GatewayPlugin for the server, independent of the gateway being enabled,
+  own lock `scheduler.lock`). Tick 20 s; a rule runs if today/time matches and it's at most 10 min late; not twice a
+  day. Targets = BuiltinDirectory (after `config().reloadFromStore()`), filtered by Location name, never this computer.
+  Power on = WoL (all broadcast addresses, repeated after 30 s); others connect like a Master (max 8 parallel, 45 s
+  timeout, `FeatureControlOnly`) and call `featureManager().controlFeature()` by fixed uid; power down = PowerDownDelayed
+  120 s. Result → ActivityLog `schedule.run` + Telegram. Tab "Jadwal" (`ScheduleView`). Test without touching real PCs:
+  `ARUNI_GATEWAY_DIR=/tmp/x ARUNI_SCHEDULE_TARGETS=127.0.0.1 veyon-cli gateway runschedules`.
+- **Exam mode** `plugins/exammode` (feature uid 9b2e6c41-…, Mode): Start{Sites,Apps,LockKeys,Url,BlockInternet}/Stop/
+  Query→Status. Server: state `%GLOBALAPPDATA%/exammode.json` (restored 3 s after server start via
+  `VeyonCore::instance()->findChild<VeyonServerInterface*>()`), taskkill/pkill every 20 s, firewall: Windows rules
+  `AruniControl-Exam-{LAN,DHCP,DNS-UDP,DNS-TCP,Sites}` + blockoutbound (sites re-resolved every 10 min; stop keeps
+  outbound blocked if the InternetAccessControl rule exists); macOS pf via async osascript. `requiredDomains()` (relay,
+  updates) always allowed, the Url's domain too. Worker: `KeyboardShortcutTrapper` (Windows LL hook swallows Win/Alt+Tab/
+  Alt+F4/Ctrl+Esc) + open Url; `DisableTaskMgr` HKLM policy. Each server instance re-checks the state file (another
+  session's instance may have ended the exam). `controlFeature(Start)` drops localhost targets (teacher PC) — test
+  locally by commenting that out. App: `ExamSheet.qml`, `MobileApp::startExam/endExam`.
