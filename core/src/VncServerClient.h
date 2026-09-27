@@ -134,6 +134,17 @@ public:
 		return m_hostAddress;
 	}
 
+	// name of the authentication key used (key file authentication)
+	const QString& authKeyName() const
+	{
+		return m_authKeyName;
+	}
+
+	void setAuthKeyName( const QString& authKeyName )
+	{
+		m_authKeyName = authKeyName;
+	}
+
 	void setHostAddress( const QString& hostAddress )
 	{
 		m_hostAddress = hostAddress;
@@ -177,6 +188,7 @@ private:
 	QElapsedTimer m_accessControlTimer;
 	QString m_username;
 	QString m_hostAddress;
+	QString m_authKeyName;
 	QByteArray m_challenge;
 	CryptoCore::PrivateKey m_privateKey;
 

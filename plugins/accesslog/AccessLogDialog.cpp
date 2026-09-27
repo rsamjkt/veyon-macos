@@ -106,6 +106,10 @@ QString AccessLogDialog::eventText( const QJsonObject& entry )
 	{
 		return tr( "Function: %1" ).arg( entry[QStringLiteral("feature")].toString() );
 	}
+	if( event == QStringLiteral("feature_denied") )
+	{
+		return tr( "Function not allowed for this key: %1" ).arg( entry[QStringLiteral("feature")].toString() );
+	}
 	return event;
 }
 
@@ -155,7 +159,9 @@ void AccessLogDialog::rebuildTable()
 		m_table->setItem( row, column++, new QTableWidgetItem( time.toString( QStringLiteral("yyyy-MM-dd HH:mm:ss") ) ) );
 		m_table->setItem( row, column++, new QTableWidgetItem( eventText( entry ) ) );
 		m_table->setItem( row, column++, new QTableWidgetItem( entry[QStringLiteral("host")].toString() ) );
-		m_table->setItem( row, column++, new QTableWidgetItem( entry[QStringLiteral("user")].toString() ) );
+		const auto keyName = entry[QStringLiteral("key")].toString();
+		m_table->setItem( row, column++, new QTableWidgetItem( keyName.isEmpty() ? entry[QStringLiteral("user")].toString()
+																				  : QStringLiteral("%1 (%2)").arg( entry[QStringLiteral("user")].toString(), keyName ) ) );
 	}
 	m_table->setSortingEnabled( true );
 	m_table->sortItems( m_multiple ? 1 : 0, Qt::DescendingOrder );

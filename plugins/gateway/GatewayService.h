@@ -87,6 +87,9 @@ public:
 	// a phone or laptop whose handshake was refused
 	void sessionRefused( bool agent );
 
+	// Telegram message to the admin (if set up)
+	void notify( const QString& text );
+
 	const GatewayState& state() const
 	{
 		return m_state;
@@ -123,7 +126,6 @@ private:
 	void dropRemovedAgents();
 	void updateDirectoryServer();
 	QByteArray roamingDirectoryJson() const;
-	void notify( const QString& text );
 	void checkOfflineAlerts();
 	void setAgentAlerted( const QByteArray& agentKey, bool alerted );
 

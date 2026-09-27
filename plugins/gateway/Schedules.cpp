@@ -152,6 +152,7 @@ QString Schedules::actionKey( Action action )
 	case Action::Message: return QStringLiteral("message");
 	case Action::StartExam: return QStringLiteral("startExam");
 	case Action::EndExam: return QStringLiteral("endExam");
+	case Action::PushRoles: return QStringLiteral("pushRoles");
 	}
 	return {};
 }
@@ -196,6 +197,7 @@ QString Schedules::actionName( Action action )
 	case Action::Message: return tr( "Send message" );
 	case Action::StartExam: return tr( "Start exam mode" );
 	case Action::EndExam: return tr( "End exam mode" );
+	case Action::PushRoles: return tr( "Send admin roles" );
 	}
 	return {};
 }

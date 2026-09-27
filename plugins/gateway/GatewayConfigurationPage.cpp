@@ -54,6 +54,8 @@
 #include "GatewayConfigurationPage.h"
 #include "Notifier.h"
 #include "MonitoringCollector.h"
+#include "InventoryView.h"
+#include "RolesView.h"
 #include "ScheduleView.h"
 #include "SetupCodeView.h"
 #include "TimelapseView.h"
@@ -214,10 +216,14 @@ GatewayConfigurationPage::GatewayConfigurationPage( QWidget* parent ) :
 	m_activityTabIndex = m_tabs->addTab( createActivityTab(), tr( "Activity" ) );
 	m_timelapse = new TimelapseView;
 	m_recordingsTabIndex = m_tabs->addTab( m_timelapse, tr( "Recordings" ) );
+	m_inventory = new InventoryView;
+	m_inventoryTabIndex = m_tabs->addTab( m_inventory, tr( "Inventory" ) );
 	m_schedules = new ScheduleView;
 	m_schedulesTabIndex = m_tabs->addTab( m_schedules, tr( "Schedules" ) );
 	m_setupCode = new SetupCodeView;
 	m_setupTabIndex = m_tabs->addTab( m_setupCode, tr( "Installation" ) );
+	m_roles = new RolesView;
+	m_rolesTabIndex = m_tabs->addTab( m_roles, tr( "Admin roles" ) );
 
 	// --- this computer as roaming laptop
 	auto roamingBox = new QGroupBox( tr( "This laptop outside the office" ) );
@@ -279,6 +285,10 @@ GatewayConfigurationPage::GatewayConfigurationPage( QWidget* parent ) :
 		{
 			m_schedules->refresh();
 		}
+		else if( m_tabs->currentIndex() == m_rolesTabIndex && m_roles->isActiveWindow() )
+		{
+			m_roles->refresh();
+		}
 	} );
 	connect( m_tabs, &QTabWidget::currentChanged, this, [this]( int index ) {
 		if( index == m_activityTabIndex )
@@ -296,6 +306,14 @@ GatewayConfigurationPage::GatewayConfigurationPage( QWidget* parent ) :
 		else if( index == m_setupTabIndex )
 		{
 			m_setupCode->refresh();
+		}
+		else if( index == m_rolesTabIndex )
+		{
+			m_roles->refresh();
+		}
+		else if( index == m_inventoryTabIndex )
+		{
+			m_inventory->refresh();
 		}
 	} );
 	m_refreshTimer.start( 2000 );

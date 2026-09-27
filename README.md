@@ -7,7 +7,7 @@
 **Kendalikan banyak komputer dari satu layar — lintas macOS dan Windows.**
 
 [![Lisensi](https://img.shields.io/badge/lisensi-GPLv2-green.svg)](COPYING)
-[![Versi](https://img.shields.io/badge/versi-1.6.0_"Gita"-F2812F.svg)](https://github.com/rsamjkt/veyon-macos/releases)
+[![Versi](https://img.shields.io/badge/versi-1.7.0_"Hana"-F2812F.svg)](https://github.com/rsamjkt/veyon-macos/releases)
 [![Platform](https://img.shields.io/badge/platform-macOS_•_Windows-blue.svg)](#-platform-yang-didukung)
 
 </div>
@@ -61,6 +61,9 @@ AruniControl adalah bagian dari keluarga produk **Arunika** (AruniHealth, Arunik
 | 📥 **Impor/ekspor daftar komputer** *(baru 1.5.0)* | Dari/ke Excel (CSV) atau tempel langsung dari Excel | Configurator & HP |
 | 🔑 **Kode pemasangan** *(baru 1.6.0)* | Satu kode berisi kunci, daftar komputer & laptop jelajah: `Setup.exe /S /SETUP=kode` atau `aruni-setup.txt` di samping installer | Windows & macOS |
 | ⏰ **Jadwal otomatis** *(baru 1.6.0)* | Nyalakan (WoL), kunci/buka layar, blokir internet/situs, pesan, mode ujian, matikan pada jam & hari tertentu per ruangan | Gateway (komputer admin) |
+| 🖥️ **Inventaris komputer** *(baru 1.7.0)* | Spesifikasi, disk, nomor seri & software terpasang semua PC; peringatan disk hampir penuh / PC lama tidak online; ekspor Excel | Gateway |
+| 📦 **Pasang software massal** *(baru 1.7.0)* | Kirim installer (.msi/.exe/.pkg) ke banyak PC dan pasang senyap, atau hapus program; status per komputer | Master & `veyon-cli softwaredeploy` |
+| 👥 **Peran admin** *(baru 1.7.0)* | Kunci per guru/admin: hanya ruangan & fungsi tertentu; kebijakan dikirim ke semua PC sekali klik; tercatat per kunci | Semua |
 | 📝 **Mode ujian sekali klik** *(baru 1.6.0)* | Internet hanya situs CBT, aplikasi chat/game/remote ditutup, tombol Windows/Alt+Tab/Task Manager dikunci; tetap aktif walau restart | Windows (Mac perlu izin admin), Master & HP |
 
 ---
@@ -78,14 +81,14 @@ AruniControl adalah bagian dari keluarga produk **Arunika** (AruniHealth, Arunik
 
 ## 📥 Download
 
-Ambil rilis terbaru di **[halaman Releases](https://github.com/rsamjkt/veyon-macos/releases/tag/v1.6.0)** — versi **1.6.0 "Gita"**:
+Ambil rilis terbaru di **[halaman Releases](https://github.com/rsamjkt/veyon-macos/releases/tag/v1.7.0)** — versi **1.7.0 "Hana"**:
 
 | Paket | Untuk |
 |-------|-------|
-| `AruniControl-1.6.0-Gita-macOS-arm64.zip` | Master & Configurator di **macOS** (Apple Silicon) |
-| `AruniControl-Setup-1.6.0-Gita-Windows-x64.exe` | Installer client **Windows** sekali klik |
-| `AruniControl-Server-1.6.0-Gita-Windows-x64.zip` | Client **Windows** lengkap (mandiri) |
-| `AruniControl-1.6.0-Gita-Android-arm64.apk` | **AruniControl Mobile**: Master di HP Android (layar live, kontrol sentuh, semua fitur) |
+| `AruniControl-1.7.0-Hana-macOS-arm64.zip` | Master & Configurator di **macOS** (Apple Silicon) |
+| `AruniControl-Setup-1.7.0-Hana-Windows-x64.exe` | Installer client **Windows** sekali klik |
+| `AruniControl-Server-1.7.0-Hana-Windows-x64.zip` | Client **Windows** lengkap (mandiri) |
+| `AruniControl-1.7.0-Hana-Android-arm64.apk` | **AruniControl Mobile**: Master di HP Android (layar live, kontrol sentuh, semua fitur) |
 
 ---
 

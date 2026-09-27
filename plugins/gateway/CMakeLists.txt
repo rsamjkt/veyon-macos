@@ -43,7 +43,13 @@ build_veyon_plugin(gateway
 	GatewaySession.h
 	GatewayState.cpp
 	GatewayState.h
+	InventoryStore.cpp
+	InventoryStore.h
+	InventoryView.cpp
+	InventoryView.h
 	RoamingAgent.cpp
+	RolesView.cpp
+	RolesView.h
 	Schedules.cpp
 	Schedules.h
 	Scheduler.cpp

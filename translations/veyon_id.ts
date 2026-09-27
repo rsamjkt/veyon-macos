@@ -375,6 +375,10 @@ Jika Anda tertarik menerjemahkan AruniControl ke bahasa lokal atau bahasa lain, 
         <translation>Fungsi: %1</translation>
     </message>
     <message>
+        <source>Function not allowed for this key: %1</source>
+        <translation>Fungsi tidak diizinkan untuk kunci ini: %1</translation>
+    </message>
+    <message>
         <source>Export access log</source>
         <translation>Ekspor log akses</translation>
     </message>
@@ -509,8 +513,24 @@ Jika Anda tertarik menerjemahkan AruniControl ke bahasa lokal atau bahasa lain, 
         <translation>Akses: fungsi dipakai</translation>
     </message>
     <message>
+        <source>Access: function not allowed</source>
+        <translation>Akses: fungsi tidak diizinkan</translation>
+    </message>
+    <message>
         <source>Schedule</source>
         <translation>Jadwal</translation>
+    </message>
+    <message>
+        <source>Disk almost full</source>
+        <translation>Disk hampir penuh</translation>
+    </message>
+    <message>
+        <source>Computer not online</source>
+        <translation>Komputer tidak online</translation>
+    </message>
+    <message>
+        <source>Computer online again</source>
+        <translation>Komputer online lagi</translation>
     </message>
     <message>
         <source>in the office</source>
@@ -553,12 +573,82 @@ Jika Anda tertarik menerjemahkan AruniControl ke bahasa lokal atau bahasa lain, 
         <translation>dari %1 (%2)</translation>
     </message>
     <message>
+        <source>key %1</source>
+        <translation>kunci %1</translation>
+    </message>
+    <message>
         <source>after %1</source>
         <translation>setelah %1</translation>
     </message>
     <message>
+        <source>%1% free</source>
+        <translation>%1% kosong</translation>
+    </message>
+    <message>
+        <source>Not seen for %1 days</source>
+        <translation>Tidak terlihat selama %1 hari</translation>
+    </message>
+    <message>
         <source>Unknown device or invalid code</source>
         <translation>Perangkat tidak dikenal atau kode tidak valid</translation>
+    </message>
+</context>
+<context>
+    <name>AdminRoles</name>
+    <message>
+        <source>Lock screens, messages, broadcast</source>
+        <translation>Kunci layar, pesan, siaran suara</translation>
+    </message>
+    <message>
+        <source>Block internet/websites, exam mode, mute</source>
+        <translation>Blokir internet/situs, mode ujian, bisukan suara</translation>
+    </message>
+    <message>
+        <source>Open applications/websites, send files</source>
+        <translation>Buka aplikasi/situs, kirim file</translation>
+    </message>
+    <message>
+        <source>Power on/off, reboot, log off</source>
+        <translation>Nyalakan/matikan, mulai ulang, keluarkan pengguna</translation>
+    </message>
+    <message>
+        <source>Install and remove software</source>
+        <translation>Pasang dan hapus software</translation>
+    </message>
+    <message>
+        <source>Change the roles</source>
+        <translation>Mengubah peran</translation>
+    </message>
+</context>
+<context>
+    <name>AdminRolesFeaturePlugin</name>
+    <message>
+        <source>Roles of teachers and admins with limited rights</source>
+        <translation>Peran guru dan admin dengan hak terbatas</translation>
+    </message>
+    <message>
+        <source>Admin roles</source>
+        <translation>Peran admin</translation>
+    </message>
+    <message>
+        <source>Receives the roles of teachers and admins</source>
+        <translation>Menerima peran guru dan admin</translation>
+    </message>
+    <message>
+        <source>Not allowed</source>
+        <translation>Tidak diizinkan</translation>
+    </message>
+    <message>
+        <source>The key of the role "%1" is damaged.</source>
+        <translation>Kunci peran "%1" rusak.</translation>
+    </message>
+    <message>
+        <source>Cannot write the key of the role "%1".</source>
+        <translation>Kunci peran "%1" tidak dapat ditulis.</translation>
+    </message>
+    <message>
+        <source>Cannot save the roles.</source>
+        <translation>Peran tidak dapat disimpan.</translation>
     </message>
 </context>
 <context>
@@ -1694,6 +1784,10 @@ Pastikan nama kunci milik satu sama lain sama di semua komputer.</translation>
 </context>
 <context>
     <name>ComputerControlServer</name>
+    <message>
+        <source>The function "%1" is not allowed for the key "%2".</source>
+        <translation>Fungsi "%1" tidak diizinkan untuk kunci "%2".</translation>
+    </message>
     <message>
         <source>Authentication error</source>
         <translation>Autentikasi gagal</translation>
@@ -2945,12 +3039,20 @@ forms.gle</translation>
         <translation>Rekaman</translation>
     </message>
     <message>
+        <source>Inventory</source>
+        <translation>Inventaris</translation>
+    </message>
+    <message>
         <source>Schedules</source>
         <translation>Jadwal</translation>
     </message>
     <message>
         <source>Installation</source>
         <translation>Pemasangan</translation>
+    </message>
+    <message>
+        <source>Admin roles</source>
+        <translation>Peran admin</translation>
     </message>
     <message>
         <source>This laptop outside the office</source>
@@ -3608,6 +3710,267 @@ Tips: tambahkan bot ke grup dan kirim /start di sana agar seluruh tim IT mendapa
     <message>
         <source>Block or allow internet access on selected computers.</source>
         <translation>Blokir atau izinkan akses internet di komputer yang dipilih.</translation>
+    </message>
+</context>
+<context>
+    <name>InventoryFeaturePlugin</name>
+    <message>
+        <source>Inventory</source>
+        <translation>Inventaris</translation>
+    </message>
+    <message>
+        <source>Hardware, disks and software of the computer</source>
+        <translation>Perangkat keras, disk, dan software komputer</translation>
+    </message>
+    <message>
+        <source>Hardware, disks and software of the computers</source>
+        <translation>Perangkat keras, disk, dan software komputer</translation>
+    </message>
+</context>
+<context>
+    <name>InventoryStore</name>
+    <message>
+        <source>Computer</source>
+        <translation>Komputer</translation>
+    </message>
+    <message>
+        <source>Address</source>
+        <translation>Alamat</translation>
+    </message>
+    <message>
+        <source>Manufacturer</source>
+        <translation>Pabrikan</translation>
+    </message>
+    <message>
+        <source>Model</source>
+        <translation>Model</translation>
+    </message>
+    <message>
+        <source>Serial number</source>
+        <translation>Nomor seri</translation>
+    </message>
+    <message>
+        <source>Operating system</source>
+        <translation>Sistem operasi</translation>
+    </message>
+    <message>
+        <source>Processor</source>
+        <translation>Prosesor</translation>
+    </message>
+    <message>
+        <source>Cores</source>
+        <translation>Inti</translation>
+    </message>
+    <message>
+        <source>RAM (GB)</source>
+        <translation>RAM (GB)</translation>
+    </message>
+    <message>
+        <source>Disks (free/total GB)</source>
+        <translation>Disk (kosong/total GB)</translation>
+    </message>
+    <message>
+        <source>MAC address</source>
+        <translation>MAC address</translation>
+    </message>
+    <message>
+        <source>User</source>
+        <translation>Pengguna</translation>
+    </message>
+    <message>
+        <source>AruniControl</source>
+        <translation>AruniControl</translation>
+    </message>
+    <message>
+        <source>Programs</source>
+        <translation>Program</translation>
+    </message>
+    <message>
+        <source>Last seen</source>
+        <translation>Terakhir terlihat</translation>
+    </message>
+    <message>
+        <source>Collected</source>
+        <translation>Dikumpulkan</translation>
+    </message>
+    <message>
+        <source>Program</source>
+        <translation>Program</translation>
+    </message>
+    <message>
+        <source>Version</source>
+        <translation>Versi</translation>
+    </message>
+    <message>
+        <source>Publisher</source>
+        <translation>Penerbit</translation>
+    </message>
+    <message>
+        <source>Installed</source>
+        <translation>Dipasang</translation>
+    </message>
+</context>
+<context>
+    <name>InventoryView</name>
+    <message>
+        <source>Collect the inventory of all computers (every 6 hours)</source>
+        <translation>Kumpulkan inventaris semua komputer (tiap 6 jam)</translation>
+    </message>
+    <message>
+        <source>Alert when a computer was not online for</source>
+        <translation>Beri peringatan jika komputer tidak online selama</translation>
+    </message>
+    <message>
+        <source> days</source>
+        <translation> hari</translation>
+    </message>
+    <message>
+        <source>never</source>
+        <translation>tidak pernah</translation>
+    </message>
+    <message>
+        <source>or a disk has less than</source>
+        <translation>atau disk tersisa kurang dari</translation>
+    </message>
+    <message>
+        <source> % free</source>
+        <translation> % kosong</translation>
+    </message>
+    <message>
+        <source>Search computer, model, program...</source>
+        <translation>Cari komputer, model, program...</translation>
+    </message>
+    <message>
+        <source>Update now</source>
+        <translation>Perbarui sekarang</translation>
+    </message>
+    <message>
+        <source>Export computers...</source>
+        <translation>Ekspor komputer...</translation>
+    </message>
+    <message>
+        <source>Export software...</source>
+        <translation>Ekspor software...</translation>
+    </message>
+    <message>
+        <source>Computer</source>
+        <translation>Komputer</translation>
+    </message>
+    <message>
+        <source>Model</source>
+        <translation>Model</translation>
+    </message>
+    <message>
+        <source>Operating system</source>
+        <translation>Sistem operasi</translation>
+    </message>
+    <message>
+        <source>Processor</source>
+        <translation>Prosesor</translation>
+    </message>
+    <message>
+        <source>RAM</source>
+        <translation>RAM</translation>
+    </message>
+    <message>
+        <source>Lowest free disk</source>
+        <translation>Disk paling penuh (kosong)</translation>
+    </message>
+    <message>
+        <source>Programs</source>
+        <translation>Program</translation>
+    </message>
+    <message>
+        <source>Last seen</source>
+        <translation>Terakhir terlihat</translation>
+    </message>
+    <message>
+        <source>No inventory yet - the gateway collects it within a few minutes.</source>
+        <translation>Belum ada inventaris - gateway mengumpulkannya dalam beberapa menit.</translation>
+    </message>
+    <message>
+        <source>The inventory is collected by the Aruni Gateway - enable it on the "Gateway" tab.</source>
+        <translation>Inventaris dikumpulkan oleh Aruni Gateway - aktifkan di tab "Gateway".</translation>
+    </message>
+    <message>
+        <source>%1 computers, %2 with a nearly full disk, %3 not online for a while. Computers with an older AruniControl only show when they were last seen.</source>
+        <translation>%1 komputer, %2 dengan disk hampir penuh, %3 sudah lama tidak online. Komputer dengan AruniControl versi lama hanya menampilkan kapan terakhir terlihat.</translation>
+    </message>
+    <message>
+        <source>Select a computer to see details and its programs.</source>
+        <translation>Pilih komputer untuk melihat rincian dan programnya.</translation>
+    </message>
+    <message>
+        <source>Address</source>
+        <translation>Alamat</translation>
+    </message>
+    <message>
+        <source>Serial number</source>
+        <translation>Nomor seri</translation>
+    </message>
+    <message numerus="yes">
+        <source>%n core(s)</source>
+        <translation>
+            <numerusform>%n inti</numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>Disk %1</source>
+        <translation>Disk %1</translation>
+    </message>
+    <message>
+        <source>%1 free of %2</source>
+        <translation>%1 kosong dari %2</translation>
+    </message>
+    <message>
+        <source>User</source>
+        <translation>Pengguna</translation>
+    </message>
+    <message>
+        <source>Running since</source>
+        <translation>Menyala sejak</translation>
+    </message>
+    <message numerus="yes">
+        <source>%n hour(s)</source>
+        <translation>
+            <numerusform>%n jam</numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>AruniControl</source>
+        <translation>AruniControl</translation>
+    </message>
+    <message>
+        <source>Collected</source>
+        <translation>Dikumpulkan</translation>
+    </message>
+    <message>
+        <source>not yet</source>
+        <translation>belum</translation>
+    </message>
+    <message>
+        <source>Programs (%1)</source>
+        <translation>Program (%1)</translation>
+    </message>
+    <message>
+        <source>Export inventory</source>
+        <translation>Ekspor inventaris</translation>
+    </message>
+    <message>
+        <source>CSV files (*.csv)</source>
+        <translation>Berkas CSV (*.csv)</translation>
+    </message>
+    <message>
+        <source>Inventory</source>
+        <translation>Inventaris</translation>
+    </message>
+    <message>
+        <source>Cannot write %1</source>
+        <translation>Tidak dapat menulis %1</translation>
+    </message>
+    <message>
+        <source>The gateway collects the inventory of all computers within the next minutes - this list updates by itself.</source>
+        <translation>Gateway mengumpulkan inventaris semua komputer dalam beberapa menit ke depan - daftar ini diperbarui sendiri.</translation>
     </message>
 </context>
 <context>
@@ -4958,6 +5321,14 @@ Tekan dan tahan untuk memuat susunan dari berkas atau menyimpan susunan saat ini
         <source>Cannot save screenshots to %1</source>
         <translation>Tidak dapat menyimpan tangkapan layar ke %1</translation>
     </message>
+    <message>
+        <source>💾 The disk of %1 is almost full (%2% free)</source>
+        <translation>💾 Disk %1 hampir penuh (%2% kosong)</translation>
+    </message>
+    <message>
+        <source>🖥️ %1 has not been online for %2 days</source>
+        <translation>🖥️ %1 sudah %2 hari tidak online</translation>
+    </message>
 </context>
 <context>
     <name>MonitoringMode</name>
@@ -5570,6 +5941,192 @@ Simpan pekerjaan Anda dan tutup semua program.</translation>
     </message>
 </context>
 <context>
+    <name>RoleDialog</name>
+    <message>
+        <source>Admin role</source>
+        <translation>Peran admin</translation>
+    </message>
+    <message>
+        <source>e.g. Teacher Lab 1</source>
+        <translation>mis. Guru Lab 1</translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <translation>Nama</translation>
+    </message>
+    <message>
+        <source>Name of the authentication key of this role</source>
+        <translation>Nama kunci autentikasi peran ini</translation>
+    </message>
+    <message>
+        <source>Key</source>
+        <translation>Kunci</translation>
+    </message>
+    <message>
+        <source>All rooms</source>
+        <translation>Semua ruangan</translation>
+    </message>
+    <message>
+        <source>Allowed functions (viewing, chat and screenshots are always allowed)</source>
+        <translation>Fungsi yang diizinkan (melihat layar, chat, dan tangkapan layar selalu boleh)</translation>
+    </message>
+    <message>
+        <source>Enter a name.</source>
+        <translation>Isi nama.</translation>
+    </message>
+    <message>
+        <source>The key name may only contain letters, digits, "-" and "_".</source>
+        <translation>Nama kunci hanya boleh berisi huruf, angka, "-" dan "_".</translation>
+    </message>
+    <message>
+        <source>The key "%1" already exists - choose another name.</source>
+        <translation>Kunci "%1" sudah ada - pilih nama lain.</translation>
+    </message>
+    <message>
+        <source>Choose at least one room.</source>
+        <translation>Pilih paling sedikit satu ruangan.</translation>
+    </message>
+    <message>
+        <source>The chosen rooms have no computers yet.</source>
+        <translation>Ruangan yang dipilih belum berisi komputer.</translation>
+    </message>
+</context>
+<context>
+    <name>RolesView</name>
+    <message>
+        <source>Give every teacher or admin an own key with limited rights: only the computers of their rooms and only the functions you allow. Keys without a role (like the one of this computer) keep all rights. Every action is logged with the key used.</source>
+        <translation>Beri setiap guru atau admin kunci sendiri dengan hak terbatas: hanya komputer di ruangannya dan hanya fungsi yang Anda izinkan. Kunci tanpa peran (seperti kunci komputer ini) tetap punya semua hak. Setiap tindakan dicatat beserta kunci yang dipakai.</translation>
+    </message>
+    <message>
+        <source>Name</source>
+        <translation>Nama</translation>
+    </message>
+    <message>
+        <source>Key</source>
+        <translation>Kunci</translation>
+    </message>
+    <message>
+        <source>Rooms</source>
+        <translation>Ruangan</translation>
+    </message>
+    <message>
+        <source>Allowed</source>
+        <translation>Diizinkan</translation>
+    </message>
+    <message>
+        <source>Add</source>
+        <translation>Tambahkan</translation>
+    </message>
+    <message>
+        <source>Edit</source>
+        <translation>Ubah</translation>
+    </message>
+    <message>
+        <source>Delete</source>
+        <translation>Hapus</translation>
+    </message>
+    <message>
+        <source>Installation code for the teacher...</source>
+        <translation>Kode pemasangan untuk guru...</translation>
+    </message>
+    <message>
+        <source>Send to all computers</source>
+        <translation>Kirim ke semua komputer</translation>
+    </message>
+    <message>
+        <source>The computers only know the roles after they were sent to them. Send again after every change and when new computers were added.</source>
+        <translation>Komputer baru mengenal peran setelah dikirimi. Kirim lagi setiap ada perubahan atau komputer baru.</translation>
+    </message>
+    <message>
+        <source>Send roles now</source>
+        <translation>Kirim peran sekarang</translation>
+    </message>
+    <message>
+        <source>All rooms</source>
+        <translation>Semua ruangan</translation>
+    </message>
+    <message>
+        <source>View only</source>
+        <translation>Hanya lihat</translation>
+    </message>
+    <message>
+        <source>Last sent %1: %2</source>
+        <translation>Terakhir dikirim %1: %2</translation>
+    </message>
+    <message>
+        <source>Not sent yet</source>
+        <translation>Belum pernah dikirim</translation>
+    </message>
+    <message>
+        <source>Admin roles</source>
+        <translation>Peran admin</translation>
+    </message>
+    <message>
+        <source>Could not save the roles (run as administrator).</source>
+        <translation>Peran tidak dapat disimpan (jalankan sebagai administrator).</translation>
+    </message>
+    <message>
+        <source>Send the changed roles to all computers now?</source>
+        <translation>Kirim peran yang berubah ke semua komputer sekarang?</translation>
+    </message>
+    <message>
+        <source>Could not create the key "%1" (run as administrator).</source>
+        <translation>Kunci "%1" tidak dapat dibuat (jalankan sebagai administrator).</translation>
+    </message>
+    <message>
+        <source>Delete the role "%1"? Its key "%2" stops working on all computers once the roles are sent.</source>
+        <translation>Hapus peran "%1"? Kuncinya "%2" tidak berlaku lagi di semua komputer setelah peran dikirim.</translation>
+    </message>
+    <message>
+        <source>Installation code for %1</source>
+        <translation>Kode pemasangan untuk %1</translation>
+    </message>
+    <message>
+        <source>Install AruniControl on the computer of %1 with this code (save it as aruni-setup.txt next to the installer, or paste it in the "Installation" tab there). The Master there then works with the rights of the role. Keep the code secret.</source>
+        <translation>Pasang AruniControl di komputer %1 dengan kode ini (simpan sebagai aruni-setup.txt di samping installer, atau tempel di tab "Pemasangan" di sana). Master di komputer itu lalu bekerja dengan hak peran ini. Rahasiakan kodenya.</translation>
+    </message>
+    <message>
+        <source>Copy</source>
+        <translation>Salin</translation>
+    </message>
+    <message>
+        <source>Save as aruni-setup.txt...</source>
+        <translation>Simpan sebagai aruni-setup.txt...</translation>
+    </message>
+    <message>
+        <source>Save installation code</source>
+        <translation>Simpan kode pemasangan</translation>
+    </message>
+    <message>
+        <source>Text files (*.txt)</source>
+        <translation>File teks (*.txt)</translation>
+    </message>
+    <message>
+        <source>Sending... (within half a minute, this computer's AruniControl service does it)</source>
+        <translation>Mengirim... (dalam setengah menit, oleh layanan AruniControl komputer ini)</translation>
+    </message>
+    <message>
+        <source>Lock &amp; messages</source>
+        <translation>Kunci &amp; pesan</translation>
+    </message>
+    <message>
+        <source>Restrictions</source>
+        <translation>Pembatasan</translation>
+    </message>
+    <message>
+        <source>Apps &amp; files</source>
+        <translation>Aplikasi &amp; file</translation>
+    </message>
+    <message>
+        <source>Power</source>
+        <translation>Daya</translation>
+    </message>
+    <message>
+        <source>Software</source>
+        <translation>Software</translation>
+    </message>
+</context>
+<context>
     <name>ScheduleRuleDialog</name>
     <message>
         <source>Schedule</source>
@@ -5827,6 +6384,10 @@ Simpan pekerjaan Anda dan tutup semua program.</translation>
         <translation>Akhiri mode ujian</translation>
     </message>
     <message>
+        <source>Send admin roles</source>
+        <translation>Kirim peran admin</translation>
+    </message>
+    <message>
         <source>Every day</source>
         <translation>Setiap hari</translation>
     </message>
@@ -5986,6 +6547,10 @@ Simpan pekerjaan Anda dan tutup semua program.</translation>
 </context>
 <context>
     <name>ServerAccessControlManager</name>
+    <message>
+        <source>The key "%1" is not allowed on this computer</source>
+        <translation>Kunci "%1" tidak diizinkan di komputer ini</translation>
+    </message>
     <message>
         <source>Requested authentication method not available</source>
         <translation>Metode autentikasi yang diminta tidak tersedia</translation>
@@ -6584,6 +7149,254 @@ Lanjutkan?</translation>
     <message>
         <source>AruniControl Master – Slideshow</source>
         <translation>AruniControl Master – Tayangan slide</translation>
+    </message>
+</context>
+<context>
+    <name>SoftwareDeployDialog</name>
+    <message>
+        <source>Install software</source>
+        <translation>Pasang software</translation>
+    </message>
+    <message numerus="yes">
+        <source>%n selected computer(s)</source>
+        <translation>
+            <numerusform>%n komputer terpilih</numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>Installer (.msi or .exe for Windows, .pkg for Mac)</source>
+        <translation>Installer (.msi atau .exe untuk Windows, .pkg untuk Mac)</translation>
+    </message>
+    <message>
+        <source>Choose...</source>
+        <translation>Pilih...</translation>
+    </message>
+    <message>
+        <source>Installer</source>
+        <translation>Installer</translation>
+    </message>
+    <message>
+        <source>Automatic (.msi: /qn, .exe: /S)</source>
+        <translation>Otomatis (.msi: /qn, .exe: /S)</translation>
+    </message>
+    <message>
+        <source>NSIS installer</source>
+        <translation>Installer NSIS</translation>
+    </message>
+    <message>
+        <source>Inno Setup installer</source>
+        <translation>Installer Inno Setup</translation>
+    </message>
+    <message>
+        <source>Windows Installer (.msi)</source>
+        <translation>Windows Installer (.msi)</translation>
+    </message>
+    <message>
+        <source>InstallShield</source>
+        <translation>InstallShield</translation>
+    </message>
+    <message>
+        <source>Own parameters</source>
+        <translation>Parameter sendiri</translation>
+    </message>
+    <message>
+        <source>Silent installation</source>
+        <translation>Pemasangan senyap</translation>
+    </message>
+    <message>
+        <source>Parameters</source>
+        <translation>Parameter</translation>
+    </message>
+    <message>
+        <source>The parameters make the installer run without questions - look them up on the website of the program if unsure. Test with one computer first.</source>
+        <translation>Parameter membuat installer berjalan tanpa pertanyaan - cek di situs program jika ragu. Coba dulu di satu komputer.</translation>
+    </message>
+    <message>
+        <source>Install</source>
+        <translation>Pasang</translation>
+    </message>
+    <message>
+        <source>Search program...</source>
+        <translation>Cari program...</translation>
+    </message>
+    <message>
+        <source>Program</source>
+        <translation>Program</translation>
+    </message>
+    <message>
+        <source>Version</source>
+        <translation>Versi</translation>
+    </message>
+    <message>
+        <source>Computers</source>
+        <translation>Komputer</translation>
+    </message>
+    <message>
+        <source>Extra parameters (optional)</source>
+        <translation>Parameter tambahan (opsional)</translation>
+    </message>
+    <message>
+        <source>Remove</source>
+        <translation>Hapus</translation>
+    </message>
+    <message>
+        <source>Computer</source>
+        <translation>Komputer</translation>
+    </message>
+    <message>
+        <source>State</source>
+        <translation>Status</translation>
+    </message>
+    <message>
+        <source>Choose installer</source>
+        <translation>Pilih installer</translation>
+    </message>
+    <message>
+        <source>Installers (*.msi *.exe *.pkg)</source>
+        <translation>Installer (*.msi *.exe *.pkg)</translation>
+    </message>
+    <message numerus="yes">
+        <source>Install %1 (%2 MB) on %n computer(s)</source>
+        <translation>
+            <numerusform>Pasang %1 (%2 MB) di %n komputer</numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>An installation is still running. Start anyway?</source>
+        <translation>Masih ada pemasangan yang berjalan. Tetap mulai?</translation>
+    </message>
+    <message numerus="yes">
+        <source>Install %1 on %n computer(s) now? Users are not asked.</source>
+        <translation>
+            <numerusform>Pasang %1 di %n komputer sekarang? Pengguna tidak akan ditanya.</numerusform>
+        </translation>
+    </message>
+    <message>
+        <source>Sending...</source>
+        <translation>Mengirim...</translation>
+    </message>
+    <message>
+        <source>Remove %1 from all selected computers that have it? Users are not asked.</source>
+        <translation>Hapus %1 dari semua komputer terpilih yang memilikinya? Pengguna tidak akan ditanya.</translation>
+    </message>
+    <message>
+        <source>Removing...</source>
+        <translation>Menghapus...</translation>
+    </message>
+    <message>
+        <source>Receiving %1%</source>
+        <translation>Menerima %1%</translation>
+    </message>
+    <message>
+        <source>Running...</source>
+        <translation>Berjalan...</translation>
+    </message>
+    <message>
+        <source>Done</source>
+        <translation>Selesai</translation>
+    </message>
+    <message>
+        <source>Done - %1</source>
+        <translation>Selesai - %1</translation>
+    </message>
+    <message>
+        <source>Failed: %1</source>
+        <translation>Gagal: %1</translation>
+    </message>
+    <message>
+        <source>%1 done, %2 failed, %3 still running</source>
+        <translation>%1 selesai, %2 gagal, %3 masih berjalan</translation>
+    </message>
+    <message>
+        <source>Not connected</source>
+        <translation>Tidak terhubung</translation>
+    </message>
+</context>
+<context>
+    <name>SoftwareDeployFeaturePlugin</name>
+    <message>
+        <source>Install and remove software on the selected computers</source>
+        <translation>Pasang dan hapus software di komputer terpilih</translation>
+    </message>
+    <message>
+        <source>Install software</source>
+        <translation>Pasang software</translation>
+    </message>
+    <message>
+        <source>Install a program on the selected computers without questions, or remove an installed program.</source>
+        <translation>Pasang program di komputer terpilih tanpa pertanyaan, atau hapus program yang terpasang.</translation>
+    </message>
+    <message>
+        <source>Install a program: install &lt;host[,host...]&gt; &lt;file&gt; [parameters]</source>
+        <translation>Pasang program: install &lt;host[,host...]&gt; &lt;file&gt; [parameter]</translation>
+    </message>
+    <message>
+        <source>List the programs of a computer: list &lt;host&gt;</source>
+        <translation>Daftar program sebuah komputer: list &lt;host&gt;</translation>
+    </message>
+    <message>
+        <source>Failed to initialize credentials</source>
+        <translation>Gagal menginisialisasi kredensial</translation>
+    </message>
+    <message>
+        <source>Cannot read %1</source>
+        <translation>Tidak dapat membaca %1</translation>
+    </message>
+    <message>
+        <source>%1: not connected</source>
+        <translation>%1: tidak terhubung</translation>
+    </message>
+    <message>
+        <source>Invalid file</source>
+        <translation>File tidak valid</translation>
+    </message>
+    <message>
+        <source>Cannot save the file on this computer</source>
+        <translation>File tidak dapat disimpan di komputer ini</translation>
+    </message>
+    <message>
+        <source>Transfer error</source>
+        <translation>Galat pengiriman</translation>
+    </message>
+    <message>
+        <source>The file arrived damaged</source>
+        <translation>File yang diterima rusak</translation>
+    </message>
+    <message>
+        <source>Only .msi and .exe files can be installed</source>
+        <translation>Hanya file .msi dan .exe yang bisa dipasang</translation>
+    </message>
+    <message>
+        <source>Only .pkg files can be installed on a Mac</source>
+        <translation>Di Mac hanya file .pkg yang bisa dipasang</translation>
+    </message>
+    <message>
+        <source>Not supported on this operating system</source>
+        <translation>Tidak didukung di sistem operasi ini</translation>
+    </message>
+    <message>
+        <source>The program is not installed</source>
+        <translation>Program tidak terpasang</translation>
+    </message>
+    <message>
+        <source>The program has no uninstaller</source>
+        <translation>Program tidak punya uninstaller</translation>
+    </message>
+    <message>
+        <source>Cannot remove %1 (no permission)</source>
+        <translation>%1 tidak dapat dihapus (tidak ada izin)</translation>
+    </message>
+    <message>
+        <source>Cannot start %1</source>
+        <translation>%1 tidak dapat dijalankan</translation>
+    </message>
+    <message>
+        <source>Restart needed</source>
+        <translation>Perlu mulai ulang</translation>
+    </message>
+    <message>
+        <source>Exit code %1</source>
+        <translation>Kode keluar %1</translation>
     </message>
 </context>
 <context>

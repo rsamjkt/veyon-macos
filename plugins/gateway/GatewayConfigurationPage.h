@@ -118,6 +118,10 @@ private:
 	int m_schedulesTabIndex{-1};
 	class SetupCodeView* m_setupCode;
 	int m_setupTabIndex{-1};
+	class RolesView* m_roles;
+	int m_rolesTabIndex{-1};
+	class InventoryView* m_inventory;
+	int m_inventoryTabIndex{-1};
 	QLabel* m_screenshotStatus;
 
 	// notifications

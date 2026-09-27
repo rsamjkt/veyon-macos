@@ -26,6 +26,7 @@
 
 #include "AccessControlProvider.h"
 #include "AccessLog.h"
+#include "AdminRoles.h"
 #include "BuiltinFeatures.h"
 #include "ComputerControlClient.h"
 #include "ComputerControlServer.h"
@@ -136,6 +137,21 @@ bool ComputerControlServer::handleFeatureMessage(ComputerControlClient* client)
 		return false;
 	}
 
+	// teachers/admins with a role may only use the functions of their role
+	if( AdminRoles::isFeatureAllowed( client->serverClient()->authKeyName(), featureMessage.featureUid() ) == false )
+	{
+		logFeatureDenied( client->serverClient(), featureMessage );
+
+		// the Master shows it (AdminRolesFeaturePlugin)
+		const auto& feature = VeyonCore::featureManager().feature( featureMessage.featureUid() );
+		sendFeatureMessageReply( MessageContext{socket, client},
+			FeatureMessage{ Feature::Uid( QStringLiteral("2f8b6d14-9c3e-4a57-b0e1-5d7a9c4f8e23") ), FeatureMessage::Command( 1 ) }
+				.addArgument( 2, tr( "The function \"%1\" is not allowed for the key \"%2\"." )
+									 .arg( feature.displayName().isEmpty() ? feature.name() : feature.displayName(),
+										   client->serverClient()->authKeyName() ) ) );
+		return true;
+	}
+
 	logFeatureUse( client->serverClient(), featureMessage );
 
 	VeyonCore::featureManager().handleFeatureMessage( *this, MessageContext{socket, client}, featureMessage );
@@ -158,6 +174,31 @@ void ComputerControlServer::logDisconnect( VncServerClient* client )
 		AccessLog::append( QStringLiteral("disconnected"), client->hostAddress(), client->username(),
 						   { { QStringLiteral("seconds"), since.secsTo( QDateTime::currentDateTimeUtc() ) } } );
 	}
+}
+
+
+
+void ComputerControlServer::logFeatureDenied( VncServerClient* client, const FeatureMessage& message )
+{
+	const auto key = QStringLiteral("denied|%1|%2|%3").arg( client->hostAddress(), client->authKeyName(),
+															 message.featureUid().toString() );
+	const auto now = QDateTime::currentDateTimeUtc();
+	{
+		QMutexLocker l( &m_dataMutex );
+		const auto last = m_loggedFeatureUses.value( key );
+		if( last.isValid() && last.secsTo( now ) < 600 )
+		{
+			return;
+		}
+		m_loggedFeatureUses[key] = now;
+	}
+
+	const auto& feature = VeyonCore::featureManager().feature( message.featureUid() );
+	vWarning() << "function" << feature.name() << "not allowed for key" << client->authKeyName();
+	AccessLog::append( QStringLiteral("feature_denied"), client->hostAddress(), client->username(), {
+		{ QStringLiteral("feature"), feature.displayName().isEmpty() ? feature.name() : feature.displayName() },
+		{ QStringLiteral("key"), client->authKeyName() },
+	} );
 }
 
 
@@ -196,7 +237,8 @@ void ComputerControlServer::logFeatureUse( VncServerClient* client, const Featur
 	}
 
 	AccessLog::append( QStringLiteral("feature"), client->hostAddress(), client->username(),
-					   { { QStringLiteral("feature"), feature.displayName().isEmpty() ? feature.name() : feature.displayName() } } );
+					   { { QStringLiteral("feature"), feature.displayName().isEmpty() ? feature.name() : feature.displayName() },
+						 { QStringLiteral("key"), client->authKeyName() } } );
 }
 
 
@@ -286,7 +328,8 @@ void ComputerControlServer::showAccessControlMessage( VncServerClient* client )
 			QMutexLocker l( &m_dataMutex );
 			m_connectedClients[client] = QDateTime::currentDateTimeUtc();
 		}
-		AccessLog::append( QStringLiteral("connected"), client->hostAddress(), client->username() );
+		AccessLog::append( QStringLiteral("connected"), client->hostAddress(), client->username(),
+						   { { QStringLiteral("key"), client->authKeyName() } } );
 
 		if (VeyonCore::config().remoteConnectionNotificationsEnabled() &&
 			VeyonCore::platform().sessionFunctions().currentSessionHasUser())
@@ -305,7 +348,9 @@ void ComputerControlServer::showAccessControlMessage( VncServerClient* client )
 	else if( client->accessControlState() == VncServerClient::AccessControlState::Failed )
 	{
 		vWarning() << "Access control failed for" << client->hostAddress() << client->username();
-		AccessLog::append( QStringLiteral("access_denied"), client->hostAddress(), client->username() );
+		AccessLog::append( QStringLiteral("access_denied"), client->hostAddress(), client->username(),
+						   { { QStringLiteral("key"), client->authKeyName() },
+							 { QStringLiteral("reason"), client->accessControlDetails() } } );
 
 		if( VeyonCore::config().failedAuthenticationNotificationsEnabled() )
 		{

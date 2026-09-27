@@ -23,6 +23,7 @@
  */
 
 #include <QDir>
+#include <QFile>
 #include <QFileInfo>
 #include <QHostInfo>
 #include <QNetworkInterface>
@@ -30,6 +31,7 @@
 #include <QUuid>
 
 #include "ActivityLog.h"
+#include "AdminRoles.h"
 #include "AuthenticationCredentials.h"
 #include "FeatureManager.h"
 #include "Filesystem.h"
@@ -55,6 +57,7 @@ const auto ScheduleInternetUid = Feature::Uid( QStringLiteral("6f3a1d27-9b40-4c8
 const auto ScheduleSiteFilterUid = Feature::Uid( QStringLiteral("c3a5e2d1-7b4f-4e8a-9d61-2f0b8e7c4a15") );
 const auto ScheduleTextMessageUid = Feature::Uid( QStringLiteral("e75ae9c8-ac17-4d00-8f0d-019348346208") );
 const auto ScheduleExamModeUid = Feature::Uid( QStringLiteral("9b2e6c41-8d7a-4f35-a0c9-4e1b7d3f5a28") );
+const auto ScheduleAdminRolesUid = Feature::Uid( QStringLiteral("2f8b6d14-9c3e-4a57-b0e1-5d7a9c4f8e23") );
 
 // users get this long to save their work before the computers power down
 constexpr int PowerDownWarningSeconds = 120;
@@ -121,7 +124,7 @@ void Scheduler::tick()
 {
 	const auto schedules = Schedules::load();
 	const auto runRequests = Schedules::takeRunRequests();
-	if( schedules.rules.isEmpty() )
+	if( schedules.rules.isEmpty() && runRequests.isEmpty() )
 	{
 		return;
 	}
@@ -145,6 +148,15 @@ void Scheduler::tick()
 	const auto now = QDateTime::currentDateTime();
 	const auto today = now.date().toString( Qt::ISODate );
 	auto status = Schedules::readStatus();
+
+	if( runRequests.contains( QString::fromLatin1( Schedules::PushRolesId ) ) )
+	{
+		Schedules::Rule rule;
+		rule.id = QString::fromLatin1( Schedules::PushRolesId );
+		rule.name = Schedules::actionName( Schedules::Action::PushRoles );
+		rule.action = Schedules::Action::PushRoles;
+		startRun( rule, true );
+	}
 
 	for( const auto& rule : schedules.rules )
 	{
@@ -446,6 +458,17 @@ bool Scheduler::sendAction( const Schedules::Rule& rule, const ComputerControlIn
 		arguments[QStringLiteral("title")] = rule.name;
 		arguments[QStringLiteral("icon")] = 1;	// QMessageBox::Information
 		break;
+	case Action::PushRoles:
+	{
+		uid = ScheduleAdminRolesUid;
+		QFile policy( AdminRoles::path() );
+		if( policy.open( QFile::ReadOnly ) == false )
+		{
+			return false;
+		}
+		arguments[QStringLiteral("policy")] = policy.readAll();
+		break;
+	}
 	case Action::StartExam:
 	case Action::EndExam:
 		uid = ScheduleExamModeUid;

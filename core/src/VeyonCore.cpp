@@ -39,6 +39,7 @@
 #include <QSysInfo>
 #include <QToolTip>
 
+#include "AdminRoles.h"
 #include "BuiltinFeatures.h"
 #include "FeatureManager.h"
 #include "Filesystem.h"
@@ -734,9 +735,15 @@ bool VeyonCore::initKeyFileAuthentication()
 	{
 		// try to auto-detect private key file by searching for readable file
 		const auto privateKeyBaseDir = VeyonCore::filesystem().expandPath( VeyonCore::config().privateKeyBaseDir() );
-		const auto privateKeyDirs = QDir( privateKeyBaseDir ).entryList( QDir::Dirs | QDir::NoDotAndDotDot, QDir::Name );
+		auto privateKeyDirs = QDir( privateKeyBaseDir ).entryList( QDir::Dirs | QDir::NoDotAndDotDot, QDir::Name );
 
-		for( const auto& privateKeyDir : privateKeyDirs )
+		// keys with full rights first - the admin computer also keeps the keys
+		// of the teachers' roles (AdminRoles) to hand them out
+		std::stable_sort( privateKeyDirs.begin(), privateKeyDirs.end(), []( const QString& a, const QString& b ) {
+			return AdminRoles::roleForKey( a ).isValid() == false && AdminRoles::roleForKey( b ).isValid();
+		} );
+
+		for( const auto& privateKeyDir : std::as_const( privateKeyDirs ) )
 		{
 			if( m_authenticationCredentials->loadPrivateKey( VeyonCore::filesystem().privateKeyPath( privateKeyDir ) ) )
 			{

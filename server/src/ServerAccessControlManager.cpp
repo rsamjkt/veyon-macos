@@ -27,6 +27,7 @@
 #include "BuiltinFeatures.h"
 #include "ServerAccessControlManager.h"
 #include "AccessControlProvider.h"
+#include "AdminRoles.h"
 #include "DesktopAccessDialog.h"
 
 
@@ -45,6 +46,15 @@ ServerAccessControlManager::ServerAccessControlManager( FeatureWorkerManager& fe
 
 void ServerAccessControlManager::addClient( VncServerClient* client )
 {
+	// the key of a teacher/admin with a role only reaches the computers of its rooms
+	if( client->authType() == RfbVeyonAuth::KeyFile && AdminRoles::isComputerAllowed( client->authKeyName() ) == false )
+	{
+		client->setAccessControlState( VncServerClient::AccessControlState::Failed );
+		client->setAccessControlDetails( tr( "The key \"%1\" is not allowed on this computer" ).arg( client->authKeyName() ) );
+		Q_EMIT finished( client );
+		return;
+	}
+
 	switch( client->authType() )
 	{
 	case RfbVeyonAuth::KeyFile:

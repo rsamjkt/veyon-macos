@@ -160,6 +160,7 @@ VncServerClient::AuthState ServerAuthenticationManager::performKeyAuthentication
 		}
 
 		vDebug() << "SUCCESS";
+		client->setAuthKeyName( authKeyName );
 		return VncServerClient::AuthState::Successful;
 	}
 

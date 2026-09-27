@@ -30,10 +30,12 @@
 #include <QUuid>
 
 #include "ActivityLog.h"
+#include "AdminRoles.h"
 #include "AuthenticationCredentials.h"
 #include "FeatureManager.h"
 #include "Filesystem.h"
 #include "GatewayService.h"
+#include "InventoryStore.h"
 #include "MonitoringCollector.h"
 #include "VeyonConfiguration.h"
 #include "VeyonCore.h"
@@ -48,6 +50,12 @@ constexpr int AccessLogEntries = 1;
 constexpr int AccessLogArgumentSince = 0;
 constexpr int AccessLogArgumentLimit = 1;
 constexpr int AccessLogArgumentEntries = 2;
+
+// protocol of the Inventory feature plugin (plugins/inventory)
+const auto InventoryFeatureUid = Feature::Uid( QStringLiteral("4d9a7e3c-1b5f-4c28-8e60-a2f7b9d1c354") );
+constexpr int InventoryQuery = 0;
+constexpr int InventoryInfo = 1;
+constexpr int InventoryArgumentData = 0;
 
 // how the collector's connections appear in the access logs of the computers
 constexpr auto AnnouncedName = "Aruni Gateway";
@@ -147,7 +155,8 @@ QString MonitoringCollector::availableKeyName( const QString& preferred )
 	const auto names = QDir( baseDir ).entryList( QDir::Dirs | QDir::NoDotAndDotDot, QDir::Name );
 	for( const auto& name : names )
 	{
-		if( QFileInfo::exists( VeyonCore::filesystem().privateKeyPath( name ) ) )
+		// never a teacher's key with limited rights
+		if( QFileInfo::exists( VeyonCore::filesystem().privateKeyPath( name ) ) && AdminRoles::roleForKey( name ).isValid() == false )
 		{
 			return name;
 		}
@@ -189,15 +198,26 @@ bool MonitoringCollector::loadCredentials()
 void MonitoringCollector::tick()
 {
 	const auto& state = m_service->state();
-	if( state.enabled == false || ( state.screenshotInterval <= 0 && state.collectAccessLogs == false ) )
+	if( state.enabled == false ||
+		( state.screenshotInterval <= 0 && state.collectAccessLogs == false && state.collectInventory == false ) )
 	{
 		return;
 	}
 
 	prune();
+	checkOfflineComputers();
+
+	// "Update now" in the Configurator
+	const auto nowRequest = QDir( InventoryStore::directory() ).filePath( QStringLiteral("collect-now") );
+	if( QFile::exists( nowRequest ) )
+	{
+		QFile::remove( nowRequest );
+		m_lastInventory.clear();
+	}
 
 	const auto now = QDateTime::currentDateTimeUtc();
-	const auto targets = m_service->collectionTargets( state.screenshotAllComputers || state.collectAccessLogs );
+	const auto targets = m_service->collectionTargets( state.screenshotAllComputers || state.collectAccessLogs ||
+													   state.collectInventory );
 
 	bool credentialsChecked = false;
 	for( const auto& target : targets )
@@ -221,7 +241,11 @@ void MonitoringCollector::tick()
 		const bool logDue = state.collectAccessLogs &&
 			( lastLog.isValid() == false || lastLog.secsTo( now ) >= LogInterval );
 
-		if( screenshotDue == false && logDue == false )
+		const auto lastInventory = m_lastInventory.value( target.key );
+		const bool inventoryDue = state.collectInventory &&
+			( lastInventory.isValid() == false || lastInventory.secsTo( now ) >= InventoryInterval );
+
+		if( screenshotDue == false && logDue == false && inventoryDue == false )
 		{
 			continue;
 		}
@@ -244,13 +268,17 @@ void MonitoringCollector::tick()
 		{
 			m_lastLog[target.key] = now;
 		}
-		visit( target, screenshotDue, logDue );
+		if( inventoryDue )
+		{
+			m_lastInventory[target.key] = now;
+		}
+		visit( target, screenshotDue, logDue, inventoryDue );
 	}
 }
 
 
 
-void MonitoringCollector::visit( const Target& target, bool screenshot, bool log )
+void MonitoringCollector::visit( const Target& target, bool screenshot, bool log, bool inventory )
 {
 	const Computer computer( QUuid::createUuid(), target.name, target.host );
 	auto control = ComputerControlInterface::Pointer::create( computer, target.port );
@@ -260,6 +288,7 @@ void MonitoringCollector::visit( const Target& target, bool screenshot, bool log
 	visit.target = target;
 	visit.wantScreenshot = screenshot;
 	visit.wantLog = log;
+	visit.wantInventory = inventory;
 	visit.timeout = new QTimer( this );
 	visit.timeout->setSingleShot( true );
 	const auto key = target.key;
@@ -288,13 +317,21 @@ void MonitoringCollector::visit( const Target& target, bool screenshot, bool log
 			m_service->setScreenshotError( tr( "The computer \"%1\" refused the key \"%2\"" ).arg( it->target.name, m_loadedKey ) );
 			finishVisit( key );
 		}
-		else if( state == ComputerControlInterface::State::Connected && it->wantLog )
+		else if( state == ComputerControlInterface::State::Connected )
 		{
-			// only what is new since the last collection
-			FeatureMessage query( AccessLogFeatureUid, FeatureMessage::Command( AccessLogQuery ) );
-			query.addArgument( AccessLogArgumentSince, logCursor( key ) );
-			query.addArgument( AccessLogArgumentLimit, 2000 );
-			it->control->sendFeatureMessage( query );
+			markSeen( it->target );
+			if( it->wantLog )
+			{
+				// only what is new since the last collection
+				FeatureMessage query( AccessLogFeatureUid, FeatureMessage::Command( AccessLogQuery ) );
+				query.addArgument( AccessLogArgumentSince, logCursor( key ) );
+				query.addArgument( AccessLogArgumentLimit, 2000 );
+				it->control->sendFeatureMessage( query );
+			}
+			if( it->wantInventory )
+			{
+				it->control->sendFeatureMessage( FeatureMessage( InventoryFeatureUid, FeatureMessage::Command( InventoryQuery ) ) );
+			}
 		}
 	} );
 
@@ -307,6 +344,22 @@ void MonitoringCollector::visit( const Target& target, bool screenshot, bool log
 
 void MonitoringCollector::onFeatureMessage( const ComputerControlInterface::Pointer& control, const FeatureMessage& message )
 {
+	if( message.featureUid() == InventoryFeatureUid && static_cast<int>( message.command() ) == InventoryInfo )
+	{
+		for( auto it = m_visits.begin(); it != m_visits.end(); ++it )
+		{
+			if( it->control == control && it->wantInventory )
+			{
+				saveInventory( it->target, QJsonDocument::fromJson( message.argument( InventoryArgumentData ).toByteArray() ).object() );
+				const auto key = it.key();
+				it->wantInventory = false;
+				finishPart( key );
+				return;
+			}
+		}
+		return;
+	}
+
 	if( message.featureUid() != AccessLogFeatureUid || static_cast<int>( message.command() ) != AccessLogEntries )
 	{
 		return;
@@ -356,7 +409,7 @@ void MonitoringCollector::onFeatureMessage( const ComputerControlInterface::Poin
 void MonitoringCollector::finishPart( const QString& key )
 {
 	const auto it = m_visits.constFind( key );
-	if( it != m_visits.cend() && it->wantScreenshot == false && it->wantLog == false )
+	if( it != m_visits.cend() && it->wantScreenshot == false && it->wantLog == false && it->wantInventory == false )
 	{
 		finishVisit( key );
 	}
@@ -434,6 +487,94 @@ void MonitoringCollector::prune()
 				QDir( computerDir.filePath( day ) ).removeRecursively();
 			}
 		}
+	}
+}
+
+
+
+void MonitoringCollector::markSeen( const Target& target )
+{
+	// the file is written at most every 10 minutes per computer
+	const auto now = QDateTime::currentDateTimeUtc();
+	const auto last = m_lastSeenSaved.value( target.key );
+	if( last.isValid() && last.secsTo( now ) < 600 )
+	{
+		return;
+	}
+	m_lastSeenSaved[target.key] = now;
+
+	auto record = InventoryStore::load( target.key );
+	record.name = target.name;
+	record.host = target.roaming ? QString{} : target.host;
+	record.roaming = target.roaming;
+	record.lastSeen = now;
+	if( record.offlineAlerted )
+	{
+		record.offlineAlerted = false;
+		ActivityLog::append( QStringLiteral("inventory.online"), target.name );
+	}
+	InventoryStore::save( record );
+}
+
+
+
+void MonitoringCollector::saveInventory( const Target& target, const QJsonObject& data )
+{
+	if( data.isEmpty() )
+	{
+		return;
+	}
+
+	auto record = InventoryStore::load( target.key );
+	record.name = target.name;
+	record.host = target.roaming ? QString{} : target.host;
+	record.roaming = target.roaming;
+	record.lastSeen = QDateTime::currentDateTimeUtc();
+	record.collected = record.lastSeen;
+	record.data = data;
+
+	// a disk running full - once a day
+	const auto threshold = m_service->state().diskAlertPercent;
+	const auto freePercent = record.lowestFreePercent();
+	const auto today = QDate::currentDate().toString( Qt::ISODate );
+	if( threshold > 0 && freePercent >= 0 && freePercent < threshold && record.diskAlertDate != today )
+	{
+		record.diskAlertDate = today;
+		ActivityLog::append( QStringLiteral("inventory.disk"), target.name, { { QStringLiteral("percent"), freePercent } } );
+		m_service->notify( tr( "💾 The disk of %1 is almost full (%2% free)" ).arg( target.name ).arg( freePercent ) );
+	}
+
+	InventoryStore::save( record );
+}
+
+
+
+void MonitoringCollector::checkOfflineComputers()
+{
+	const auto now = QDateTime::currentDateTimeUtc();
+	if( m_lastOfflineCheck.isValid() && m_lastOfflineCheck.secsTo( now ) < 3600 )
+	{
+		return;
+	}
+	m_lastOfflineCheck = now;
+
+	const auto days = m_service->state().inventoryOfflineDays;
+	if( days <= 0 )
+	{
+		return;
+	}
+
+	auto records = InventoryStore::list();
+	for( auto& record : records )
+	{
+		if( record.offlineAlerted || record.lastSeen.isValid() == false || record.lastSeen.daysTo( now ) < days )
+		{
+			continue;
+		}
+		record.offlineAlerted = true;
+		InventoryStore::save( record );
+		ActivityLog::append( QStringLiteral("inventory.offline"), record.name, { { QStringLiteral("days"), int( record.lastSeen.daysTo( now ) ) } } );
+		m_service->notify( tr( "🖥️ %1 has not been online for %2 days" ).arg( record.name ).arg( record.lastSeen.daysTo( now ) ) );
 	}
 }
 

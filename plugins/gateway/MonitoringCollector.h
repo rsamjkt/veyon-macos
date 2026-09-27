@@ -71,11 +71,15 @@ private:
 		Target target;
 		bool wantScreenshot{false};
 		bool wantLog{false};
+		bool wantInventory{false};
 		QTimer* timeout{nullptr};
 	};
 
 	void tick();
-	void visit( const Target& target, bool screenshot, bool log );
+	void visit( const Target& target, bool screenshot, bool log, bool inventory );
+	void markSeen( const Target& target );
+	void saveInventory( const Target& target, const QJsonObject& data );
+	void checkOfflineComputers();
 	void onFeatureMessage( const ComputerControlInterface::Pointer& control, const FeatureMessage& message );
 	void finishPart( const QString& key );
 	void finishVisit( const QString& key );
@@ -88,6 +92,7 @@ private:
 	static constexpr int TickInterval = 60 * 1000;
 	static constexpr int VisitTimeout = 60 * 1000;
 	static constexpr int LogInterval = 15 * 60;
+	static constexpr int InventoryInterval = 6 * 3600;
 	static constexpr int MaxParallelVisits = 4;
 	static constexpr int MaxImageWidth = 1600;
 
@@ -95,6 +100,9 @@ private:
 	QTimer m_timer;
 	QHash<QString, QDateTime> m_lastScreenshot;
 	QHash<QString, QDateTime> m_lastLog;
+	QHash<QString, QDateTime> m_lastInventory;
+	QHash<QString, QDateTime> m_lastSeenSaved;
+	QDateTime m_lastOfflineCheck;
 	QHash<QString, Visit> m_visits;
 	QJsonObject m_cursors;
 	QString m_loadedKey;

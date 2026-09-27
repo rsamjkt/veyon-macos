@@ -132,6 +132,11 @@ GatewayState GatewayState::load()
 		state.screenshotAllComputers = screenshots[QStringLiteral("allComputers")].toBool();
 		state.collectAccessLogs = json[QStringLiteral("collectAccessLogs")].toBool( true );
 
+		const auto inventory = json[QStringLiteral("inventory")].toObject();
+		state.collectInventory = inventory[QStringLiteral("enabled")].toBool( true );
+		state.inventoryOfflineDays = inventory[QStringLiteral("offlineDays")].toInt( 3 );
+		state.diskAlertPercent = inventory[QStringLiteral("diskPercent")].toInt( 10 );
+
 		const auto roaming = json[QStringLiteral("roaming")].toObject();
 		state.roamingEnabled = roaming[QStringLiteral("enabled")].toBool();
 		state.roamingHub = AruniTunnel::PairingInfo::decode( roaming[QStringLiteral("code")].toString() );
@@ -237,6 +242,11 @@ bool GatewayState::save() const
 			{ QStringLiteral("allComputers"), screenshotAllComputers },
 		} },
 		{ QStringLiteral("collectAccessLogs"), collectAccessLogs },
+		{ QStringLiteral("inventory"), QJsonObject{
+			{ QStringLiteral("enabled"), collectInventory },
+			{ QStringLiteral("offlineDays"), inventoryOfflineDays },
+			{ QStringLiteral("diskPercent"), diskAlertPercent },
+		} },
 		{ QStringLiteral("roaming"), QJsonObject{
 			{ QStringLiteral("enabled"), roamingEnabled },
 			{ QStringLiteral("code"), roamingHub.gatewayId.isEmpty() ? QString{} : roamingHub.encode() },

@@ -53,7 +53,12 @@ public:
 		Message,
 		StartExam,
 		EndExam,
+		// not offered for schedules: sends the admin roles (AdminRoles) to
+		// every computer, requested with requestRun( PushRolesId )
+		PushRoles,
 	};
+
+	static constexpr auto PushRolesId = "@roles";
 
 	struct Rule
 	{

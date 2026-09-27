@@ -219,7 +219,11 @@ QString ActivityLog::eventName( const QString& event )
 		{ QStringLiteral("access.auth_failed"), QT_TR_NOOP( "Access: authentication failed" ) },
 		{ QStringLiteral("access.access_denied"), QT_TR_NOOP( "Access: denied" ) },
 		{ QStringLiteral("access.feature"), QT_TR_NOOP( "Access: function used" ) },
+		{ QStringLiteral("access.feature_denied"), QT_TR_NOOP( "Access: function not allowed" ) },
 		{ QStringLiteral("schedule.run"), QT_TR_NOOP( "Schedule" ) },
+		{ QStringLiteral("inventory.disk"), QT_TR_NOOP( "Disk almost full" ) },
+		{ QStringLiteral("inventory.offline"), QT_TR_NOOP( "Computer not online" ) },
+		{ QStringLiteral("inventory.online"), QT_TR_NOOP( "Computer online again" ) },
 	};
 	const auto name = names.value( event );
 	return name ? tr( name ) : event;
@@ -261,7 +265,12 @@ QString ActivityLog::describe( const Entry& entry )
 	if( entry.event.startsWith( QStringLiteral("access.") ) )
 	{
 		auto text = tr( "from %1 (%2)" ).arg( d[QStringLiteral("host")].toString(), d[QStringLiteral("user")].toString() );
-		if( entry.event == QStringLiteral("access.feature") )
+		const auto key = d[QStringLiteral("key")].toString();
+		if( key.isEmpty() == false )
+		{
+			text += QStringLiteral(", ") + tr( "key %1" ).arg( key );
+		}
+		if( entry.event == QStringLiteral("access.feature") || entry.event == QStringLiteral("access.feature_denied") )
 		{
 			text.prepend( d[QStringLiteral("feature")].toString() + QLatin1Char(' ') );
 		}
@@ -270,6 +279,14 @@ QString ActivityLog::describe( const Entry& entry )
 			text += QStringLiteral(", ") + tr( "after %1" ).arg( duration( d[QStringLiteral("seconds")].toInteger() ) );
 		}
 		return text;
+	}
+	if( entry.event == QStringLiteral("inventory.disk") )
+	{
+		return tr( "%1% free" ).arg( d[QStringLiteral("percent")].toInt() );
+	}
+	if( entry.event == QStringLiteral("inventory.offline") )
+	{
+		return tr( "Not seen for %1 days" ).arg( d[QStringLiteral("days")].toInt() );
 	}
 	if( entry.event == QStringLiteral("schedule.run") )
 	{

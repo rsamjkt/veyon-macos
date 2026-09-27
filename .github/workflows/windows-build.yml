@@ -23,8 +23,8 @@ on:
   workflow_dispatch:
 
 env:
-  APP_VERSION: 1.6.0
-  APP_CODENAME: Gita
+  APP_VERSION: 1.7.0
+  APP_CODENAME: Hana
 
 permissions:
   contents: write   # allow uploading assets to the release

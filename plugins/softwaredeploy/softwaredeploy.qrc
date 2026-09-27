@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/softwaredeploy">
+        <file>softwaredeploy.png</file>
+    </qresource>
+</RCC>

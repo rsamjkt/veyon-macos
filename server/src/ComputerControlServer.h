@@ -86,6 +86,7 @@ public:
 private:
 	void checkForIncompleteAuthentication( VncServerClient* client );
 	void logDisconnect( VncServerClient* client );
+	void logFeatureDenied( VncServerClient* client, const FeatureMessage& message );
 	void logFeatureUse( VncServerClient* client, const FeatureMessage& message );
 	void showAuthenticationMessage( VncServerClient* client );
 	void showAccessControlMessage( VncServerClient* client );

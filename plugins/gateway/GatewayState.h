@@ -98,6 +98,11 @@ public:
 	// access logs of the computers collected into the activity history
 	bool collectAccessLogs{true};
 
+	// hardware/software inventory of the computers (see InventoryStore)
+	bool collectInventory{true};
+	int inventoryOfflineDays{3};	// alert when a computer was not seen for so long, 0 = off
+	int diskAlertPercent{10};		// alert when a disk has less free space, 0 = off
+
 	bool isTelegramConfigured() const
 	{
 		return telegramToken.isEmpty() == false && telegramChatId.isEmpty() == false;

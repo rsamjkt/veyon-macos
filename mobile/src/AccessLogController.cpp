@@ -193,6 +193,12 @@ void AccessLogController::setEntries( const QJsonArray& entries )
 			icon = QStringLiteral("bolt");
 			kind = QStringLiteral("warning");
 		}
+		else if( event == QLatin1String("feature_denied") )
+		{
+			title = tr("Fitur tidak diizinkan: %1").arg( featureLabel( entry.value( QStringLiteral("feature") ).toString() ) );
+			icon = QStringLiteral("block");
+			kind = QStringLiteral("danger");
+		}
 		else
 		{
 			title = event;
@@ -204,6 +210,11 @@ void AccessLogController::setEntries( const QJsonArray& entries )
 		if( host.isEmpty() == false )
 		{
 			who = who.isEmpty() ? host : tr("%1 · %2").arg( who, host );
+		}
+		const auto keyName = entry.value( QStringLiteral("key") ).toString();
+		if( keyName.isEmpty() == false )
+		{
+			who += tr(" · kunci %1").arg( keyName );
 		}
 
 		QString day;
