@@ -46,7 +46,7 @@ class AppUpdater : public QObject
 	Q_PROPERTY(QString error READ error NOTIFY changed)
 	Q_PROPERTY(bool dismissed READ isDismissed NOTIFY changed)
 public:
-	static constexpr auto ManifestUrl = "https://arunicontrol.randymandala.workers.dev/unduh/versi.json";
+	static constexpr auto ManifestUrl = "https://arunicontrol.arunihealth.id/unduh/versi.json";
 
 	explicit AppUpdater( QObject* parent = nullptr );
 

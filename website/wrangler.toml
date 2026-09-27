@@ -7,7 +7,15 @@
 
 name = "arunicontrol"
 main = "src/worker.js"
+# keep the workers.dev address: installed versions check it for updates
+workers_dev = true
 compatibility_date = "2026-05-01"
+
+# own domain (zone arunihealth.id is on this Cloudflare account); the
+# workers.dev address keeps working for existing installations
+routes = [
+	{ pattern = "arunicontrol.arunihealth.id", custom_domain = true },
+]
 
 [assets]
 directory = "./public"

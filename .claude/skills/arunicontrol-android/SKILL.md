@@ -208,7 +208,7 @@ macOS without accessibility: `CGWindowListCopyWindowInfo` → `screencapture -l 
 
 ## Website unduhan resmi (website/)
 
-- Live: https://arunicontrol.randymandala.workers.dev (Worker `arunicontrol`, static assets + R2 `arunicontrol-unduhan`).
+- Live: https://arunicontrol.arunihealth.id (Worker `arunicontrol`, static assets + R2 `arunicontrol-unduhan`).
 - `/unduh/{windows,windows-zip,macos,android,sha256}` → file rilis di R2 (`<tag>/<file>`); mendukung Range (resume).
   Repo GitHub private → link rilis GitHub TIDAK bisa dipakai publik, makanya file di R2.
 - Edit `website/index.src.html`, lalu `python3 build.py` (inline ikon dari mobile/icons) + `npx wrangler deploy`.
@@ -261,7 +261,7 @@ Laptops taken home stay monitored through the office Aruni Gateway (hub).
   `Contents/Resources/translations`; Windows: `translations\` next to the exes. Update strings with
   `lupdate -locations none -no-obsolete @files.txt -ts translations/veyon_id.ts` (exclude mobile/, its source is Indonesian).
 - **Auto update** (`plugins/autoupdate`, runs in veyon-server, lock `aruni-update.lock`): reads
-  `https://arunicontrol.randymandala.workers.dev/unduh/versi.json` (Worker builds it from `RELEASE` + SHA256SUMS in R2), every
+  `https://arunicontrol.arunihealth.id/unduh/versi.json` (Worker builds it from `RELEASE` + SHA256SUMS in R2), every
   6 h (first after 3 min; Configurator "Periksa sekarang" drops `%GLOBALAPPDATA%/update/check-now`). Windows: runs
   `setup.exe /S /UPDATE` (installer stops service + kills veyon-*.exe first; never `taskkill /T` — the installer is a child
   of veyon-server). macOS: ditto-extract, swap `AruniControl.app` ↔ `.app.old`, `launchctl kickstart -k gui/$UID/<label>`.

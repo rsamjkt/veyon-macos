@@ -32,7 +32,7 @@
 class UpdateState
 {
 public:
-	static constexpr auto DefaultManifestUrl = "https://arunicontrol.randymandala.workers.dev/unduh/versi.json";
+	static constexpr auto DefaultManifestUrl = "https://arunicontrol.arunihealth.id/unduh/versi.json";
 
 	bool enabled{true};
 	QString manifestUrl{QString::fromLatin1( DefaultManifestUrl )};
