@@ -21,8 +21,8 @@ const RELEASE = {
 	tag: "v1.5.0",
 	codename: "Fiona",
 	files: {
-		windows: { tag: "v1.4.0", name: "AruniControl-Setup-1.4.0-Elena-Windows-x64.exe" },
-		"windows-zip": { tag: "v1.4.0", name: "AruniControl-Server-1.4.0-Elena-Windows-x64.zip" },
+		windows: { tag: "v1.5.0", name: "AruniControl-Setup-1.5.0-Fiona-Windows-x64.exe" },
+		"windows-zip": { tag: "v1.5.0", name: "AruniControl-Server-1.5.0-Fiona-Windows-x64.zip" },
 		macos: { tag: "v1.5.0", name: "AruniControl-1.5.0-Fiona-macOS-arm64.zip" },
 		android: { tag: "v1.5.0", name: "AruniControl-1.5.0-Fiona-Android-arm64.apk" },
 		sha256: { tag: "v1.5.0", name: "SHA256SUMS.txt" },
