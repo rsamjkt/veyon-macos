@@ -141,11 +141,11 @@ phone ──wss──► Aruni Relay (VPS, relay/) ◄──wss (outbound)──
   wrangler.toml) needs the old tunnel DNS record deleted first (error 100117). Gateway sends a
   text "ping" every 30 s (Cloudflare drops idle WebSockets after ~100 s). wrangler dev's workerd
   may not support the newest compatibility_date - keep it a few months back.
-- Old path (fallback): Go relay on the Arunika VPS (Ubuntu 20.04 LXC behind the provider's NAT, 103.78.96.213, internal
+- Old path (fallback): Go relay on the Arunika VPS (Ubuntu 20.04 LXC behind the provider's NAT, <vps-host>, internal
   10.0.2.198 - ports 80/443 are NOT forwarded) as systemd `aruni-relay` on 127.0.0.1:8080,
   published through **Cloudflare Tunnel** `aruni-relay` (systemd `cloudflared`,
   `/etc/cloudflared/config.yml`, zone arunihealth.id). Redeploy the binary with
-  `TLS=external ./relay/deploy.sh root@103.78.96.213 relay.arunihealth.id` style or rebuild +
+  `TLS=external ./relay/deploy.sh root@<vps-host> relay.arunihealth.id` style or rebuild +
   scp + `systemctl restart aruni-relay`. HTTP 530 from the domain = tunnel/VPS down.
 - **Relay** `relay/` (Go, coder/websocket): `/v1/gateway/{id}` control socket (TOFU secret
   hash in `/data/gateways.json`), `/v1/connect/{id}` for masters, `/v1/accept/{id}/{sid}` for the
