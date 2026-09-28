@@ -170,7 +170,7 @@ Warn "kiosk browser runs as the user, not as SYSTEM" {
 Check "kiosk browser never runs as SYSTEM" { -not (Get-Process msedge -IncludeUserName -ErrorAction SilentlyContinue | Where-Object { $_.UserName -match "SYSTEM" }) }
 Aruni feature stop 127.0.0.1 ExamMode | Out-Null
 Check "exam mode ended" { Wait-Until { (Get-Content "$data\exammode.json" -Raw | ConvertFrom-Json).active -eq $false } 20 }
-Check "task manager unlocked" { (Get-ItemProperty HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System).DisableTaskMgr -eq $null }
+Check "task manager unlocked" { Wait-Until { (Get-ItemProperty HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System).DisableTaskMgr -eq $null } 20 }
 Start-Process notepad
 Start-Sleep -Seconds 25
 Check "applications allowed after the exam" { Get-Process notepad -ErrorAction SilentlyContinue }

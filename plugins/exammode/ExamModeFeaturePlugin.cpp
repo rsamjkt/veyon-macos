@@ -583,8 +583,9 @@ void ExamModeFeaturePlugin::deactivate( VeyonServerInterface& server, QString& e
 
 	if( wasActive )
 	{
-		applyFirewall( false, error );
+		// the quick things first - the firewall takes seconds (netsh)
 		setTaskManagerLocked( false );
+		applyFirewall( false, error );
 	}
 
 	if( server.featureWorkerManager().isWorkerRunning( m_examModeFeature.uid() ) )
