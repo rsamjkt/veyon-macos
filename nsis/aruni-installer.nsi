@@ -6,7 +6,7 @@
 ;   OUTFILE  - output installer path
 ;   ICON     - .ico used for the installer/uninstaller
 ; Optional:
-;   VERSION  - product version string (default 1.7.0)
+;   VERSION  - product version string (default 1.8.0)
 ;
 ; Command line of the installer (besides /S for a silent install):
 ;   /ENROLL=<code> - make this laptop a roaming laptop of the office gateway
@@ -22,7 +22,7 @@ Unicode true
 !define PRODUCT "AruniControl"
 !define PUBLISHER "Arunika"
 !ifndef VERSION
-  !define VERSION "1.7.0"
+  !define VERSION "1.8.0"
 !endif
 !ifndef ICON
   !define ICON "installer.ico"

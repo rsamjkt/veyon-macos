@@ -22,12 +22,14 @@ build_veyon_plugin(appmonitoring
 	ApplicationListDialog.cpp
 	ApplicationListDialog.h
 	ApplicationList.h
+	SessionTracker.cpp
+	SessionTracker.h
 	${appmonitoring_platform_sources}
 	appmonitoring.qrc
 	)
 
 if(VEYON_BUILD_APPLE)
-	target_link_libraries(appmonitoring PRIVATE "-framework AppKit" "-framework Foundation")
+	target_link_libraries(appmonitoring PRIVATE "-framework AppKit" "-framework Foundation" "-framework CoreGraphics")
 	set_source_files_properties(MacApplicationList.mm PROPERTIES SKIP_UNITY_BUILD_INCLUSION ON)
 elseif(VEYON_BUILD_WINDOWS)
 	target_link_libraries(appmonitoring PRIVATE -lversion -luser32)

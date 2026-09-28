@@ -53,6 +53,10 @@ public:
 		Message,
 		StartExam,
 		EndExam,
+		BlockUsb,
+		AllowUsb,
+		BlockPrinting,
+		AllowPrinting,
 		// not offered for schedules: sends the admin roles (AdminRoles) to
 		// every computer, requested with requestRun( PushRolesId )
 		PushRoles,

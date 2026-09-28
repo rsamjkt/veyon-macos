@@ -47,6 +47,10 @@ build_veyon_plugin(gateway
 	InventoryStore.h
 	InventoryView.cpp
 	InventoryView.h
+	Reports.cpp
+	Reports.h
+	ReportsView.cpp
+	ReportsView.h
 	RoamingAgent.cpp
 	RolesView.cpp
 	RolesView.h
@@ -74,7 +78,7 @@ if(gateway_platform_sources)
 	target_include_directories(gateway PRIVATE ${CMAKE_SOURCE_DIR}/plugins/appmonitoring)
 	set_source_files_properties(${gateway_platform_sources} PROPERTIES SKIP_UNITY_BUILD_INCLUSION ON)
 	if(VEYON_BUILD_APPLE)
-		target_link_libraries(gateway PRIVATE "-framework AppKit" "-framework Foundation")
+		target_link_libraries(gateway PRIVATE "-framework AppKit" "-framework Foundation" "-framework CoreGraphics")
 	elseif(VEYON_BUILD_WINDOWS)
 		target_link_libraries(gateway PRIVATE -lversion -luser32)
 		target_compile_definitions(gateway PRIVATE ARUNI_HAVE_APPLICATION_LIST)

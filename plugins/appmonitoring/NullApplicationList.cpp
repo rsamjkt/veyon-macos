@@ -45,3 +45,10 @@ void terminateApplication( const QString& name )
 {
 	Q_UNUSED(name)
 }
+
+
+
+int secondsSinceLastInput()
+{
+	return 0;
+}

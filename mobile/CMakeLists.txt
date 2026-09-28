@@ -60,7 +60,7 @@ qt_add_qml_module(arunicontrol-mobile
 target_compile_definitions(arunicontrol-mobile PRIVATE ARUNICONTROL_MOBILE)
 target_include_directories(arunicontrol-mobile PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/src ${MASTER_SRC}
 	${PLUGINS_SRC}/chat ${PLUGINS_SRC}/arunivoice ${PLUGINS_SRC}/appmonitoring
-	${PLUGINS_SRC}/sitefilter ${PLUGINS_SRC}/accesslog)
+	${PLUGINS_SRC}/sitefilter ${PLUGINS_SRC}/accesslog ${PLUGINS_SRC}/inventory ${PLUGINS_SRC}/softwaredeploy)
 find_package(Qt6 REQUIRED COMPONENTS WebSockets Multimedia)
 target_link_libraries(arunicontrol-mobile PRIVATE
 	veyon-core

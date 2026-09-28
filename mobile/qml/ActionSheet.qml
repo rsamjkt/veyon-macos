@@ -37,7 +37,8 @@ Sheet {
 				{ key: "chat", icon: "forum", label: qsTr("Chat"), feature: "Chat" },
 				{ key: "voice", icon: "record_voice_over", label: qsTr("Bicara"), feature: "AruniVoice" },
 				{ key: "apps", icon: "apps", label: qsTr("Aplikasi berjalan"), feature: "ApplicationMonitoring" },
-				{ key: "accessLog", icon: "history", label: qsTr("Log akses"), feature: "" }
+				{ key: "accessLog", icon: "history", label: qsTr("Log akses"), feature: "" },
+				{ key: "info", icon: "memory", label: qsTr("Info & program"), feature: "" }
 			]
 		},
 		{
@@ -118,6 +119,7 @@ Sheet {
 		case "voice":
 		case "apps":
 		case "accessLog":
+		case "info":
 			if (uids.length !== 1) {
 				window.toast(qsTr("Tahan kartu satu komputer untuk memilihnya dulu"), "info")
 				break
@@ -129,6 +131,8 @@ Sheet {
 				window.openVoice(uids[0])
 			else if (key === "accessLog")
 				window.openAccessLog(uids[0])
+			else if (key === "info")
+				window.openComputerInfo(uids[0])
 			else
 				window.openApps(uids[0])
 			return

@@ -165,6 +165,7 @@ public:
 public Q_SLOTS:
 	CommandLinePluginInterface::RunResult handle_install( const QStringList& arguments );
 	CommandLinePluginInterface::RunResult handle_list( const QStringList& arguments );
+	CommandLinePluginInterface::RunResult handle_uninstall( const QStringList& arguments );
 
 Q_SIGNALS:
 	void statusReceived( ComputerControlInterface::Pointer computer, const QString& state, qint64 received,

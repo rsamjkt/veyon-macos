@@ -50,6 +50,7 @@ private:
 	QPlainTextEdit* m_sites;
 	QCheckBox* m_blockInternet;
 	QLineEdit* m_url;
+	QCheckBox* m_kiosk;
 	QCheckBox* m_closeApps;
 	QPlainTextEdit* m_apps;
 	QCheckBox* m_lockKeys;

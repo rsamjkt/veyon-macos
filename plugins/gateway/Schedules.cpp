@@ -131,7 +131,8 @@ QList<Schedules::Action> Schedules::actions()
 {
 	return { Action::PowerOn, Action::PowerDown, Action::Reboot, Action::LockScreen, Action::UnlockScreen,
 			 Action::BlockInternet, Action::AllowInternet, Action::BlockSites, Action::UnblockSites,
-			 Action::Message, Action::StartExam, Action::EndExam };
+			 Action::Message, Action::StartExam, Action::EndExam, Action::BlockUsb, Action::AllowUsb,
+			 Action::BlockPrinting, Action::AllowPrinting };
 }
 
 
@@ -152,6 +153,10 @@ QString Schedules::actionKey( Action action )
 	case Action::Message: return QStringLiteral("message");
 	case Action::StartExam: return QStringLiteral("startExam");
 	case Action::EndExam: return QStringLiteral("endExam");
+	case Action::BlockUsb: return QStringLiteral("blockUsb");
+	case Action::AllowUsb: return QStringLiteral("allowUsb");
+	case Action::BlockPrinting: return QStringLiteral("blockPrinting");
+	case Action::AllowPrinting: return QStringLiteral("allowPrinting");
 	case Action::PushRoles: return QStringLiteral("pushRoles");
 	}
 	return {};
@@ -197,6 +202,10 @@ QString Schedules::actionName( Action action )
 	case Action::Message: return tr( "Send message" );
 	case Action::StartExam: return tr( "Start exam mode" );
 	case Action::EndExam: return tr( "End exam mode" );
+	case Action::BlockUsb: return tr( "Block USB storage" );
+	case Action::AllowUsb: return tr( "Allow USB storage" );
+	case Action::BlockPrinting: return tr( "Block printing" );
+	case Action::AllowPrinting: return tr( "Allow printing" );
 	case Action::PushRoles: return tr( "Send admin roles" );
 	}
 	return {};

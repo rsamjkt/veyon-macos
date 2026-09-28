@@ -31,6 +31,7 @@
 #include "FeatureProviderInterface.h"
 
 class ApplicationListDialog;
+class SessionTracker;
 
 class ApplicationMonitoringPlugin : public QObject, FeatureProviderInterface, PluginInterface
 {
@@ -106,5 +107,6 @@ private:
 	const FeatureList m_features;
 
 	QMap<ComputerControlInterface *, QPointer<ApplicationListDialog>> m_dialogs;
+	SessionTracker* m_sessionTracker{nullptr};
 
 };

@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/remotecommand">
+        <file>remotecommand.png</file>
+    </qresource>
+</RCC>

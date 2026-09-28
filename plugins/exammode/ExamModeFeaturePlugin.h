@@ -25,6 +25,8 @@
 #pragma once
 
 #include <QHash>
+#include <QPointer>
+#include <QProcess>
 #include <QSet>
 #include <QStringList>
 #include <QTimer>
@@ -45,11 +47,14 @@
 //
 // Protocol (feature "ExamMode", uid below):
 //   master -> server  Start  { Sites: QStringList, Apps: QStringList, LockKeys: bool,
-//                              Url: QString, BlockInternet: bool }
+//                              Url: QString, BlockInternet: bool, Kiosk: bool }
 //   master -> server  Stop
 //   master -> server  Query
 //   server -> master  Status { Active: bool, Error: QString }  (reply to all three)
-//   server -> worker  StartWorker { LockKeys, Url } / StopWorker
+//   server -> system worker   StartWorker { LockKeys } / StopWorker
+//   server -> session worker  StartBrowser { Url, Kiosk } / StopBrowser  (BrowserFeatureUid)
+// Kiosk: Edge (or Chrome) full screen without address bar, started again if
+// closed, until the exam ends.
 // From code (the app, schedules): controlFeature( uid, Start, { "sites", "apps",
 // "lockKeys", "url", "blockInternet" } ) and controlFeature( uid, Stop, {} ).
 class ExamModeFeaturePlugin : public QObject, FeatureProviderInterface, PluginInterface
@@ -69,6 +74,8 @@ public:
 		Status,
 		StartWorker,
 		StopWorker,
+		StartBrowser,
+		StopBrowser,
 	};
 
 	enum class Argument
@@ -80,9 +87,13 @@ public:
 		BlockInternet,
 		Active,
 		Error,
+		Kiosk,
 	};
 
 	static constexpr auto FeatureUid = "9b2e6c41-8d7a-4f35-a0c9-4e1b7d3f5a28";
+	// the worker that opens the exam website runs with the rights of the
+	// logged-on user, not as the system like the keyboard lock
+	static constexpr auto BrowserFeatureUid = "0e7c4b92-5f13-4a68-b9d2-6c1a8e3f5b70";
 
 	Plugin::Uid uid() const override
 	{
@@ -150,12 +161,15 @@ private:
 		bool lockKeys{true};
 		QString url;
 		bool blockInternet{true};
+		bool kiosk{false};
 	};
 
 	void initServer( VeyonServerInterface& server );
-	bool activate( VeyonServerInterface& server, const Settings& settings, QString& error );
+	bool activate( VeyonServerInterface& server, const Settings& settings, QString& error, bool openWebsite );
 	void deactivate( VeyonServerInterface& server, QString& error );
-	void startWorker( VeyonServerInterface& server );
+	void startWorker( VeyonServerInterface& server, bool openWebsite );
+	void launchKioskBrowser();
+	static QStringList kioskBrowser( const QString& url );
 	bool stillActive();
 	void closeApps();
 	void resolveSites();
@@ -167,6 +181,7 @@ private:
 	static void saveSettings( const Settings& settings );
 
 	const Feature m_examModeFeature;
+	const Feature m_examBrowserFeature;
 	const FeatureList m_features;
 
 	// server side
@@ -180,5 +195,9 @@ private:
 
 	// worker side
 	QObject* m_trapper{nullptr};
+	QPointer<QProcess> m_browser;
+	QString m_kioskUrl;
+	bool m_kioskActive{false};
+	QList<qint64> m_browserStarts;
 
 };

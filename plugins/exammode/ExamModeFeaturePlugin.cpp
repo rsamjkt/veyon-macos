@@ -24,7 +24,9 @@
 
 #include <QCoreApplication>
 #include <QDesktopServices>
+#include <QDateTime>
 #include <QDir>
+#include <QFileInfo>
 #include <QFile>
 #include <QHostInfo>
 #include <QJsonArray>
@@ -163,7 +165,12 @@ ExamModeFeaturePlugin::ExamModeFeaturePlugin( QObject* parent ) :
 								tr( "Internet only for the exam website, other applications closed and system shortcuts "
 									"locked - with one click, and undone with one click." ),
 								QStringLiteral(":/exammode/exammode.png") ) ),
-	m_features( { m_examModeFeature } )
+	m_examBrowserFeature( Feature( QStringLiteral( "ExamBrowser" ),
+								   Feature::Flag::Meta | Feature::Flag::Service | Feature::Flag::Worker,
+								   Feature::Uid( BrowserFeatureUid ),
+								   Feature::Uid(),
+								   tr( "Exam website" ), {}, {} ) ),
+	m_features( { m_examModeFeature, m_examBrowserFeature } )
 {
 	if( VeyonCore::component() == VeyonCore::Component::Server )
 	{
@@ -218,13 +225,18 @@ bool ExamModeFeaturePlugin::controlFeature( Feature::Uid featureUid, Operation o
 	{
 		// never on the computer of the teacher itself
 		auto examComputers = computerControlInterfaces;
-		examComputers.removeLocalHostInterfaces();
+		// (automated tests run everything on one computer)
+		if( qEnvironmentVariableIsSet( "ARUNI_TEST_ALLOW_LOCAL" ) == false )
+		{
+			examComputers.removeLocalHostInterfaces();
+		}
 		sendFeatureMessage( FeatureMessage{ featureUid, Start }
 								.addArgument( Argument::Sites, normalizedDomains( arguments.value( QStringLiteral("sites") ).toStringList() ) )
 								.addArgument( Argument::Apps, cleanedApps( arguments.value( QStringLiteral("apps"), defaultApps() ).toStringList() ) )
 								.addArgument( Argument::LockKeys, arguments.value( QStringLiteral("lockKeys"), true ).toBool() )
 								.addArgument( Argument::Url, arguments.value( QStringLiteral("url") ).toString().trimmed() )
-								.addArgument( Argument::BlockInternet, arguments.value( QStringLiteral("blockInternet"), true ).toBool() ),
+								.addArgument( Argument::BlockInternet, arguments.value( QStringLiteral("blockInternet"), true ).toBool() )
+								.addArgument( Argument::Kiosk, arguments.value( QStringLiteral("kiosk"), false ).toBool() ),
 							examComputers );
 		return true;
 	}
@@ -303,13 +315,14 @@ bool ExamModeFeaturePlugin::handleFeatureMessage( VeyonServerInterface& server, 
 		settings.lockKeys = message.argument( Argument::LockKeys ).toBool();
 		settings.url = message.argument( Argument::Url ).toString();
 		settings.blockInternet = message.argument( Argument::BlockInternet ).toBool();
+		settings.kiosk = message.argument( Argument::Kiosk ).toBool() && settings.url.isEmpty() == false;
 		// the website opened for the exam is always reachable
 		const auto urlDomain = normalizedDomain( settings.url );
 		if( urlDomain.isEmpty() == false && settings.sites.contains( urlDomain ) == false )
 		{
 			settings.sites.append( urlDomain );
 		}
-		activate( server, settings, error );
+		activate( server, settings, error, true );
 		break;
 	}
 	case Stop:
@@ -332,6 +345,44 @@ bool ExamModeFeaturePlugin::handleFeatureMessage( VeyonWorkerInterface& worker, 
 {
 	Q_UNUSED(worker)
 
+	if( message.featureUid() == m_examBrowserFeature.uid() )
+	{
+		switch( static_cast<int>( message.command() ) )
+		{
+		case StartBrowser:
+		{
+			const auto url = message.argument( Argument::Url ).toString();
+			if( message.argument( Argument::Kiosk ).toBool() && kioskBrowser( url ).isEmpty() == false )
+			{
+				m_kioskUrl = url;
+				m_kioskActive = true;
+				if( m_browser.isNull() )
+				{
+					launchKioskBrowser();
+				}
+				return true;
+			}
+			if( url.isEmpty() == false )
+			{
+				QDesktopServices::openUrl( QUrl::fromUserInput( url ) );
+			}
+			QTimer::singleShot( 3000, QCoreApplication::instance(), &QCoreApplication::quit );
+			return true;
+		}
+		case StopBrowser:
+			m_kioskActive = false;
+			if( m_browser )
+			{
+				m_browser->kill();
+				m_browser->waitForFinished( 3000 );
+			}
+			QCoreApplication::quit();
+			return true;
+		default:
+			return true;
+		}
+	}
+
 	if( message.featureUid() != m_examModeFeature.uid() )
 	{
 		return false;
@@ -340,7 +391,6 @@ bool ExamModeFeaturePlugin::handleFeatureMessage( VeyonWorkerInterface& worker, 
 	switch( static_cast<int>( message.command() ) )
 	{
 	case StartWorker:
-	{
 		if( message.argument( Argument::LockKeys ).toBool() && m_trapper == nullptr )
 		{
 			// the Windows implementation swallows the shortcuts it traps
@@ -356,14 +406,7 @@ bool ExamModeFeaturePlugin::handleFeatureMessage( VeyonWorkerInterface& worker, 
 			delete m_trapper;
 			m_trapper = nullptr;
 		}
-
-		const auto url = message.argument( Argument::Url ).toString();
-		if( url.isEmpty() == false )
-		{
-			QDesktopServices::openUrl( QUrl::fromUserInput( url ) );
-		}
 		return true;
-	}
 	case StopWorker:
 		delete m_trapper;
 		m_trapper = nullptr;
@@ -374,6 +417,88 @@ bool ExamModeFeaturePlugin::handleFeatureMessage( VeyonWorkerInterface& worker, 
 	}
 
 	return false;
+}
+
+
+
+QStringList ExamModeFeaturePlugin::kioskBrowser( const QString& url )
+{
+	if( url.isEmpty() )
+	{
+		return {};
+	}
+
+	QStringList candidates;
+#if defined(Q_OS_WIN)
+	for( const auto& executable : { QStringLiteral("msedge.exe"), QStringLiteral("chrome.exe") } )
+	{
+		const QSettings appPath( QStringLiteral("HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\App Paths\\") + executable,
+								 QSettings::NativeFormat );
+		candidates.append( appPath.value( QStringLiteral("Default") ).toString() );
+	}
+	candidates.append( QStringLiteral("C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe") );
+	candidates.append( QStringLiteral("C:/Program Files/Google/Chrome/Application/chrome.exe") );
+#elif defined(Q_OS_MACOS)
+	candidates.append( QStringLiteral("/Applications/Microsoft Edge.app/Contents/MacOS/Microsoft Edge") );
+	candidates.append( QStringLiteral("/Applications/Google Chrome.app/Contents/MacOS/Google Chrome") );
+#endif
+
+	for( const auto& candidate : std::as_const( candidates ) )
+	{
+		if( candidate.isEmpty() || QFileInfo( candidate ).isExecutable() == false )
+		{
+			continue;
+		}
+		// an own profile: the browser must not hand the window to an already
+		// running (normal) instance
+		const auto profile = QDir::temp().filePath( QStringLiteral("aruni-exam-browser") );
+		QStringList command{ candidate, QStringLiteral("--kiosk"), QUrl::fromUserInput( url ).toString(),
+							 QStringLiteral("--no-first-run"), QStringLiteral("--no-default-browser-check"),
+							 QStringLiteral("--user-data-dir=") + QDir::toNativeSeparators( profile ) };
+		if( candidate.contains( QStringLiteral("edge"), Qt::CaseInsensitive ) )
+		{
+			command.append( QStringLiteral("--edge-kiosk-type=fullscreen") );
+		}
+		return command;
+	}
+	return {};
+}
+
+
+
+void ExamModeFeaturePlugin::launchKioskBrowser()
+{
+	auto command = kioskBrowser( m_kioskUrl );
+	if( m_kioskActive == false || command.isEmpty() )
+	{
+		return;
+	}
+
+	// a browser that keeps crashing must not be started endlessly
+	const auto now = QDateTime::currentMSecsSinceEpoch();
+	m_browserStarts.append( now );
+	while( m_browserStarts.isEmpty() == false && now - m_browserStarts.first() > 60000 )
+	{
+		m_browserStarts.removeFirst();
+	}
+	if( m_browserStarts.size() > 10 )
+	{
+		vWarning() << "exam browser keeps closing - not starting it again";
+		return;
+	}
+
+	auto process = new QProcess( this );
+	m_browser = process;
+	connect( process, &QProcess::finished, this, [this, process]() {
+		process->deleteLater();
+		if( m_kioskActive )
+		{
+			// closed by the user - the exam is still running
+			QTimer::singleShot( 1500, this, &ExamModeFeaturePlugin::launchKioskBrowser );
+		}
+	} );
+	const auto program = command.takeFirst();
+	process->start( program, command );
 }
 
 
@@ -403,16 +528,15 @@ void ExamModeFeaturePlugin::initServer( VeyonServerInterface& server )
 	{
 		vInfo() << "exam mode was active - restoring it";
 		QString error;
-		// the running exam must not open the website again after a restart
-		auto restored = settings;
-		restored.url.clear();
-		activate( server, restored, error );
+		// the running exam must not open the website again after a restart -
+		// only the kiosk browser, which is the exam itself
+		activate( server, settings, error, settings.kiosk );
 	}
 }
 
 
 
-bool ExamModeFeaturePlugin::activate( VeyonServerInterface& server, const Settings& settings, QString& error )
+bool ExamModeFeaturePlugin::activate( VeyonServerInterface& server, const Settings& settings, QString& error, bool openWebsite )
 {
 	m_settings = settings;
 	saveSettings( m_settings );
@@ -437,7 +561,7 @@ bool ExamModeFeaturePlugin::activate( VeyonServerInterface& server, const Settin
 		applyFirewall( false, error );
 	}
 
-	startWorker( server );
+	startWorker( server, openWebsite );
 
 	m_lastError = error;
 	vInfo() << "exam mode started - sites:" << m_settings.sites << "apps:" << m_settings.apps
@@ -467,6 +591,10 @@ void ExamModeFeaturePlugin::deactivate( VeyonServerInterface& server, QString& e
 	{
 		server.featureWorkerManager().sendMessageToManagedSystemWorker( FeatureMessage{ m_examModeFeature.uid(), StopWorker } );
 	}
+	if( server.featureWorkerManager().isWorkerRunning( m_examBrowserFeature.uid() ) )
+	{
+		server.featureWorkerManager().sendMessageToUnmanagedSessionWorker( FeatureMessage{ m_examBrowserFeature.uid(), StopBrowser } );
+	}
 
 	m_lastError = error;
 	vInfo() << "exam mode ended";
@@ -474,7 +602,7 @@ void ExamModeFeaturePlugin::deactivate( VeyonServerInterface& server, QString& e
 
 
 
-void ExamModeFeaturePlugin::startWorker( VeyonServerInterface& server )
+void ExamModeFeaturePlugin::startWorker( VeyonServerInterface& server, bool openWebsite )
 {
 	if( VeyonCore::platform().sessionFunctions().currentSessionHasUser() == false )
 	{
@@ -483,8 +611,15 @@ void ExamModeFeaturePlugin::startWorker( VeyonServerInterface& server )
 
 	server.featureWorkerManager().sendMessageToManagedSystemWorker(
 		FeatureMessage{ m_examModeFeature.uid(), StartWorker }
-			.addArgument( Argument::LockKeys, m_settings.lockKeys )
-			.addArgument( Argument::Url, m_settings.url ) );
+			.addArgument( Argument::LockKeys, m_settings.lockKeys ) );
+
+	if( openWebsite && m_settings.url.isEmpty() == false )
+	{
+		server.featureWorkerManager().sendMessageToUnmanagedSessionWorker(
+			FeatureMessage{ m_examBrowserFeature.uid(), StartBrowser }
+				.addArgument( Argument::Url, m_settings.url )
+				.addArgument( Argument::Kiosk, m_settings.kiosk ) );
+	}
 }
 
 
@@ -704,6 +839,7 @@ ExamModeFeaturePlugin::Settings ExamModeFeaturePlugin::loadSettings()
 		settings.lockKeys = json[QStringLiteral("lockKeys")].toBool( true );
 		settings.url = json[QStringLiteral("url")].toString();
 		settings.blockInternet = json[QStringLiteral("blockInternet")].toBool( true );
+		settings.kiosk = json[QStringLiteral("kiosk")].toBool();
 	}
 	return settings;
 }
@@ -723,6 +859,7 @@ void ExamModeFeaturePlugin::saveSettings( const Settings& settings )
 			{ QStringLiteral("lockKeys"), settings.lockKeys },
 			{ QStringLiteral("url"), settings.url },
 			{ QStringLiteral("blockInternet"), settings.blockInternet },
+			{ QStringLiteral("kiosk"), settings.kiosk },
 		} ).toJson() );
 	}
 }

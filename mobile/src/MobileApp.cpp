@@ -126,7 +126,8 @@ MobileApp::MobileApp( VeyonMaster* master, QObject* parent ) :
 	m_appMonitor( new AppMonitorController( m_computers, this ) ),
 	m_broadcast( new BroadcastController( m_computers, this ) ),
 	m_siteFilter( new SiteFilterController( m_computers, this ) ),
-	m_accessLog( new AccessLogController( m_computers, this ) )
+	m_accessLog( new AccessLogController( m_computers, this ) ),
+	m_computerInfo( new ComputerInfoController( m_computers, this ) )
 {
 	// connections to computers behind a gateway go through its tunnel
 	VncConnection::setConnectionRedirector( [gateways = m_gateways]( const QString& host, int port,
@@ -872,6 +873,7 @@ QVariantMap MobileApp::examSettings() const
 		{ QStringLiteral("blockInternet"), settings.value( QStringLiteral("blockInternet"), true ).toBool() },
 		{ QStringLiteral("closeApps"), settings.value( QStringLiteral("closeApps"), true ).toBool() },
 		{ QStringLiteral("lockKeys"), settings.value( QStringLiteral("lockKeys"), true ).toBool() },
+		{ QStringLiteral("kiosk"), settings.value( QStringLiteral("kiosk"), false ).toBool() },
 	};
 }
 
@@ -885,6 +887,7 @@ void MobileApp::startExam( const QVariantMap& examSettings, const QStringList& u
 	const auto blockInternet = examSettings.value( QStringLiteral("blockInternet"), true ).toBool();
 	const auto closeApps = examSettings.value( QStringLiteral("closeApps"), true ).toBool();
 	const auto lockKeys = examSettings.value( QStringLiteral("lockKeys"), true ).toBool();
+	const auto kiosk = examSettings.value( QStringLiteral("kiosk"), false ).toBool() && url.isEmpty() == false;
 
 	auto settings = mobileSettings();
 	settings.beginGroup( QStringLiteral("exam") );
@@ -893,6 +896,7 @@ void MobileApp::startExam( const QVariantMap& examSettings, const QStringList& u
 	settings.setValue( QStringLiteral("blockInternet"), blockInternet );
 	settings.setValue( QStringLiteral("closeApps"), closeApps );
 	settings.setValue( QStringLiteral("lockKeys"), lockKeys );
+	settings.setValue( QStringLiteral("kiosk"), kiosk );
 	settings.endGroup();
 
 	QVariantMap arguments{
@@ -900,6 +904,7 @@ void MobileApp::startExam( const QVariantMap& examSettings, const QStringList& u
 		{ QStringLiteral("url"), url },
 		{ QStringLiteral("blockInternet"), blockInternet },
 		{ QStringLiteral("lockKeys"), lockKeys },
+		{ QStringLiteral("kiosk"), kiosk },
 	};
 	// without "apps" the plugin closes its default list
 	if( closeApps == false )

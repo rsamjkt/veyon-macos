@@ -166,7 +166,7 @@ bool SoftwareDeployFeaturePlugin::startFeature( VeyonMasterInterface& master, co
 
 QStringList SoftwareDeployFeaturePlugin::commands() const
 {
-	return { QStringLiteral("install"), QStringLiteral("list") };
+	return { QStringLiteral("install"), QStringLiteral("list"), QStringLiteral("uninstall") };
 }
 
 
@@ -180,6 +180,10 @@ QString SoftwareDeployFeaturePlugin::commandHelp( const QString& command ) const
 	if( command == QStringLiteral("list") )
 	{
 		return tr( "List the programs of a computer: list <host>" );
+	}
+	if( command == QStringLiteral("uninstall") )
+	{
+		return tr( "Remove a program: uninstall <host> <part of the program name>" );
 	}
 	return {};
 }
@@ -319,6 +323,80 @@ CommandLinePluginInterface::RunResult SoftwareDeployFeaturePlugin::handle_list( 
 	}
 	computers.first()->stop();
 	return received ? NoResult : Failed;
+}
+
+
+
+CommandLinePluginInterface::RunResult SoftwareDeployFeaturePlugin::handle_uninstall( const QStringList& arguments )
+{
+	if( arguments.size() < 2 )
+	{
+		return NotEnoughArguments;
+	}
+
+	auto computers = connectComputers( { arguments.at( 0 ) } );
+	if( computers.isEmpty() || computers.first()->state() != ComputerControlInterface::State::Connected )
+	{
+		error( tr( "%1: not connected" ).arg( arguments.at( 0 ) ) );
+		return Failed;
+	}
+	const auto name = arguments.mid( 1 ).join( QLatin1Char(' ') );
+
+	QStringList matches;
+	QString matchName;
+	bool listed = false;
+	auto listConnection = connect( this, &SoftwareDeployFeaturePlugin::softwareReceived, this,
+			 [&]( ComputerControlInterface::Pointer, const QJsonArray& software ) {
+		for( const auto& value : software )
+		{
+			const auto program = value.toObject();
+			if( program[QStringLiteral("name")].toString().contains( name, Qt::CaseInsensitive ) &&
+				program[QStringLiteral("removable")].toBool() )
+			{
+				matches.append( program[QStringLiteral("id")].toString() );
+				matchName = program[QStringLiteral("name")].toString();
+			}
+		}
+		listed = true;
+	} );
+	querySoftware( computers );
+
+	QElapsedTimer timer;
+	timer.start();
+	while( listed == false && timer.elapsed() < 20000 )
+	{
+		QCoreApplication::processEvents( QEventLoop::AllEvents, 100 );
+	}
+	disconnect( listConnection );
+
+	if( matches.size() != 1 )
+	{
+		error( matches.isEmpty() ? tr( "No removable program matches \"%1\"" ).arg( name )
+								 : tr( "%1 programs match \"%2\" - be more precise" ).arg( matches.size() ).arg( name ) );
+		computers.first()->stop();
+		return Failed;
+	}
+
+	QString result;
+	connect( this, &SoftwareDeployFeaturePlugin::statusReceived, this,
+			 [&result]( ComputerControlInterface::Pointer, const QString& state, qint64, int, const QString& message ) {
+		if( state == QStringLiteral("done") || state == QStringLiteral("failed") )
+		{
+			result = state + QLatin1Char(' ') + message;
+		}
+	} );
+	info( tr( "Removing %1" ).arg( matchName ) );
+	uninstall( matches.first(), {}, computers );
+
+	timer.restart();
+	while( result.isEmpty() && timer.elapsed() < 35 * 60 * 1000 )
+	{
+		QCoreApplication::processEvents( QEventLoop::AllEvents, 100 );
+	}
+	computers.first()->stop();
+
+	print( result.trimmed() );
+	return result.startsWith( QStringLiteral("done") ) ? Successful : Failed;
 }
 
 

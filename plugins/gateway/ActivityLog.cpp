@@ -220,6 +220,9 @@ QString ActivityLog::eventName( const QString& event )
 		{ QStringLiteral("access.access_denied"), QT_TR_NOOP( "Access: denied" ) },
 		{ QStringLiteral("access.feature"), QT_TR_NOOP( "Access: function used" ) },
 		{ QStringLiteral("access.feature_denied"), QT_TR_NOOP( "Access: function not allowed" ) },
+		{ QStringLiteral("access.user_login"), QT_TR_NOOP( "User logged on" ) },
+		{ QStringLiteral("access.user_logout"), QT_TR_NOOP( "User logged off" ) },
+		{ QStringLiteral("access.remote_command"), QT_TR_NOOP( "Command run" ) },
 		{ QStringLiteral("schedule.run"), QT_TR_NOOP( "Schedule" ) },
 		{ QStringLiteral("inventory.disk"), QT_TR_NOOP( "Disk almost full" ) },
 		{ QStringLiteral("inventory.offline"), QT_TR_NOOP( "Computer not online" ) },
@@ -261,6 +264,10 @@ QString ActivityLog::describe( const Entry& entry )
 	if( entry.event == QStringLiteral("laptop.screenshot") )
 	{
 		return d[QStringLiteral("file")].toString();
+	}
+	if( entry.event == QStringLiteral("access.user_login") || entry.event == QStringLiteral("access.user_logout") )
+	{
+		return d[QStringLiteral("user")].toString();
 	}
 	if( entry.event.startsWith( QStringLiteral("access.") ) )
 	{

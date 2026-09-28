@@ -63,6 +63,7 @@ ApplicationWindow {
 	}
 	function openApps(uid) { stack.push(Qt.resolvedUrl("AppsPage.qml"), { computerUid: uid }) }
 	function openVoice(uid) { voiceSheet.start(uid) }
+	function openComputerInfo(uid) { stack.push(Qt.resolvedUrl("ComputerInfoPage.qml"), { computerUid: uid }) }
 	function openAccessLog(uid) { stack.push(Qt.resolvedUrl("AccessLogPage.qml"), { computerUid: uid }) }
 
 	// tools for many computers at once (an empty uid list = all visible computers)
@@ -130,6 +131,10 @@ ApplicationWindow {
 			case "broadcast": window.openBroadcast([], qsTr("Semua komputer")); break
 			case "siteblock": window.openSiteBlock([], qsTr("Semua komputer")); break
 			case "exam": window.openExam([], qsTr("Semua komputer")); break
+			case "info":
+				if (App.computers.count > 0)
+					window.openComputerInfo(App.computers.uidAt(0))
+				break
 			case "accesslog":
 				if (App.computers.count > 0)
 					window.openAccessLog(App.computers.uidAt(0))

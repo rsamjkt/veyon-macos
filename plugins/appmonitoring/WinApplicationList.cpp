@@ -215,3 +215,16 @@ void terminateApplication( const QString& name )
 
 	CloseHandle( snapshot );
 }
+
+
+
+int secondsSinceLastInput()
+{
+	LASTINPUTINFO info;
+	info.cbSize = sizeof( info );
+	if( GetLastInputInfo( &info ) == false )
+	{
+		return 0;
+	}
+	return int( ( GetTickCount() - info.dwTime ) / 1000 );
+}

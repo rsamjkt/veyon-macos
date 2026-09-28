@@ -26,17 +26,20 @@
 
 #include <QJsonObject>
 
+#include "CommandLineIO.h"
+#include "CommandLinePluginInterface.h"
 #include "Feature.h"
 #include "FeatureProviderInterface.h"
 
 // Protocol (feature "Inventory", uid below, not shown in the Master):
 //   master -> server  Query
 //   server -> master  Info { Inventory: JSON (see collect()) }
-class InventoryFeaturePlugin : public QObject, FeatureProviderInterface, PluginInterface
+class InventoryFeaturePlugin : public QObject, FeatureProviderInterface, PluginInterface,
+		CommandLinePluginInterface, CommandLineIO
 {
 	Q_OBJECT
 	Q_PLUGIN_METADATA(IID "io.veyon.Veyon.Plugins.Inventory")
-	Q_INTERFACES(PluginInterface FeatureProviderInterface)
+	Q_INTERFACES(PluginInterface FeatureProviderInterface CommandLinePluginInterface)
 public:
 	explicit InventoryFeaturePlugin( QObject* parent = nullptr );
 	~InventoryFeaturePlugin() override = default;
@@ -86,6 +89,26 @@ public:
 
 	const FeatureList& featureList() const override;
 
+	QString commandLineModuleName() const override
+	{
+		return QStringLiteral("inventory");
+	}
+
+	QString commandLineModuleHelp() const override
+	{
+		return description();
+	}
+
+	QStringList commands() const override
+	{
+		return { QStringLiteral("show") };
+	}
+
+	QString commandHelp( const QString& command ) const override
+	{
+		return command == QStringLiteral("show") ? tr( "Show the inventory of a computer as JSON: show <host>" ) : QString{};
+	}
+
 	bool controlFeature( Feature::Uid featureUid, Operation operation, const QVariantMap& arguments,
 						 const ComputerControlInterfaceList& computerControlInterfaces ) override;
 
@@ -99,6 +122,9 @@ public:
 	//   uptimeHours, user, version, disks[{ name, path, totalGB, freeGB }],
 	//   network[{ name, mac, ip }], software[{ name, version, publisher, installed }] }
 	QJsonObject collect();
+
+public Q_SLOTS:
+	CommandLinePluginInterface::RunResult handle_show( const QStringList& arguments );
 
 Q_SIGNALS:
 	void inventoryReceived( ComputerControlInterface::Pointer computerControlInterface, const QJsonObject& inventory );

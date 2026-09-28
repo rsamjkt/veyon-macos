@@ -639,6 +639,7 @@ Page {
 				{ key: "voice", icon: "record_voice_over", label: qsTr("Bicara (AruniVoice)"), feature: "AruniVoice" },
 				{ key: "apps", icon: "apps", label: qsTr("Aplikasi yang berjalan"), feature: "ApplicationMonitoring" },
 				{ key: "accessLog", icon: "history", label: qsTr("Log akses") },
+				{ key: "info", icon: "memory", label: qsTr("Info & program") },
 				{ key: "siteBlock", icon: "block", label: qsTr("Blokir situs") },
 				{ key: "share", icon: "screen_share", label: qsTr("Tampilkan layar ini ke semua") },
 				{ key: "inputLock", icon: "keyboard_off", label: qsTr("Kunci keyboard & mouse") },
@@ -676,6 +677,7 @@ Page {
 					case "voice": window.openVoice(page.computerUid); break
 					case "apps": window.openApps(page.computerUid); break
 					case "accessLog": window.openAccessLog(page.computerUid); break
+					case "info": window.openComputerInfo(page.computerUid); break
 					case "siteBlock": window.openSiteBlock(uids, page.computerName); break
 					case "screenshot": page.takeScreenshot(); break
 					case "share":

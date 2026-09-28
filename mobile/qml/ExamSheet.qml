@@ -20,6 +20,7 @@ Sheet {
 		blockInternet.checked = settings.blockInternet
 		closeApps.checked = settings.closeApps
 		lockKeys.checked = settings.lockKeys
+		kiosk.checked = settings.kiosk
 		open()
 	}
 
@@ -29,7 +30,8 @@ Sheet {
 			url: urlField.text,
 			blockInternet: blockInternet.checked,
 			closeApps: closeApps.checked,
-			lockKeys: lockKeys.checked
+			lockKeys: lockKeys.checked,
+			kiosk: kiosk.checked
 		}
 	}
 
@@ -64,6 +66,7 @@ Sheet {
 		Switch { id: toggle }
 	}
 
+	OptionRow { id: kiosk; text: qsTr("Layar penuh tanpa address bar (kiosk) - siswa tidak bisa menutupnya"); enabled: urlField.text.trim().length > 0 }
 	OptionRow { id: blockInternet; Layout.topMargin: 4; text: qsTr("Blokir internet selain situs ujian") }
 	OptionRow { id: closeApps; text: qsTr("Tutup aplikasi chat, video call, remote & game") }
 	OptionRow { id: lockKeys; text: qsTr("Kunci tombol Windows, Alt+Tab, Alt+F4 & Task Manager") }

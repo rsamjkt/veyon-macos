@@ -55,6 +55,7 @@
 #include "Notifier.h"
 #include "MonitoringCollector.h"
 #include "InventoryView.h"
+#include "ReportsView.h"
 #include "RolesView.h"
 #include "ScheduleView.h"
 #include "SetupCodeView.h"
@@ -218,6 +219,8 @@ GatewayConfigurationPage::GatewayConfigurationPage( QWidget* parent ) :
 	m_recordingsTabIndex = m_tabs->addTab( m_timelapse, tr( "Recordings" ) );
 	m_inventory = new InventoryView;
 	m_inventoryTabIndex = m_tabs->addTab( m_inventory, tr( "Inventory" ) );
+	m_reports = new ReportsView;
+	m_reportsTabIndex = m_tabs->addTab( m_reports, tr( "Reports" ) );
 	m_schedules = new ScheduleView;
 	m_schedulesTabIndex = m_tabs->addTab( m_schedules, tr( "Schedules" ) );
 	m_setupCode = new SetupCodeView;
@@ -314,6 +317,10 @@ GatewayConfigurationPage::GatewayConfigurationPage( QWidget* parent ) :
 		else if( index == m_inventoryTabIndex )
 		{
 			m_inventory->refresh();
+		}
+		else if( index == m_reportsTabIndex )
+		{
+			m_reports->refresh();
 		}
 	} );
 	m_refreshTimer.start( 2000 );

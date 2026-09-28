@@ -26,6 +26,7 @@
 #include "ApplicationListDialog.h"
 #include "ComputerControlInterface.h"
 #include "ApplicationList.h"
+#include "SessionTracker.h"
 #include "VeyonServerInterface.h"
 
 
@@ -41,6 +42,10 @@ ApplicationMonitoringPlugin::ApplicationMonitoringPlugin( QObject* parent ) :
 											 QStringLiteral(":/appmonitoring/appmon.png") ) ),
 	m_features( { m_applicationMonitoringFeature } )
 {
+	if( VeyonCore::component() == VeyonCore::Component::Server )
+	{
+		m_sessionTracker = new SessionTracker( this );
+	}
 }
 
 

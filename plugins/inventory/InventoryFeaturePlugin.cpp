@@ -22,6 +22,12 @@
  *
  */
 
+#include <QCoreApplication>
+#include <QDate>
+#include <QElapsedTimer>
+#include <QUuid>
+#include <QDir>
+#include <QFile>
 #include <QHostInfo>
 #include <QJsonArray>
 #include <QJsonDocument>
@@ -40,6 +46,7 @@
 #include <ctime>
 #endif
 
+#include "Filesystem.h"
 #include "InstalledSoftware.h"
 #include "InventoryFeaturePlugin.h"
 #include "PlatformUserFunctions.h"
@@ -67,6 +74,7 @@ QString sysctlString( const char* name )
 #endif
 
 constexpr double GiB = 1024.0 * 1024.0 * 1024.0;
+constexpr int UsageDays = 8;
 
 double roundedGB( qint64 bytes )
 {
@@ -250,6 +258,20 @@ QJsonObject InventoryFeaturePlugin::collect()
 
 	info[QStringLiteral("software")] = InstalledSoftware::toJson( InstalledSoftware::list() );
 
+	// application usage of the last days, see appmonitoring/SessionTracker
+	QJsonObject usage;
+	const QDir usageDir( VeyonCore::filesystem().expandPath( QStringLiteral("%GLOBALAPPDATA%/logs/usage") ) );
+	for( int i = 0; i < UsageDays; ++i )
+	{
+		const auto date = QDate::currentDate().addDays( -i ).toString( Qt::ISODate );
+		QFile file( usageDir.filePath( date + QStringLiteral(".json") ) );
+		if( file.open( QFile::ReadOnly ) )
+		{
+			usage[date] = QJsonDocument::fromJson( file.readAll() ).object();
+		}
+	}
+	info[QStringLiteral("usage")] = usage;
+
 	return info;
 }
 
@@ -282,4 +304,50 @@ void InventoryFeaturePlugin::querySerialNumber()
 #else
 	delete process;
 #endif
+}
+
+
+
+CommandLinePluginInterface::RunResult InventoryFeaturePlugin::handle_show( const QStringList& arguments )
+{
+	if( arguments.isEmpty() )
+	{
+		return NotEnoughArguments;
+	}
+	if( VeyonCore::instance()->initAuthentication() == false )
+	{
+		error( tr( "Failed to initialize credentials" ) );
+		return Failed;
+	}
+
+	auto computer = ComputerControlInterface::Pointer::create( Computer( QUuid::createUuid(), arguments.first(), arguments.first() ) );
+	computer->start( {}, ComputerControlInterface::UpdateMode::FeatureControlOnly );
+
+	bool received = false;
+	connect( this, &InventoryFeaturePlugin::inventoryReceived, this,
+			 [&received, this]( ComputerControlInterface::Pointer, const QJsonObject& inventory ) {
+		print( QString::fromUtf8( QJsonDocument( inventory ).toJson() ) );
+		received = true;
+	} );
+
+	QElapsedTimer timer;
+	timer.start();
+	bool sent = false;
+	while( received == false && timer.elapsed() < 30000 )
+	{
+		QCoreApplication::processEvents( QEventLoop::AllEvents, 100 );
+		if( sent == false && computer->state() == ComputerControlInterface::State::Connected )
+		{
+			computer->sendFeatureMessage( FeatureMessage{ m_feature.uid(), Query } );
+			sent = true;
+		}
+	}
+	computer->stop();
+
+	if( received == false )
+	{
+		error( tr( "%1: no answer" ).arg( arguments.first() ) );
+		return Failed;
+	}
+	return NoResult;
 }

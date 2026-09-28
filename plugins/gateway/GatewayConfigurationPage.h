@@ -122,6 +122,8 @@ private:
 	int m_rolesTabIndex{-1};
 	class InventoryView* m_inventory;
 	int m_inventoryTabIndex{-1};
+	class ReportsView* m_reports;
+	int m_reportsTabIndex{-1};
 	QLabel* m_screenshotStatus;
 
 	// notifications

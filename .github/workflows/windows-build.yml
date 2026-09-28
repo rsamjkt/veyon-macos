@@ -18,16 +18,24 @@ on:
       - 'CMakeLists.txt'
       - 'cmake/**'
       - '.github/workflows/windows-build.yml'
+      - '.github/workflows/windows-test.yml'
+      - 'ci/**'
+      - 'nsis/**'
     # pushing a version tag builds the release and attaches the assets to it
     tags: [ 'v*' ]
   workflow_dispatch:
 
 env:
-  APP_VERSION: 1.7.0
-  APP_CODENAME: Hana
+  APP_VERSION: 1.8.0
+  APP_CODENAME: Intan
 
 permissions:
   contents: write   # allow uploading assets to the release
+
+# builds share the "ci-build" draft release with their tests - one at a time
+concurrency:
+  group: windows-ci
+  cancel-in-progress: false
 
 jobs:
   build-windows:
@@ -208,19 +216,44 @@ jobs:
           # live long enough to be tested (the account's artifact quota is small)
           retention-days: 7
 
-      # Publish the Windows assets to the release directly from the runner
-      # (fast GitHub-internal network) so large files don't have to be moved
-      # through a slow local connection. Only version tags publish - builds of
-      # main used to overwrite the assets of an already published release.
-      - name: Publish Windows assets to the release
-        if: startsWith(github.ref, 'refs/tags/v')
+      # hand the files over to the test and publish jobs through a draft
+      # release (the account's artifact quota is small)
+      - name: Hand over to the tests
         shell: pwsh
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           Compress-Archive -Path AruniControl-Server-win64\* `
             -DestinationPath AruniControl-Server-${{ env.APP_VERSION }}-${{ env.APP_CODENAME }}-Windows-x64.zip -Force
-          gh release upload ${{ github.ref_name }} `
+          gh release view ci-build --repo $env:GITHUB_REPOSITORY *> $null
+          if ($LASTEXITCODE -ne 0) {
+            gh release create ci-build --draft --title "CI build" --notes "Latest CI build, used by the automated Windows tests" --repo $env:GITHUB_REPOSITORY
+          }
+          # only the files of this build
+          gh release view ci-build --repo $env:GITHUB_REPOSITORY --json assets --jq '.assets[].name' | ForEach-Object {
+            gh release delete-asset ci-build $_ --yes --repo $env:GITHUB_REPOSITORY
+          }
+          gh release upload ci-build `
             AruniControl-Setup-${{ env.APP_VERSION }}-${{ env.APP_CODENAME }}-Windows-x64.exe `
             AruniControl-Server-${{ env.APP_VERSION }}-${{ env.APP_CODENAME }}-Windows-x64.zip `
             --clobber --repo $env:GITHUB_REPOSITORY
+
+  test:
+    needs: build-windows
+    uses: ./.github/workflows/windows-test.yml
+    with:
+      tag: ci-build
+
+  # Only tested builds of version tags are published
+  publish:
+    needs: test
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Publish Windows assets to the release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release download ci-build --repo ${{ github.repository }} --pattern "*${{ env.APP_VERSION }}*" --dir assets
+          ls -l assets
+          gh release upload ${{ github.ref_name }} assets/* --clobber --repo ${{ github.repository }}

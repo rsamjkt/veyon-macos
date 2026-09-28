@@ -1,0 +1,43 @@
+name: Windows test (AruniControl)
+
+# Installs an AruniControl Windows installer on a fresh runner and tests every
+# feature against the real system (ci/windows-smoke-test.ps1). Called by the
+# build for every build; can be started by hand for a release or the latest
+# CI build ("ci-build", a draft release the build hands its files over with).
+
+on:
+  workflow_call:
+    inputs:
+      tag:
+        type: string
+        default: ci-build
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Release to test
+        default: ci-build
+
+permissions:
+  contents: write
+
+jobs:
+  test-windows:
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download installer
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release download ${{ inputs.tag }} --repo ${{ github.repository }} --pattern "*Setup*.exe" --dir installer
+          Get-ChildItem installer
+
+      - name: Test
+        run: |
+          $setup = (Get-ChildItem installer\*Setup*.exe | Select-Object -First 1).FullName
+          ./ci/windows-smoke-test.ps1 -Setup $setup

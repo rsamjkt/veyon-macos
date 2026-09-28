@@ -377,6 +377,7 @@ QString RolesView::shortPermissionName( const QString& permission )
 	if( permission == QStringLiteral("apps") ) return tr( "Apps & files" );
 	if( permission == QStringLiteral("power") ) return tr( "Power" );
 	if( permission == QStringLiteral("software") ) return tr( "Software" );
+	if( permission == QStringLiteral("commands") ) return tr( "Commands" );
 	return permission;
 }
 

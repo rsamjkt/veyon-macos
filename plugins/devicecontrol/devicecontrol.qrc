@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/devicecontrol">
+        <file>devicecontrol.png</file>
+    </qresource>
+</RCC>

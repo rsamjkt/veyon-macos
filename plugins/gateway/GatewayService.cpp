@@ -36,6 +36,7 @@
 #include "ActivityLog.h"
 #include "Filesystem.h"
 #include "GatewayService.h"
+#include "Reports.h"
 #include "GatewaySession.h"
 #include "NetworkObjectDirectory.h"
 #include "NetworkObjectDirectoryManager.h"
@@ -106,6 +107,33 @@ GatewayService::GatewayService( QObject* parent ) :
 	} );
 
 	m_notifier = new Notifier( this );
+
+	// the daily report to Telegram (Configurator: Reports tab)
+	connect( &m_reportTimer, &QTimer::timeout, this, [this]() {
+		if( m_haveLock == false || m_state.enabled == false )
+		{
+			return;
+		}
+		auto settings = Reports::loadDailyReportSettings();
+		const auto now = QDateTime::currentDateTime();
+		const auto today = now.date().toString( Qt::ISODate );
+		const bool requested = Reports::takeDailyReportRequest();
+		const bool due = settings.enabled && now.time() >= settings.time && settings.lastSent != today;
+		if( requested == false && due == false )
+		{
+			return;
+		}
+		if( m_state.isTelegramConfigured() )
+		{
+			notify( Reports::dailyReport( now.date() ) );
+		}
+		if( due )
+		{
+			settings.lastSent = today;
+			Reports::saveDailyReportSettings( settings );
+		}
+	} );
+	m_reportTimer.start( 60 * 1000 );
 	m_collector = new MonitoringCollector( this );
 
 	connect( &m_alertTimer, &QTimer::timeout, this, &GatewayService::checkOfflineAlerts );

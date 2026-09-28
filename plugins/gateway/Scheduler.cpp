@@ -57,6 +57,7 @@ const auto ScheduleInternetUid = Feature::Uid( QStringLiteral("6f3a1d27-9b40-4c8
 const auto ScheduleSiteFilterUid = Feature::Uid( QStringLiteral("c3a5e2d1-7b4f-4e8a-9d61-2f0b8e7c4a15") );
 const auto ScheduleTextMessageUid = Feature::Uid( QStringLiteral("e75ae9c8-ac17-4d00-8f0d-019348346208") );
 const auto ScheduleExamModeUid = Feature::Uid( QStringLiteral("9b2e6c41-8d7a-4f35-a0c9-4e1b7d3f5a28") );
+const auto ScheduleDeviceControlUid = Feature::Uid( QStringLiteral("a6d31b7e-9f24-4c85-b0e6-3e8c5a1f7d29") );
 const auto ScheduleAdminRolesUid = Feature::Uid( QStringLiteral("2f8b6d14-9c3e-4a57-b0e1-5d7a9c4f8e23") );
 
 // users get this long to save their work before the computers power down
@@ -457,6 +458,16 @@ bool Scheduler::sendAction( const Schedules::Rule& rule, const ComputerControlIn
 		arguments[QStringLiteral("text")] = rule.text;
 		arguments[QStringLiteral("title")] = rule.name;
 		arguments[QStringLiteral("icon")] = 1;	// QMessageBox::Information
+		break;
+	case Action::BlockUsb:
+	case Action::AllowUsb:
+		uid = ScheduleDeviceControlUid;
+		arguments[QStringLiteral("usb")] = rule.action == Action::BlockUsb ? QStringLiteral("block") : QStringLiteral("allow");
+		break;
+	case Action::BlockPrinting:
+	case Action::AllowPrinting:
+		uid = ScheduleDeviceControlUid;
+		arguments[QStringLiteral("printer")] = rule.action == Action::BlockPrinting ? QStringLiteral("block") : QStringLiteral("allow");
 		break;
 	case Action::PushRoles:
 	{

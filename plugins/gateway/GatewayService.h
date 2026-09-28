@@ -160,6 +160,7 @@ public:
 	QTimer m_stateTimer;
 	QTimer m_directoryTimer;
 	QTimer m_keepAliveTimer;
+	QTimer m_reportTimer;
 	int m_sessions{0};
 
 	NetworkObjectDirectory* m_directory{nullptr};

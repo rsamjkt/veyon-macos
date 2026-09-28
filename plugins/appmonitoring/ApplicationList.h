@@ -35,3 +35,6 @@ QString frontmostApplication();
 
 // Terminate every running process whose display name matches `name`.
 void terminateApplication( const QString& name );
+
+// Seconds since the last keyboard/mouse input in the current user session.
+int secondsSinceLastInput();

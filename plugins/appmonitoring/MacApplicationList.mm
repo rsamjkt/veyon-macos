@@ -23,6 +23,7 @@
  */
 
 #import <AppKit/AppKit.h>
+#import <CoreGraphics/CoreGraphics.h>
 
 #include "ApplicationList.h"
 
@@ -79,4 +80,11 @@ void terminateApplication( const QString& name )
 			}
 		}
 	}
+}
+
+
+
+int secondsSinceLastInput()
+{
+	return int( CGEventSourceSecondsSinceLastEventType( kCGEventSourceStateCombinedSessionState, kCGAnyInputEventType ) );
 }

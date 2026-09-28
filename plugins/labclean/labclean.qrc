@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/labclean">
+        <file>labclean.png</file>
+    </qresource>
+</RCC>

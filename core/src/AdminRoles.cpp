@@ -76,6 +76,11 @@ const QHash<QString, QString>& featurePermissions()
 		{ QStringLiteral("7311d43d-ab53-439e-a03a-8cb25f7ed526"), QStringLiteral("power") },
 		// installing and removing software
 		{ QStringLiteral("7e4c2a19-3b8d-4f61-9a05-c6d2e8f14b37"), QStringLiteral("software") },
+		// commands/scripts, lab clean mode
+		{ QStringLiteral("c81e5f3a-2d97-4b06-9e14-7a3f0b6d2c58"), QStringLiteral("commands") },
+		{ QStringLiteral("f2a9c6e1-4b73-4d08-8e5a-1c7b3d9f6e42"), QStringLiteral("commands") },
+		// USB storage and printing
+		{ QStringLiteral("a6d31b7e-9f24-4c85-b0e6-3e8c5a1f7d29"), QStringLiteral("restrict") },
 		// the role policy itself - only keys with full rights
 		{ QStringLiteral("2f8b6d14-9c3e-4a57-b0e1-5d7a9c4f8e23"), QStringLiteral("admin") },
 	};
@@ -110,7 +115,7 @@ bool isLocalName( const QString& host )
 QStringList AdminRoles::permissions()
 {
 	return { QStringLiteral("lock"), QStringLiteral("restrict"), QStringLiteral("apps"),
-			 QStringLiteral("power"), QStringLiteral("software") };
+			 QStringLiteral("power"), QStringLiteral("software"), QStringLiteral("commands") };
 }
 
 
@@ -122,6 +127,7 @@ QString AdminRoles::permissionName( const QString& permission )
 	if( permission == QStringLiteral("apps") ) return tr( "Open applications/websites, send files" );
 	if( permission == QStringLiteral("power") ) return tr( "Power on/off, reboot, log off" );
 	if( permission == QStringLiteral("software") ) return tr( "Install and remove software" );
+	if( permission == QStringLiteral("commands") ) return tr( "Run commands, lab clean mode" );
 	if( permission == QStringLiteral("admin") ) return tr( "Change the roles" );
 	return permission;
 }

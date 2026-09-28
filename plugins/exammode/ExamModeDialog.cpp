@@ -83,6 +83,15 @@ ExamModeDialog::ExamModeDialog( int computerCount, QWidget* parent ) :
 	m_url->setPlaceholderText( QStringLiteral("https://cbt.sekolah.sch.id") );
 	layout->addWidget( m_url );
 
+	m_kiosk = new QCheckBox( tr( "Full screen without address bar (kiosk) - students cannot close or leave it" ) );
+	m_kiosk->setToolTip( tr( "Opens the website in Microsoft Edge (or Chrome) in kiosk mode and opens it again if it is closed, "
+							 "until the exam ends." ) );
+	m_kiosk->setChecked( stored.value( QStringLiteral("kiosk"), false ).toBool() );
+	layout->addWidget( m_kiosk );
+	const auto updateKiosk = [this]() { m_kiosk->setEnabled( m_url->text().trimmed().isEmpty() == false ); };
+	connect( m_url, &QLineEdit::textChanged, this, updateKiosk );
+	updateKiosk();
+
 	m_closeApps = new QCheckBox( tr( "Close these applications and keep them closed:" ) );
 	m_closeApps->setChecked( stored.value( QStringLiteral("closeApps"), true ).toBool() );
 	layout->addWidget( m_closeApps );
@@ -114,6 +123,7 @@ QVariantMap ExamModeDialog::arguments() const
 		{ QStringLiteral("sites"), lines( m_sites ) },
 		{ QStringLiteral("blockInternet"), m_blockInternet->isChecked() },
 		{ QStringLiteral("url"), m_url->text().trimmed() },
+		{ QStringLiteral("kiosk"), m_kiosk->isChecked() && m_url->text().trimmed().isEmpty() == false },
 		{ QStringLiteral("apps"), m_closeApps->isChecked() ? lines( m_apps ) : QStringList{} },
 		{ QStringLiteral("lockKeys"), m_lockKeys->isChecked() },
 	};
@@ -134,6 +144,7 @@ void ExamModeDialog::accept()
 	stored.setValue( QStringLiteral("sites"), lines( m_sites ) );
 	stored.setValue( QStringLiteral("blockInternet"), m_blockInternet->isChecked() );
 	stored.setValue( QStringLiteral("url"), m_url->text().trimmed() );
+	stored.setValue( QStringLiteral("kiosk"), m_kiosk->isChecked() );
 	stored.setValue( QStringLiteral("closeApps"), m_closeApps->isChecked() );
 	stored.setValue( QStringLiteral("apps"), lines( m_apps ) );
 	stored.setValue( QStringLiteral("lockKeys"), m_lockKeys->isChecked() );

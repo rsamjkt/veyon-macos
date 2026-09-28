@@ -32,6 +32,7 @@
 #include "FeatureProviderInterface.h"
 
 #include "AccessLogController.h"
+#include "ComputerInfoController.h"
 #include "AppMonitorController.h"
 #include "AppUpdater.h"
 #include "BroadcastController.h"
@@ -61,6 +62,7 @@ class MobileApp : public QObject
 	Q_PROPERTY(BroadcastController* broadcast READ broadcast CONSTANT)
 	Q_PROPERTY(SiteFilterController* siteFilter READ siteFilter CONSTANT)
 	Q_PROPERTY(AccessLogController* accessLog READ accessLog CONSTANT)
+	Q_PROPERTY(ComputerInfoController* computerInfo READ computerInfo CONSTANT)
 	Q_PROPERTY(AppUpdater* updater READ updater CONSTANT)
 	Q_PROPERTY(bool authenticated READ isAuthenticated NOTIFY authenticationChanged)
 	Q_PROPERTY(QString authMethod READ authMethod NOTIFY authenticationChanged)
@@ -127,6 +129,11 @@ public:
 	AccessLogController* accessLog() const
 	{
 		return m_accessLog;
+	}
+
+	ComputerInfoController* computerInfo() const
+	{
+		return m_computerInfo;
 	}
 
 	bool isAuthenticated() const;
@@ -232,5 +239,6 @@ private:
 	BroadcastController* m_broadcast;
 	SiteFilterController* m_siteFilter;
 	AccessLogController* m_accessLog;
+	ComputerInfoController* m_computerInfo;
 
 };
