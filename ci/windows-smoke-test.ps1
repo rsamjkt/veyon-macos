@@ -39,7 +39,7 @@ function Warn([string]$name, [scriptblock]$test) {
 	}
 }
 
-function Cli {
+function Aruni {
 	$output = & $cli @args 2>&1 | Out-String
 	Write-Host "  > veyon-wcli $($args -join ' ')"
 	Write-Host ($output.Trim() -replace '(?m)^', '    ')
@@ -69,12 +69,12 @@ Start-Process -FilePath $Setup -ArgumentList '/S' -Wait
 Check "installed" { Test-Path $cli }
 Check "server listening" { Wait-Server }
 
-Cli authkeys create ci | Out-Null
+Aruni authkeys create ci | Out-Null
 Check "key created" { Test-Path "$data\keys\private\ci\key" }
 
 # installation code: remove the public key, install again with aruni-setup.txt
 # next to the installer (also tests updating over an installed version)
-$code = (Cli gateway setupcode computers).Trim().Split("`n")[-1].Trim()
+$code = (Aruni gateway setupcode computers).Trim().Split("`n")[-1].Trim()
 Check "setup code created" { $code.StartsWith("ARUNISETUP1:") }
 $setupDir = Split-Path -Parent (Resolve-Path $Setup)
 Set-Content -Path "$setupDir\aruni-setup.txt" -Value $code -Encoding ascii
@@ -82,11 +82,11 @@ Remove-Item -Recurse -Force "$data\keys\public\ci"
 Start-Process -FilePath $Setup -ArgumentList '/S' -Wait
 Remove-Item "$setupDir\aruni-setup.txt"
 Check "setup code applied by the installer" { Test-Path "$data\keys\public\ci\key" }
-Check "key authentication configured" { (Cli config get Authentication/Method).Trim().EndsWith("1") }
+Check "key authentication configured" { (Aruni config get Authentication/Method).Trim().EndsWith("1") }
 Check "server listening after update" { Wait-Server }
 $env:VEYON_AUTH_KEY_NAME = "ci"
 
-$plugins = Cli plugin list
+$plugins = Aruni plugin list
 foreach ($plugin in @("ExamMode", "Inventory", "SoftwareDeploy", "AdminRoles", "RemoteCommand", "DeviceControl",
 					  "LabClean", "ApplicationMonitoring", "SiteFilter", "AccessLog", "AruniGateway")) {
 	Check "plugin $plugin" { $plugins -match "(?m)^$plugin\s*$" }
@@ -94,17 +94,17 @@ foreach ($plugin in @("ExamMode", "Inventory", "SoftwareDeploy", "AdminRoles", "
 
 # ---------------------------------------------------------------- remote command
 Write-Host "=== remote command"
-$out = Cli remotecommand run 127.0.0.1 "Write-Output ('ps-ok-' + [Environment]::UserName)"
+$out = Aruni remotecommand run 127.0.0.1 "Write-Output ('ps-ok-' + [Environment]::UserName)"
 Check "powershell command" { $out -match "ps-ok-" }
-$out = Cli remotecommand run 127.0.0.1 "echo cmd-ok" cmd
+$out = Aruni remotecommand run 127.0.0.1 "echo cmd-ok" cmd
 Check "cmd command" { $out -match "cmd-ok" }
-$out = Cli remotecommand run 127.0.0.1 "exit 7"
+$out = Aruni remotecommand run 127.0.0.1 "exit 7"
 Check "exit code reported" { $out -match "exit 7" }
 Check "command in access log" { (Access-Log | Where-Object { $_.e -eq "remote_command" }).Count -ge 1 }
 
 # ---------------------------------------------------------------- inventory
 Write-Host "=== inventory"
-$json = Cli inventory show 127.0.0.1
+$json = Aruni inventory show 127.0.0.1
 $inventory = $null
 try { $inventory = ($json.Substring($json.IndexOf("{"))) | ConvertFrom-Json } catch { }
 Check "inventory answered" { $inventory -ne $null }
@@ -114,27 +114,30 @@ Check "inventory ram" { $inventory.ramMB -gt 1000 }
 Check "inventory disks" { @($inventory.disks).Count -ge 1 }
 Check "inventory software" { @($inventory.software).Count -ge 5 }
 Start-Sleep -Seconds 15
-$json = Cli inventory show 127.0.0.1
+$json = Aruni inventory show 127.0.0.1
 Warn "inventory serial number" { (($json.Substring($json.IndexOf("{"))) | ConvertFrom-Json).serial.Length -gt 0 }
 
 # ---------------------------------------------------------------- software deployment
 Write-Host "=== software deployment"
-Invoke-WebRequest "https://www.7-zip.org/a/7z2408-x64.msi" -OutFile "$env:TEMP\7zip.msi"
-Cli softwaredeploy install 127.0.0.1 "$env:TEMP\7zip.msi" | Out-Null
-Check "msi installed" { Test-Path "$env:ProgramFiles\7-Zip\7z.exe" }
-Check "program listed" { (Cli softwaredeploy list 127.0.0.1) -match "7-Zip" }
-Cli softwaredeploy uninstall 127.0.0.1 "7-Zip" | Out-Null
-Check "program removed" { Wait-Until { -not (Test-Path "$env:ProgramFiles\7-Zip\7z.exe") } 60 }
+# a program the runner image does not have
+$putty = "$env:ProgramFiles\PuTTY\putty.exe"
+Check "test program not installed yet" { -not (Test-Path $putty) }
+Invoke-WebRequest "https://the.earth.li/~sgtatham/putty/0.83/w64/putty-64bit-0.83-installer.msi" -OutFile "$env:TEMP\putty.msi"
+Aruni softwaredeploy install 127.0.0.1 "$env:TEMP\putty.msi" | Out-Null
+Check "msi installed" { Test-Path $putty }
+Check "program listed" { (Aruni softwaredeploy list 127.0.0.1) -match "PuTTY" }
+Aruni softwaredeploy uninstall 127.0.0.1 "PuTTY" | Out-Null
+Check "program removed" { Wait-Until { -not (Test-Path $putty) } 60 }
 Check "no deploy leftovers" { @(Get-ChildItem "$data\deploy" -ErrorAction SilentlyContinue).Count -eq 0 }
 
 # ---------------------------------------------------------------- USB and printing
 Write-Host "=== USB and printing"
-Cli feature start 127.0.0.1 DeviceControl '{"usb":"block","printer":"block"}' | Out-Null
+Aruni feature start 127.0.0.1 DeviceControl '{"usb":"block","printer":"block"}' | Out-Null
 Start-Sleep -Seconds 5
 Check "USB storage blocked" { (Get-ItemProperty HKLM:\SYSTEM\CurrentControlSet\Services\USBSTOR).Start -eq 4 }
 Check "removable storage policy" { (Get-ItemProperty HKLM:\SOFTWARE\Policies\Microsoft\Windows\RemovableStorageDevices -ErrorAction Stop).Deny_All -eq 1 }
 Check "print spooler disabled" { (Get-Service Spooler).StartType -eq "Disabled" -and (Get-Service Spooler).Status -ne "Running" }
-Cli feature start 127.0.0.1 DeviceControl '{"usb":"allow","printer":"allow"}' | Out-Null
+Aruni feature start 127.0.0.1 DeviceControl '{"usb":"allow","printer":"allow"}' | Out-Null
 Start-Sleep -Seconds 8
 Check "USB storage allowed" { (Get-ItemProperty HKLM:\SYSTEM\CurrentControlSet\Services\USBSTOR).Start -eq 3 }
 Check "removable storage policy removed" { (Get-ItemProperty HKLM:\SOFTWARE\Policies\Microsoft\Windows\RemovableStorageDevices -ErrorAction SilentlyContinue).Deny_All -eq $null }
@@ -143,10 +146,10 @@ Check "print spooler running" { (Get-Service Spooler).StartType -eq "Automatic" 
 # ---------------------------------------------------------------- site blocking
 Write-Host "=== site blocking"
 $hosts = "$env:windir\System32\drivers\etc\hosts"
-Cli feature start 127.0.0.1 SiteFilter '{"sites":["example.com"]}' | Out-Null
+Aruni feature start 127.0.0.1 SiteFilter '{"sites":["example.com"]}' | Out-Null
 Start-Sleep -Seconds 4
 Check "site blocked in hosts" { (Get-Content $hosts -Raw) -match "0\.0\.0\.0 example\.com" }
-Cli feature stop 127.0.0.1 SiteFilter | Out-Null
+Aruni feature stop 127.0.0.1 SiteFilter | Out-Null
 Start-Sleep -Seconds 4
 Check "site unblocked" { (Get-Content $hosts -Raw) -notmatch "example\.com" }
 
@@ -155,7 +158,7 @@ Write-Host "=== exam mode"
 $env:ARUNI_TEST_ALLOW_LOCAL = "1"
 Start-Process notepad
 Start-Sleep -Seconds 2
-Cli feature start 127.0.0.1 ExamMode '{"sites":["example.com"],"apps":["notepad"],"lockKeys":true,"blockInternet":false,"url":"https://example.com","kiosk":true}' | Out-Null
+Aruni feature start 127.0.0.1 ExamMode '{"sites":["example.com"],"apps":["notepad"],"lockKeys":true,"blockInternet":false,"url":"https://example.com","kiosk":true}' | Out-Null
 Check "exam mode active" { Wait-Until { (Get-Content "$data\exammode.json" -Raw -ErrorAction SilentlyContinue | ConvertFrom-Json).active -eq $true } 20 }
 Check "forbidden application closed" { Wait-Until { -not (Get-Process notepad -ErrorAction SilentlyContinue) } 40 }
 Start-Process notepad
@@ -165,7 +168,7 @@ Warn "kiosk browser runs as the user, not as SYSTEM" {
 	Wait-Until { (Get-Process msedge -IncludeUserName -ErrorAction SilentlyContinue | Where-Object { $_.UserName -and $_.UserName -notmatch "SYSTEM" }).Count -gt 0 } 40
 }
 Check "kiosk browser never runs as SYSTEM" { -not (Get-Process msedge -IncludeUserName -ErrorAction SilentlyContinue | Where-Object { $_.UserName -match "SYSTEM" }) }
-Cli feature stop 127.0.0.1 ExamMode | Out-Null
+Aruni feature stop 127.0.0.1 ExamMode | Out-Null
 Check "exam mode ended" { Wait-Until { (Get-Content "$data\exammode.json" -Raw | ConvertFrom-Json).active -eq $false } 20 }
 Check "task manager unlocked" { (Get-ItemProperty HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Policies\System).DisableTaskMgr -eq $null }
 Start-Process notepad
@@ -183,11 +186,11 @@ Set-Content "C:\Users\siswa\Desktop\tugas.txt" "file of a student"
 New-Item -ItemType Directory -Force "$env:USERPROFILE\Desktop" | Out-Null
 Set-Content "$env:USERPROFILE\Desktop\admin-keep.txt" "file of an administrator"
 $users = '["siswa","' + $env:USERNAME + '"]'
-Cli feature start 127.0.0.1 LabClean ('{"enabled":true,"users":' + $users + ',"folders":["Desktop"],"keepDays":7}') | Out-Null
+Aruni feature start 127.0.0.1 LabClean ('{"enabled":true,"users":' + $users + ',"folders":["Desktop"],"keepDays":7}') | Out-Null
 Start-Sleep -Seconds 3
 Check "lab clean mode on" { (Get-Content "$data\labclean.json" -Raw | ConvertFrom-Json).settings.enabled -eq $true }
 Check "fast startup off" { (Get-ItemProperty "HKLM:\SYSTEM\CurrentControlSet\Control\Session Manager\Power").HiberbootEnabled -eq 0 }
-Cli feature start 127.0.0.1 LabClean '{"cleanNow":true}' | Out-Null
+Aruni feature start 127.0.0.1 LabClean '{"cleanNow":true}' | Out-Null
 Start-Sleep -Seconds 4
 Check "student file moved away" { -not (Test-Path "C:\Users\siswa\Desktop\tugas.txt") }
 Check "student file kept in quarantine" { @(Get-ChildItem "$data\labclean" -Recurse -Filter tugas.txt).Count -eq 1 }
@@ -197,37 +200,37 @@ Set-Content "C:\Users\siswa\Desktop\tugas2.txt" "another file of a student"
 $state = Get-Content "$data\labclean.json" -Raw | ConvertFrom-Json
 $state.boot = "test"
 $state | ConvertTo-Json -Depth 5 | Set-Content "$data\labclean.json"
-Cli service restart | Out-Null
+Aruni service restart | Out-Null
 Check "cleaned at start of the service" { Wait-Until { -not (Test-Path "C:\Users\siswa\Desktop\tugas2.txt") } 60 }
 Check "server listening after service restart" { Wait-Server }
-Cli feature stop 127.0.0.1 LabClean | Out-Null
+Aruni feature stop 127.0.0.1 LabClean | Out-Null
 Start-Sleep -Seconds 3
 Check "lab clean mode off" { (Get-Content "$data\labclean.json" -Raw | ConvertFrom-Json).settings.enabled -eq $false }
 
 # ---------------------------------------------------------------- admin roles
 Write-Host "=== admin roles"
-Cli authkeys create guru | Out-Null
+Aruni authkeys create guru | Out-Null
 $pem = Get-Content "$data\keys\public\guru\key" -Raw
 function Send-Roles($roles) {
 	$policy = @{ v = 1; roles = $roles } | ConvertTo-Json -Depth 5 -Compress
 	$arguments = @{ policy = $policy } | ConvertTo-Json -Compress
 	$env:VEYON_AUTH_KEY_NAME = "ci"
-	Cli feature start 127.0.0.1 AdminRoles $arguments | Out-Null
+	Aruni feature start 127.0.0.1 AdminRoles $arguments | Out-Null
 	Start-Sleep -Seconds 3
 }
 Send-Roles @(@{ key = "guru"; name = "Guru"; public = $pem; rooms = @(); hosts = @(); allowed = @("lock") })
 Check "roles received" { (Get-Content "$data\roles.json" -Raw | ConvertFrom-Json).roles.Count -eq 1 }
 $env:VEYON_AUTH_KEY_NAME = "guru"
-Cli feature start 127.0.0.1 DeviceControl '{"usb":"block"}' | Out-Null
+Aruni feature start 127.0.0.1 DeviceControl '{"usb":"block"}' | Out-Null
 Start-Sleep -Seconds 4
 Check "function outside the role refused" { (Get-ItemProperty HKLM:\SYSTEM\CurrentControlSet\Services\USBSTOR).Start -eq 3 }
 Check "refusal logged with the key" { (Access-Log | Where-Object { $_.e -eq "feature_denied" -and $_.key -eq "guru" }).Count -ge 1 }
-Cli feature start 127.0.0.1 AdminRoles '{"policy":"{\"roles\":[]}"}' | Out-Null
+Aruni feature start 127.0.0.1 AdminRoles '{"policy":"{\"roles\":[]}"}' | Out-Null
 Start-Sleep -Seconds 3
 Check "role cannot change the roles" { (Get-Content "$data\roles.json" -Raw | ConvertFrom-Json).roles.Count -eq 1 }
 Send-Roles @(@{ key = "guru"; name = "Guru"; public = $pem; rooms = @("Lain"); hosts = @("10.9.9.9"); allowed = @("lock") })
 $env:VEYON_AUTH_KEY_NAME = "guru"
-Cli feature stop 127.0.0.1 ScreenLock | Out-Null
+Aruni feature stop 127.0.0.1 ScreenLock | Out-Null
 Start-Sleep -Seconds 2
 Check "computer outside the rooms refused" { (Access-Log | Where-Object { $_.e -eq "access_denied" -and $_.key -eq "guru" }).Count -ge 1 }
 Send-Roles @()
@@ -249,7 +252,7 @@ Check "schedule ran" { Wait-Until { (Get-ItemProperty HKLM:\SYSTEM\CurrentContro
 Check "schedule result recorded" { Wait-Until { (Get-Content "$gatewayDir\schedules-status.json" -Raw -ErrorAction SilentlyContinue | ConvertFrom-Json).t1.result -match "1" } 30 }
 Stop-Process -Id $scheduler.Id -Force -ErrorAction SilentlyContinue
 Remove-Item Env:\ARUNI_GATEWAY_DIR, Env:\ARUNI_SCHEDULE_TARGETS
-Cli feature start 127.0.0.1 DeviceControl '{"usb":"allow"}' | Out-Null
+Aruni feature start 127.0.0.1 DeviceControl '{"usb":"allow"}' | Out-Null
 
 # ---------------------------------------------------------------- attendance and usage
 Write-Host "=== attendance"
