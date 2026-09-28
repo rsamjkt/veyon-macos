@@ -251,7 +251,7 @@ QString LabCleanFeaturePlugin::profilePath( const QString& user )
 {
 #if defined(Q_OS_WIN)
 	const auto systemDrive = qEnvironmentVariable( "SystemDrive", QStringLiteral("C:") );
-	const auto path = systemDrive + QStringLiteral("/Users/") + user;
+	const QString path = systemDrive + QStringLiteral("/Users/") + user;
 #else
 	// only the account the server runs for
 	const auto current = VeyonCore::platform().userFunctions().queryCurrentUserProperty( PlatformUserFunctions::UserProperty::LoginName );
