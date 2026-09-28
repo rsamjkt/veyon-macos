@@ -92,15 +92,19 @@ int main( int argc, char **argv )
 		{
 			pageSelector->setCurrentItem( items.first() );
 		}
-		// ARUNI_SCREENSHOT_TAB selects a tab of the page, e.g. "Riwayat"
-		const auto tabName = qEnvironmentVariable( "ARUNI_SCREENSHOT_TAB" );
-		for( auto tabs : mainWindow->findChildren<QTabWidget *>() )
+		// ARUNI_SCREENSHOT_TAB selects a tab of the page, e.g. "Riwayat", or
+		// nested tabs, e.g. "Laporan/Pemakaian aplikasi"
+		const auto tabNames = qEnvironmentVariable( "ARUNI_SCREENSHOT_TAB" ).split( QLatin1Char('/'), Qt::SkipEmptyParts );
+		for( const auto& tabName : tabNames )
 		{
-			for( int i = 0; tabName.isEmpty() == false && i < tabs->count(); ++i )
+			for( auto tabs : mainWindow->findChildren<QTabWidget *>() )
 			{
-				if( tabs->tabText( i ) == tabName )
+				for( int i = 0; i < tabs->count(); ++i )
 				{
-					tabs->setCurrentIndex( i );
+					if( tabs->tabText( i ) == tabName )
+					{
+						tabs->setCurrentIndex( i );
+					}
 				}
 			}
 		}

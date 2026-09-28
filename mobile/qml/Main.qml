@@ -110,6 +110,17 @@ ApplicationWindow {
 		}
 	}
 
+	// development hook (desktop builds): AC_SHOT=<file.png> saves the window
+	// after AC_SHOT_DELAY ms and quits
+	Timer {
+		running: App.devOption("AC_SHOT").length > 0
+		interval: Number(App.devOption("AC_SHOT_DELAY") || 8000)
+		onTriggered: stack.grabToImage(result => {
+			result.saveToFile(App.devOption("AC_SHOT"))
+			Qt.quit()
+		})
+	}
+
 	// development hook (desktop builds): AC_PAGE=auth|settings|rooms|shots|actions|message|remote|welcome|
 	// broadcast|siteblock|accesslog
 	Timer {
@@ -131,10 +142,20 @@ ApplicationWindow {
 			case "broadcast": window.openBroadcast([], qsTr("Semua komputer")); break
 			case "siteblock": window.openSiteBlock([], qsTr("Semua komputer")); break
 			case "exam": window.openExam([], qsTr("Semua komputer")); break
-			case "info":
-				if (App.computers.count > 0)
-					window.openComputerInfo(App.computers.uidAt(0))
+			case "info": {
+				// AC_COMPUTER picks a computer by (part of) its name
+				const wanted = App.devOption("AC_COMPUTER").toLowerCase()
+				let uid = App.computers.count > 0 ? App.computers.uidAt(0) : ""
+				for (let i = 0; wanted.length > 0 && i < App.computers.count; ++i) {
+					if (App.computers.nameOf(App.computers.uidAt(i)).toLowerCase().indexOf(wanted) >= 0) {
+						uid = App.computers.uidAt(i)
+						break
+					}
+				}
+				if (uid.length > 0)
+					window.openComputerInfo(uid)
 				break
+			}
 			case "accesslog":
 				if (App.computers.count > 0)
 					window.openAccessLog(App.computers.uidAt(0))

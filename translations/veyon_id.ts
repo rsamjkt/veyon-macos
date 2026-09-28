@@ -517,6 +517,14 @@ Jika Anda tertarik menerjemahkan AruniControl ke bahasa lokal atau bahasa lain, 
         <translation>Akses: fungsi tidak diizinkan</translation>
     </message>
     <message>
+        <source>User logged on</source>
+        <translation>Pengguna masuk</translation>
+    </message>
+    <message>
+        <source>Command run</source>
+        <translation>Perintah dijalankan</translation>
+    </message>
+    <message>
         <source>Schedule</source>
         <translation>Jadwal</translation>
     </message>
@@ -614,6 +622,10 @@ Jika Anda tertarik menerjemahkan AruniControl ke bahasa lokal atau bahasa lain, 
     <message>
         <source>Install and remove software</source>
         <translation>Pasang dan hapus software</translation>
+    </message>
+    <message>
+        <source>Run commands, lab clean mode</source>
+        <translation>Jalankan perintah, mode lab bersih</translation>
     </message>
     <message>
         <source>Change the roles</source>
@@ -2267,6 +2279,61 @@ Pastikan nama kunci milik satu sama lain sama di semua komputer.</translation>
     </message>
 </context>
 <context>
+    <name>DeviceControlFeaturePlugin</name>
+    <message>
+        <source>USB &amp; printer</source>
+        <translation>USB &amp; printer</translation>
+    </message>
+    <message>
+        <source>Block or allow USB flash drives and printing on the selected computers.</source>
+        <translation>Blokir atau izinkan flashdisk USB dan pencetakan di komputer terpilih.</translation>
+    </message>
+    <message numerus="yes">
+        <source>%n selected computer(s) (Windows):</source>
+        <translation><numerusform>%n komputer terpilih (Windows):</numerusform></translation>
+    </message>
+    <message>
+        <source>Block USB flash drives and external disks</source>
+        <translation>Blokir flashdisk USB dan hard disk eksternal</translation>
+    </message>
+    <message>
+        <source>Block printing</source>
+        <translation>Blokir pencetakan</translation>
+    </message>
+    <message>
+        <source>Checking the current state...</source>
+        <translation>Memeriksa kondisi saat ini...</translation>
+    </message>
+    <message>
+        <source>Flash drives that are already plugged in stay usable until they are unplugged. Keyboards, mice and other USB devices keep working.</source>
+        <translation>Flashdisk yang sudah tercolok tetap bisa dipakai sampai dicabut. Keyboard, mouse, dan perangkat USB lain tetap berfungsi.</translation>
+    </message>
+    <message>
+        <source>%1 of %2 computers answered: USB blocked on %3, printing blocked on %4%5</source>
+        <translation>%1 dari %2 komputer menjawab: USB diblokir di %3, pencetakan diblokir di %4%5</translation>
+    </message>
+    <message>
+        <source>, %1 not supported (not Windows)</source>
+        <translation>, %1 tidak didukung (bukan Windows)</translation>
+    </message>
+    <message>
+        <source>Could not change the USB setting</source>
+        <translation>Pengaturan USB tidak dapat diubah</translation>
+    </message>
+    <message>
+        <source>Could not change the print spooler</source>
+        <translation>Layanan printer tidak dapat diubah</translation>
+    </message>
+    <message>
+        <source>Only supported on Windows</source>
+        <translation>Hanya didukung di Windows</translation>
+    </message>
+    <message>
+        <source>Block USB storage and printing on the selected computers</source>
+        <translation>Blokir penyimpanan USB dan pencetakan di komputer terpilih</translation>
+    </message>
+</context>
+<context>
     <name>DocumentationFigureCreator</name>
     <message>
         <source>Teacher</source>
@@ -2346,6 +2413,14 @@ forms.gle</translation>
         <translation>Buka situs ini di komputer (opsional):</translation>
     </message>
     <message>
+        <source>Full screen without address bar (kiosk) - students cannot close or leave it</source>
+        <translation>Layar penuh tanpa address bar (kiosk) - siswa tidak bisa menutup atau keluar</translation>
+    </message>
+    <message>
+        <source>Opens the website in Microsoft Edge (or Chrome) in kiosk mode and opens it again if it is closed, until the exam ends.</source>
+        <translation>Membuka situs di Microsoft Edge (atau Chrome) mode kiosk dan membukanya lagi jika ditutup, sampai ujian berakhir.</translation>
+    </message>
+    <message>
         <source>Close these applications and keep them closed:</source>
         <translation>Tutup aplikasi berikut dan jaga agar tetap tertutup:</translation>
     </message>
@@ -2379,6 +2454,10 @@ forms.gle</translation>
     <message>
         <source>Internet only for the exam website, other applications closed and system shortcuts locked - with one click, and undone with one click.</source>
         <translation>Internet hanya untuk situs ujian, aplikasi lain ditutup dan tombol pintas sistem dikunci - dengan sekali klik, dan dikembalikan dengan sekali klik.</translation>
+    </message>
+    <message>
+        <source>Exam website</source>
+        <translation>Situs ujian</translation>
     </message>
     <message>
         <source>Could not change the Windows Firewall</source>
@@ -3041,6 +3120,10 @@ forms.gle</translation>
     <message>
         <source>Inventory</source>
         <translation>Inventaris</translation>
+    </message>
+    <message>
+        <source>Reports</source>
+        <translation>Laporan</translation>
     </message>
     <message>
         <source>Schedules</source>
@@ -3723,8 +3806,20 @@ Tips: tambahkan bot ke grup dan kirim /start di sana agar seluruh tim IT mendapa
         <translation>Perangkat keras, disk, dan software komputer</translation>
     </message>
     <message>
+        <source>Failed to initialize credentials</source>
+        <translation>Gagal menginisialisasi kredensial</translation>
+    </message>
+    <message>
+        <source>%1: no answer</source>
+        <translation>%1: tidak menjawab</translation>
+    </message>
+    <message>
         <source>Hardware, disks and software of the computers</source>
         <translation>Perangkat keras, disk, dan software komputer</translation>
+    </message>
+    <message>
+        <source>Show the inventory of a computer as JSON: show &lt;host&gt;</source>
+        <translation>Tampilkan inventaris komputer sebagai JSON: show &lt;host&gt;</translation>
     </message>
 </context>
 <context>
@@ -3971,6 +4066,109 @@ Tips: tambahkan bot ke grup dan kirim /start di sana agar seluruh tim IT mendapa
     <message>
         <source>The gateway collects the inventory of all computers within the next minutes - this list updates by itself.</source>
         <translation>Gateway mengumpulkan inventaris semua komputer dalam beberapa menit ke depan - daftar ini diperbarui sendiri.</translation>
+    </message>
+</context>
+<context>
+    <name>LabCleanFeaturePlugin</name>
+    <message>
+        <source>Lab clean mode</source>
+        <translation>Mode lab bersih</translation>
+    </message>
+    <message>
+        <source>At every restart the files of the student accounts are moved away, so every lesson starts with a clean computer. Kept for some days, nothing is lost.</source>
+        <translation>Setiap restart, file akun siswa dipindahkan sehingga setiap pelajaran dimulai dengan komputer bersih. Disimpan beberapa hari, tidak ada yang hilang.</translation>
+    </message>
+    <message>
+        <source>Desktop</source>
+        <translation>Desktop</translation>
+    </message>
+    <message>
+        <source>Downloads</source>
+        <translation>Unduhan</translation>
+    </message>
+    <message>
+        <source>Documents</source>
+        <translation>Dokumen</translation>
+    </message>
+    <message>
+        <source>Pictures</source>
+        <translation>Gambar</translation>
+    </message>
+    <message>
+        <source>Videos</source>
+        <translation>Video</translation>
+    </message>
+    <message>
+        <source>Music</source>
+        <translation>Musik</translation>
+    </message>
+    <message>
+        <source>%1 is an administrator - skipped</source>
+        <translation>%1 adalah administrator - dilewati</translation>
+    </message>
+    <message numerus="yes">
+        <source>At every restart of the %n selected computer(s), the files in the chosen folders of the student accounts are moved to a safe place and deleted from there after the chosen days. Programs and settings stay as they are. Accounts of administrators are never cleaned.</source>
+        <translation><numerusform>Setiap %n komputer terpilih di-restart, file di folder pilihan pada akun siswa dipindahkan ke tempat aman dan dihapus dari sana setelah jumlah hari yang dipilih. Program dan pengaturan tetap seperti semula. Akun administrator tidak pernah dibersihkan.</numerusform></translation>
+    </message>
+    <message>
+        <source>e.g. siswa, murid</source>
+        <translation>mis. siswa, murid</translation>
+    </message>
+    <message>
+        <source>Student accounts</source>
+        <translation>Akun siswa</translation>
+    </message>
+    <message>
+        <source> days</source>
+        <translation> hari</translation>
+    </message>
+    <message>
+        <source>Keep the files for</source>
+        <translation>Simpan file selama</translation>
+    </message>
+    <message>
+        <source>Folders to clean</source>
+        <translation>Folder yang dibersihkan</translation>
+    </message>
+    <message>
+        <source>Checking the current state...</source>
+        <translation>Memeriksa kondisi saat ini...</translation>
+    </message>
+    <message>
+        <source>Turn on</source>
+        <translation>Nyalakan</translation>
+    </message>
+    <message>
+        <source>Turn off</source>
+        <translation>Matikan</translation>
+    </message>
+    <message>
+        <source>Clean now</source>
+        <translation>Bersihkan sekarang</translation>
+    </message>
+    <message>
+        <source>%1 of %2 computers answered, on for %3.</source>
+        <translation>%1 dari %2 komputer menjawab, aktif di %3.</translation>
+    </message>
+    <message>
+        <source>Last cleaning: %1 (%2 items)</source>
+        <translation>Pembersihan terakhir: %1 (%2 item)</translation>
+    </message>
+    <message>
+        <source>Enter the student accounts and choose at least one folder.</source>
+        <translation>Isi akun siswa dan pilih paling sedikit satu folder.</translation>
+    </message>
+    <message>
+        <source>Move the files of the student accounts away now? Files that are open stay where they are.</source>
+        <translation>Pindahkan file akun siswa sekarang? File yang sedang terbuka tetap di tempatnya.</translation>
+    </message>
+    <message>
+        <source>Turn on the lab clean mode first</source>
+        <translation>Nyalakan dulu mode lab bersih</translation>
+    </message>
+    <message>
+        <source>Clean the student accounts at every restart</source>
+        <translation>Bersihkan akun siswa setiap restart</translation>
     </message>
 </context>
 <context>
@@ -5906,6 +6104,384 @@ Simpan pekerjaan Anda dan tutup semua program.</translation>
     </message>
 </context>
 <context>
+    <name>RemoteCommandDialog</name>
+    <message>
+        <source>Network settings</source>
+        <translation>Pengaturan jaringan</translation>
+    </message>
+    <message>
+        <source>Free disk space</source>
+        <translation>Sisa ruang disk</translation>
+    </message>
+    <message>
+        <source>Clean temporary files</source>
+        <translation>Bersihkan file sementara</translation>
+    </message>
+    <message>
+        <source>Apply group policies</source>
+        <translation>Terapkan group policy</translation>
+    </message>
+    <message>
+        <source>Restart printing</source>
+        <translation>Mulai ulang layanan printer</translation>
+    </message>
+    <message>
+        <source>Installed Windows updates</source>
+        <translation>Update Windows terpasang</translation>
+    </message>
+    <message>
+        <source>Mac: disk space</source>
+        <translation>Mac: ruang disk</translation>
+    </message>
+    <message>
+        <source>Run command</source>
+        <translation>Jalankan perintah</translation>
+    </message>
+    <message numerus="yes">
+        <source>%n selected computer(s). Windows runs the command as the system account, macOS as the logged-on user.</source>
+        <translation><numerusform>%n komputer terpilih. Windows menjalankan perintah sebagai akun sistem, macOS sebagai pengguna yang login.</numerusform></translation>
+    </message>
+    <message>
+        <source>Examples...</source>
+        <translation>Contoh...</translation>
+    </message>
+    <message>
+        <source>Shell</source>
+        <translation>Shell</translation>
+    </message>
+    <message>
+        <source>Time limit</source>
+        <translation>Batas waktu</translation>
+    </message>
+    <message>
+        <source> s</source>
+        <translation> dtk</translation>
+    </message>
+    <message>
+        <source>Command or script, e.g.
+ipconfig /all</source>
+        <translation>Perintah atau skrip, mis.
+ipconfig /all</translation>
+    </message>
+    <message>
+        <source>Computer</source>
+        <translation>Komputer</translation>
+    </message>
+    <message>
+        <source>Result</source>
+        <translation>Hasil</translation>
+    </message>
+    <message>
+        <source>Select a computer to see its output.</source>
+        <translation>Pilih komputer untuk melihat hasilnya.</translation>
+    </message>
+    <message>
+        <source>Run</source>
+        <translation>Jalankan</translation>
+    </message>
+    <message numerus="yes">
+        <source>Run this command on %n computer(s) now?</source>
+        <translation><numerusform>Jalankan perintah ini di %n komputer sekarang?</numerusform></translation>
+    </message>
+    <message>
+        <source>Running...</source>
+        <translation>Berjalan...</translation>
+    </message>
+    <message>
+        <source>Not connected</source>
+        <translation>Tidak terhubung</translation>
+    </message>
+    <message>
+        <source>Time limit reached</source>
+        <translation>Batas waktu tercapai</translation>
+    </message>
+    <message>
+        <source>Done</source>
+        <translation>Selesai</translation>
+    </message>
+    <message>
+        <source>Exit code %1: %2</source>
+        <translation>Kode keluar %1: %2</translation>
+    </message>
+    <message>
+        <source>%1 of %2 answered, %3 successful</source>
+        <translation>%1 dari %2 menjawab, %3 berhasil</translation>
+    </message>
+</context>
+<context>
+    <name>RemoteCommandFeaturePlugin</name>
+    <message>
+        <source>Run commands on the selected computers</source>
+        <translation>Jalankan perintah di komputer terpilih</translation>
+    </message>
+    <message>
+        <source>Run command</source>
+        <translation>Jalankan perintah</translation>
+    </message>
+    <message>
+        <source>Run a command or script on the selected computers and see the output of each one.</source>
+        <translation>Jalankan perintah atau skrip di komputer terpilih dan lihat hasil masing-masing.</translation>
+    </message>
+    <message>
+        <source>Run a command: run &lt;host[,host...]&gt; &lt;command&gt; [powershell|cmd|sh]</source>
+        <translation>Jalankan perintah: run &lt;host[,host...]&gt; &lt;perintah&gt; [powershell|cmd|sh]</translation>
+    </message>
+    <message>
+        <source>Empty command</source>
+        <translation>Perintah kosong</translation>
+    </message>
+    <message>
+        <source>Cannot start %1</source>
+        <translation>%1 tidak dapat dijalankan</translation>
+    </message>
+    <message>
+        <source>Failed to initialize credentials</source>
+        <translation>Gagal menginisialisasi kredensial</translation>
+    </message>
+    <message>
+        <source>%1: not connected</source>
+        <translation>%1: tidak terhubung</translation>
+    </message>
+</context>
+<context>
+    <name>Reports</name>
+    <message>
+        <source>%1 h %2 min</source>
+        <translation>%1 jam %2 mnt</translation>
+    </message>
+    <message>
+        <source>%1 min</source>
+        <translation>%1 mnt</translation>
+    </message>
+    <message>
+        <source>Date</source>
+        <translation>Tanggal</translation>
+    </message>
+    <message>
+        <source>User</source>
+        <translation>Pengguna</translation>
+    </message>
+    <message>
+        <source>Computer</source>
+        <translation>Komputer</translation>
+    </message>
+    <message>
+        <source>Logon</source>
+        <translation>Masuk</translation>
+    </message>
+    <message>
+        <source>Logoff</source>
+        <translation>Keluar</translation>
+    </message>
+    <message>
+        <source>Minutes</source>
+        <translation>Menit</translation>
+    </message>
+    <message>
+        <source>still logged on</source>
+        <translation>masih masuk</translation>
+    </message>
+    <message>
+        <source>unknown</source>
+        <translation>tidak dikenal</translation>
+    </message>
+    <message>
+        <source>Application</source>
+        <translation>Aplikasi</translation>
+    </message>
+    <message>
+        <source>📊 Daily report %1</source>
+        <translation>📊 Laporan harian %1</translation>
+    </message>
+    <message>
+        <source>🖥️ Computers online today: %1 of %2</source>
+        <translation>🖥️ Komputer online hari ini: %1 dari %2</translation>
+    </message>
+    <message>
+        <source>💾 Disk almost full: %1</source>
+        <translation>💾 Disk hampir penuh: %1</translation>
+    </message>
+    <message>
+        <source>📴 Not online for %1+ days: %2</source>
+        <translation>📴 Tidak online %1+ hari: %2</translation>
+    </message>
+    <message>
+        <source>⏰ Schedules:</source>
+        <translation>⏰ Jadwal:</translation>
+    </message>
+    <message>
+        <source>👥 Attendance: %1 users, %2 sessions</source>
+        <translation>👥 Absensi: %1 pengguna, %2 sesi</translation>
+    </message>
+    <message>
+        <source>🚫 Refused accesses/functions: %1</source>
+        <translation>🚫 Akses/fungsi ditolak: %1</translation>
+    </message>
+    <message>
+        <source>💻 Most used: %1</source>
+        <translation>💻 Paling sering dipakai: %1</translation>
+    </message>
+    <message>
+        <source>No activity recorded.</source>
+        <translation>Tidak ada aktivitas tercatat.</translation>
+    </message>
+</context>
+<context>
+    <name>ReportsView</name>
+    <message>
+        <source>Attendance</source>
+        <translation>Absensi</translation>
+    </message>
+    <message>
+        <source>Application usage</source>
+        <translation>Pemakaian aplikasi</translation>
+    </message>
+    <message>
+        <source>Daily report</source>
+        <translation>Laporan harian</translation>
+    </message>
+    <message>
+        <source>Today</source>
+        <translation>Hari ini</translation>
+    </message>
+    <message>
+        <source>Yesterday</source>
+        <translation>Kemarin</translation>
+    </message>
+    <message>
+        <source>Last 7 days</source>
+        <translation>7 hari terakhir</translation>
+    </message>
+    <message>
+        <source>Last 30 days</source>
+        <translation>30 hari terakhir</translation>
+    </message>
+    <message>
+        <source>Who logged on to which computer and for how long - recorded by every computer with AruniControl 1.8 or newer, collected by the gateway every 15 minutes.</source>
+        <translation>Siapa login di komputer mana dan berapa lama - dicatat setiap komputer dengan AruniControl 1.8 atau lebih baru, dikumpulkan gateway setiap 15 menit.</translation>
+    </message>
+    <message>
+        <source>Export...</source>
+        <translation>Ekspor...</translation>
+    </message>
+    <message>
+        <source>Date</source>
+        <translation>Tanggal</translation>
+    </message>
+    <message>
+        <source>User</source>
+        <translation>Pengguna</translation>
+    </message>
+    <message>
+        <source>Computer</source>
+        <translation>Komputer</translation>
+    </message>
+    <message>
+        <source>Logon</source>
+        <translation>Masuk</translation>
+    </message>
+    <message>
+        <source>Logoff</source>
+        <translation>Keluar</translation>
+    </message>
+    <message>
+        <source>Duration</source>
+        <translation>Durasi</translation>
+    </message>
+    <message>
+        <source>Export attendance</source>
+        <translation>Ekspor absensi</translation>
+    </message>
+    <message>
+        <source>CSV files (*.csv)</source>
+        <translation>Berkas CSV (*.csv)</translation>
+    </message>
+    <message>
+        <source>Reports</source>
+        <translation>Laporan</translation>
+    </message>
+    <message>
+        <source>Cannot write %1</source>
+        <translation>Tidak dapat menulis %1</translation>
+    </message>
+    <message>
+        <source>How long each application was in use (in the foreground, without idle time). Only application names are recorded - no window titles and no typing.</source>
+        <translation>Berapa lama setiap aplikasi dipakai (aktif di depan, tanpa waktu diam). Hanya nama aplikasi yang dicatat - tanpa judul jendela dan tanpa ketikan.</translation>
+    </message>
+    <message>
+        <source>Application</source>
+        <translation>Aplikasi</translation>
+    </message>
+    <message>
+        <source>Time</source>
+        <translation>Waktu</translation>
+    </message>
+    <message>
+        <source>Computers</source>
+        <translation>Komputer</translation>
+    </message>
+    <message>
+        <source>Users</source>
+        <translation>Pengguna</translation>
+    </message>
+    <message>
+        <source>Export application usage</source>
+        <translation>Ekspor pemakaian aplikasi</translation>
+    </message>
+    <message>
+        <source>Send a daily report to Telegram at</source>
+        <translation>Kirim laporan harian ke Telegram pukul</translation>
+    </message>
+    <message>
+        <source>Send now</source>
+        <translation>Kirim sekarang</translation>
+    </message>
+    <message>
+        <source>Computers online, disks almost full, computers not seen for days, schedules, attendance, refused accesses and the most used applications of the day. Set up the Telegram bot on the "Notifications" tab first.</source>
+        <translation>Komputer online, disk hampir penuh, komputer yang lama tidak online, jadwal, absensi, akses yang ditolak, dan aplikasi yang paling sering dipakai hari itu. Atur dulu bot Telegram di tab "Notifikasi".</translation>
+    </message>
+    <message>
+        <source>Preview of today:</source>
+        <translation>Pratinjau hari ini:</translation>
+    </message>
+    <message>
+        <source>Set up the Telegram bot on the "Notifications" tab first.</source>
+        <translation>Atur dulu bot Telegram di tab "Notifikasi".</translation>
+    </message>
+    <message>
+        <source>The report is sent within a minute.</source>
+        <translation>Laporan dikirim dalam satu menit.</translation>
+    </message>
+    <message>
+        <source>All computers</source>
+        <translation>Semua komputer</translation>
+    </message>
+    <message>
+        <source>still logged on</source>
+        <translation>masih masuk</translation>
+    </message>
+    <message>
+        <source>unknown</source>
+        <translation>tidak dikenal</translation>
+    </message>
+    <message>
+        <source>No logons in this period.</source>
+        <translation>Tidak ada login pada periode ini.</translation>
+    </message>
+    <message>
+        <source>%1 sessions of %2 users, %3 in total</source>
+        <translation>%1 sesi dari %2 pengguna, total %3</translation>
+    </message>
+    <message>
+        <source>No usage recorded in this period. It is collected with the inventory (every 6 hours) from computers with AruniControl 1.8 or newer.</source>
+        <translation>Belum ada pemakaian tercatat pada periode ini. Data dikumpulkan bersama inventaris (tiap 6 jam) dari komputer dengan AruniControl 1.8 atau lebih baru.</translation>
+    </message>
+    <message>
+        <source>%1 in total</source>
+        <translation>Total %1</translation>
+    </message>
+</context>
+<context>
     <name>RoamingAgent</name>
     <message>
         <source>The office gateway did not answer</source>
@@ -6124,6 +6700,10 @@ Simpan pekerjaan Anda dan tutup semua program.</translation>
     <message>
         <source>Software</source>
         <translation>Software</translation>
+    </message>
+    <message>
+        <source>Commands</source>
+        <translation>Perintah</translation>
     </message>
 </context>
 <context>
@@ -6382,6 +6962,22 @@ Simpan pekerjaan Anda dan tutup semua program.</translation>
     <message>
         <source>End exam mode</source>
         <translation>Akhiri mode ujian</translation>
+    </message>
+    <message>
+        <source>Block USB storage</source>
+        <translation>Blokir penyimpanan USB</translation>
+    </message>
+    <message>
+        <source>Allow USB storage</source>
+        <translation>Izinkan penyimpanan USB</translation>
+    </message>
+    <message>
+        <source>Block printing</source>
+        <translation>Blokir pencetakan</translation>
+    </message>
+    <message>
+        <source>Allow printing</source>
+        <translation>Izinkan pencetakan</translation>
     </message>
     <message>
         <source>Send admin roles</source>
@@ -7335,6 +7931,10 @@ Lanjutkan?</translation>
         <translation>Daftar program sebuah komputer: list &lt;host&gt;</translation>
     </message>
     <message>
+        <source>Remove a program: uninstall &lt;host&gt; &lt;part of the program name&gt;</source>
+        <translation>Hapus program: uninstall &lt;host&gt; &lt;bagian nama program&gt;</translation>
+    </message>
+    <message>
         <source>Failed to initialize credentials</source>
         <translation>Gagal menginisialisasi kredensial</translation>
     </message>
@@ -7345,6 +7945,18 @@ Lanjutkan?</translation>
     <message>
         <source>%1: not connected</source>
         <translation>%1: tidak terhubung</translation>
+    </message>
+    <message>
+        <source>No removable program matches "%1"</source>
+        <translation>Tidak ada program yang bisa dihapus yang cocok dengan "%1"</translation>
+    </message>
+    <message>
+        <source>%1 programs match "%2" - be more precise</source>
+        <translation>%1 program cocok dengan "%2" - buat lebih spesifik</translation>
+    </message>
+    <message>
+        <source>Removing %1</source>
+        <translation>Menghapus %1</translation>
     </message>
     <message>
         <source>Invalid file</source>

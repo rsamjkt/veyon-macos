@@ -354,3 +354,31 @@ Laptops taken home stay monitored through the office Aruni Gateway (hub).
   server is single-threaded, so later statuses are sent with the stored MessageContext. `FeatureMessage` is not
   copyable — build it inline. CLI `veyon-cli softwaredeploy install <hosts> <file> [args]` / `list <host>` (call
   `initAuthentication()` first). ~12 MB/s locally.
+
+## 1.8.0 "Intan": commands, reports, kiosk, USB/printer, lab clean, Windows CI tests
+
+- **Windows CI tests**: `windows-build.yml` = build → hands setup+zip to the draft release `ci-build` → `test` job
+  (reusable `windows-test.yml`, also startable by hand for any release) runs `ci/windows-smoke-test.ps1` on a fresh
+  runner (install, setup code via aruni-setup.txt + update over the installed version, every plugin through veyon-wcli
+  against 127.0.0.1, registry/hosts/processes checked) → `publish` (tags only, after the tests). `concurrency: windows-ci`.
+  Iterate on the script with `gh workflow run windows-test.yml` (no rebuild). `ARUNI_TEST_ALLOW_LOCAL=1` lets exam mode
+  target localhost. The runner may have no logged-on user → session-worker checks are warnings.
+- **remotecommand** (uid c81e5f3a-…, permission "commands"): script → temp .ps1 (UTF-8 BOM, OutputEncoding UTF8) /
+  .cmd (chcp 65001) / .sh, run as LocalSystem (Win) or the user (Mac), merged output ≤256 KB, timeout; every command
+  in the access log (`remote_command`). CLI `remotecommand run <hosts> <cmd> [shell]`.
+- **SessionTracker** (appmonitoring, server): user_login/user_logout into the access log (missed logoff written at the
+  next start with "at" = last activity; state logs/session-<id>.json), usage per day/user/app in logs/usage/<date>.json
+  (15 s samples, idle ≥120 s not counted via `secondsSinceLastInput`). Inventory carries 8 days of usage.
+  Gateway `Reports` (attendance from access.user_login/logout, usage from inventory, daily Telegram report,
+  daily-report.json + daily-report-now) and tab "Laporan" (`ReportsView`).
+- **Exam kiosk**: second hidden feature ExamBrowser (uid 0e7c4b92-…) = unmanaged SESSION worker (user rights) opens the
+  URL / keeps Edge-or-Chrome `--kiosk --user-data-dir=%TEMP%\aruni-exam-browser` alive (max 10 starts/min). The
+  keyboard trapper stays in the managed SYSTEM worker. (1.6/1.7 opened the URL from the SYSTEM worker - fixed.)
+  FeatureWorkerManager keeps ONE worker per feature uid, hence the second uid.
+- **devicecontrol** (uid a6d31b7e-…, "restrict"): USBSTOR Start 4/3 + RemovableStorageDevices\Deny_All, Spooler via
+  sc.exe; schedule actions blockUsb/allowUsb/blockPrinting/allowPrinting. Windows only.
+- **labclean** (uid f2a9c6e1-…, "commands"): Windows service at boot (Component::Service), Mac server at login; moves
+  (QDir::rename only, never copy+delete) the chosen folders' contents of listed non-admin accounts (SID S-1-5-32-544
+  check) to %GLOBALAPPDATA%/labclean/<stamp>/, pruned after keepDays; once per boot (bootId); switches fast startup
+  off (HiberbootEnabled=0) while on.
+- **Mobile**: `ComputerInfoController` + `ComputerInfoPage.qml` (Inventory + SoftwareDeploy list/uninstall).
