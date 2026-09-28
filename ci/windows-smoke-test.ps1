@@ -192,6 +192,14 @@ Start-Sleep -Seconds 4
 Check "student file moved away" { -not (Test-Path "C:\Users\siswa\Desktop\tugas.txt") }
 Check "student file kept in quarantine" { @(Get-ChildItem "$data\labclean" -Recurse -Filter tugas.txt).Count -eq 1 }
 Check "administrator files untouched" { Test-Path "$env:USERPROFILE\Desktop\admin-keep.txt" }
+# the cleaning at start of the service (as at boot): pretend a new boot
+Set-Content "C:\Users\siswa\Desktop\tugas2.txt" "another file of a student"
+$state = Get-Content "$data\labclean.json" -Raw | ConvertFrom-Json
+$state.boot = "test"
+$state | ConvertTo-Json -Depth 5 | Set-Content "$data\labclean.json"
+Cli service restart | Out-Null
+Check "cleaned at start of the service" { Wait-Until { -not (Test-Path "C:\Users\siswa\Desktop\tugas2.txt") } 60 }
+Check "server listening after service restart" { Wait-Server }
 Cli feature stop 127.0.0.1 LabClean | Out-Null
 Start-Sleep -Seconds 3
 Check "lab clean mode off" { (Get-Content "$data\labclean.json" -Raw | ConvertFrom-Json).settings.enabled -eq $false }

@@ -90,7 +90,9 @@ LabCleanFeaturePlugin::LabCleanFeaturePlugin( QObject* parent ) :
 #endif
 	if( VeyonCore::component() == cleaningComponent )
 	{
-		QTimer::singleShot( 1000, this, []() {
+		// the service has no Qt event loop - "initialized" is emitted directly
+		// once the platform functions are ready
+		connect( VeyonCore::instance(), &VeyonCore::initialized, this, []() {
 			const auto settings = loadSettings();
 			if( settings.enabled )
 			{
