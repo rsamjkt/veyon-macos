@@ -18,14 +18,14 @@
 // whose package belongs to the current tag, so older clients never
 // "update" to the version they already run.
 const RELEASE = {
-	tag: "v1.8.0",
+	tag: "v1.8.1",
 	codename: "Intan",
 	files: {
-		windows: { tag: "v1.8.0", name: "AruniControl-Setup-1.8.0-Intan-Windows-x64.exe" },
-		"windows-zip": { tag: "v1.8.0", name: "AruniControl-Server-1.8.0-Intan-Windows-x64.zip" },
-		macos: { tag: "v1.8.0", name: "AruniControl-1.8.0-Intan-macOS-arm64.zip" },
-		android: { tag: "v1.8.0", name: "AruniControl-1.8.0-Intan-Android-arm64.apk" },
-		sha256: { tag: "v1.8.0", name: "SHA256SUMS.txt" },
+		windows: { tag: "v1.8.1", name: "AruniControl-Setup-1.8.1-Intan-Windows-x64.exe" },
+		"windows-zip": { tag: "v1.8.1", name: "AruniControl-Server-1.8.1-Intan-Windows-x64.zip" },
+		macos: { tag: "v1.8.1", name: "AruniControl-1.8.1-Intan-macOS-arm64.zip" },
+		android: { tag: "v1.8.1", name: "AruniControl-1.8.1-Intan-Android-arm64.apk" },
+		sha256: { tag: "v1.8.1", name: "SHA256SUMS.txt" },
 	},
 };
 
