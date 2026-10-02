@@ -1,0 +1,856 @@
+<!doctype html>
+<html lang="id" class="no-js">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Panduan — AruniControl</title>
+<meta name="description" content="Panduan lengkap AruniControl: memasang di Windows, macOS, dan Android, kunci akses, Aruni Gateway, laptop jelajah, mode ujian, jadwal, laporan, dan pemecahan masalah.">
+<meta name="theme-color" content="#FFFFFF">
+<link rel="icon" href="/img/logo.svg" type="image/svg+xml">
+<link rel="stylesheet" href="/style.css">
+</head>
+<body class="guide-page">
+<!--SPRITE-->
+<!--NAV-->
+
+<main>
+<section class="guide-hero">
+	<p class="eyebrow center">Panduan</p>
+	<h1 class="display center">Semua yang perlu Anda tahu.<br><span class="soft">Langkah demi langkah.</span></h1>
+	<p class="lead center narrow">Dari pemasangan pertama sampai mode ujian dan laporan harian. Setiap langkah dilengkapi gambar — klik untuk memperbesar.</p>
+</section>
+
+<div class="guide-layout">
+	<aside class="guide-toc" id="guide-toc">
+		<p>Daftar isi</p>
+		<a href="#panduan">Memasang</a>
+		<a href="#jarak-jauh">Akses jarak jauh</a>
+		<a href="#admin">Admin &amp; notifikasi</a>
+		<a href="#pengawasan">Pengawasan</a>
+		<a href="#lab">Laporan &amp; lab</a>
+		<a href="#manajemen">Manajemen</a>
+		<a href="#otomatis">Otomatis &amp; ujian</a>
+		<a href="#bantuan">Bantuan</a>
+	</aside>
+	<div class="guide-content">
+<!-- ================= PANDUAN ================= -->
+<section id="panduan" style="padding-top:0">
+	<div class="wrap">
+		<div class="section-head center">
+			<span class="kicker">Memasang</span>
+			<h2>Cara memasang &amp; memakai</h2>
+			<p>Pilih perangkat Anda. Setiap langkah dilengkapi gambar. Klik gambar untuk memperbesar.</p>
+		</div>
+
+		<div class="tabs" role="tablist">
+			<button role="tab" aria-selected="true" aria-controls="p-windows" id="t-windows"><svg><use href="#os-windows"/></svg>Windows</button>
+			<button role="tab" aria-selected="false" aria-controls="p-mac" id="t-mac"><svg><use href="#os-apple"/></svg>macOS</button>
+			<button role="tab" aria-selected="false" aria-controls="p-android" id="t-android"><svg><use href="#os-android"/></svg>Android</button>
+			<button role="tab" aria-selected="false" aria-controls="p-kunci" id="t-kunci"><svg><use href="#i-key"/></svg>Kunci akses</button>
+		</div>
+
+		<!-- ---------- WINDOWS ---------- -->
+		<div class="panel" role="tabpanel" id="p-windows" aria-labelledby="t-windows">
+			<div class="guide-step">
+				<div>
+					<span class="num"><b>0</b>Cara cepat</span>
+					<h3>Pasang agent dengan satu baris (seperti agent Wazuh)</h3>
+					<p>Untuk komputer client (siswa/karyawan) tidak perlu klik installer. Di komputer admin buka Configurator → <b>Aruni Gateway</b> → tab <b>Pemasangan</b> → <b>Buat kode</b>, lalu klik <b>Salin perintah</b>. Di setiap komputer client, buka <b>PowerShell sebagai Administrator</b> dan tempel:</p>
+					<div class="terminal">$env:ARUNI_KEY='ARUNISETUP1:…'; irm https://arunicontrol.arunihealth.id/pasang.ps1 | iex</div>
+					<ul>
+						<li>Perintah ini mengunduh versi terbaru dari situs resmi, <b>memeriksa SHA-256</b>-nya, lalu memasang agent tanpa jendela dan <b>tanpa shortcut</b> Master/Configurator. Kunci akses langsung terpasang dan layanan langsung berjalan.</li>
+						<li>Dari <b>Command Prompt</b>: <code>powershell -NoProfile -ExecutionPolicy Bypass -Command "$env:ARUNI_KEY='ARUNISETUP1:…'; irm https://arunicontrol.arunihealth.id/pasang.ps1 | iex"</code>. Bisa juga lewat GPO, RMM, atau <a href="#lab">perintah massal</a>.</li>
+						<li><b>Mac</b> (Terminal, tanpa sudo): <code>curl -fsSL https://arunicontrol.arunihealth.id/pasang.sh | ARUNI_KEY='ARUNISETUP1:…' bash</code></li>
+						<li>Untuk menghapus: <code>$env:ARUNI_UNINSTALL='1'; irm https://arunicontrol.arunihealth.id/pasang.ps1 | iex</code></li>
+					</ul>
+					<div class="callout ok"><svg><use href="#i-shield"/></svg><p>Kode pemasangan tidak dikirim ke server mana pun; kode hanya dipakai di komputer itu. Untuk kode berisi <b>kunci privat</b> (PC guru), perintah satu baris tidak ditawarkan karena PowerShell menyimpan riwayat perintah; pakai file <code>aruni-setup.txt</code>.</p></div>
+				</div>
+				<div class="shot"><figure><div class="window"><img class="zoomable" src="/img/mac-cfg-pemasangan.webp" alt="Tab Pemasangan"></div><figcaption>Aruni Gateway → Pemasangan</figcaption></figure></div>
+			</div>
+			<div class="guide-step">
+				<div>
+					<span class="num"><b>1</b>Instal</span>
+					<h3>Jalankan installer</h3>
+					<ol>
+						<li>Unduh <b>AruniControl-Setup-…-Windows-x64.exe</b> dari bagian <a href="/#unduh">Unduh</a>.</li>
+						<li>Klik dua kali file tersebut, lalu pilih <b>Yes</b> saat Windows meminta izin administrator.</li>
+						<li>Jika muncul layar biru <i>“Windows protected your PC”</i>, klik <b>More info</b> → <b>Run anyway</b>. Ini normal karena installer belum ditandatangani sertifikat berbayar.</li>
+						<li>Klik <b>Install</b>. Installer otomatis mendaftarkan layanan <b>AruniControl</b> dan membuka firewall untuk port <code>11100</code>.</li>
+						<li>Setelah selesai, <b>AruniControl Configurator</b> terbuka otomatis.</li>
+					</ol>
+					<div class="callout info"><svg><use href="#i-info"/></svg><p>Lakukan langkah ini di <b>setiap</b> komputer, termasuk komputer guru. Untuk banyak komputer sekaligus, installer bisa dijalankan senyap: <code>AruniControl-Setup-….exe /S</code>. Dengan <a href="#otomatis">kode pemasangan</a>, kunci akses ikut terpasang otomatis.</p></div>
+				</div>
+				<div class="shot"><figure><div class="window"><img class="zoomable" src="/img/windows-configurator.webp" alt="AruniControl Configurator di Windows" ></div><figcaption>AruniControl Configurator di Windows</figcaption></figure></div>
+			</div>
+
+			<div class="guide-step flip">
+				<div>
+					<span class="num"><b>2</b>Layanan</span>
+					<h3>Pastikan layanan berjalan</h3>
+					<p>Di Configurator buka halaman <b>Service</b>. Status harus <b>Running</b>. Jika belum, klik <b>Start service</b>.</p>
+					<p>Layanan ini yang membuat komputer bisa dipantau. Ia berjalan otomatis setiap kali Windows menyala, juga sebelum ada yang login.</p>
+				</div>
+				<div class="shot"><figure><div class="window"><img class="zoomable" src="/img/windows-configurator-service.webp" alt="Halaman Service" ></div><figcaption>Configurator → Service</figcaption></figure></div>
+			</div>
+
+			<div class="guide-step">
+				<div>
+					<span class="num"><b>3</b>Kunci</span>
+					<h3>Pasang kunci akses</h3>
+					<p>Komputer hanya menuruti perintah dari Master yang memegang kunci yang cocok. Ikuti tab <a href="#panduan" data-tab="t-kunci">Kunci akses</a>. Cukup sekali untuk satu sekolah atau kantor.</p>
+				</div>
+				<div class="shot"><figure><div class="window"><img class="zoomable" src="/img/windows-configurator-authentication.webp" alt="Authentication keys di Windows"></div><figcaption>Configurator → Authentication keys</figcaption></figure></div>
+			</div>
+
+			<div class="guide-step flip">
+				<div>
+					<span class="num"><b>4</b>Master</span>
+					<h3>Buka AruniControl Master di komputer guru</h3>
+					<ol>
+						<li>Start menu → <b>AruniControl</b> → <b>AruniControl Master</b>.</li>
+						<li>Komputer di jaringan yang sama ditemukan otomatis (<i>Network discovery</i>) dan tampil sebagai thumbnail.</li>
+						<li>Pilih satu, beberapa, atau semua komputer, lalu pakai tombol di toolbar: <b>Monitoring</b>, <b>Demo</b>, <b>Lock</b>, <b>Remote view/control</b>, <b>Text message</b>, <b>Power on/off</b>, dan lainnya.</li>
+						<li>Ingin mengelompokkan per ruangan? Lihat langkah 5.</li>
+					</ol>
+				</div>
+				<div class="shot"><figure><div class="window"><img class="zoomable" src="/img/windows-master.webp" alt="AruniControl Master"></div><figcaption>AruniControl Master: semua fitur ada di toolbar</figcaption></figure></div>
+			</div>
+
+			<div class="guide-step">
+				<div>
+					<span class="num"><b>5</b>Ruangan</span>
+					<h3>Kelompokkan per ruangan (opsional)</h3>
+					<ol>
+						<li>Di Configurator → <b>General</b>, ubah <b>Network object directory → Backend</b> menjadi <i>Builtin (computers and locations in local configuration)</i>.</li>
+						<li>Buka <b>Locations &amp; computers</b>. Klik <b>+</b> di bawah daftar <i>Locations</i> untuk membuat ruangan (mis. <i>Lab Komputer 1</i>).</li>
+						<li>Pilih ruangan itu, lalu klik <b>+</b> di bawah <i>Computers</i> dan isi nama, alamat IP/hostname, dan (opsional) MAC address untuk fitur <b>Power on</b>.</li>
+						<li>Klik <b>Apply</b>. Di Master, buka panel <b>Locations &amp; computers</b> (kiri bawah) untuk memilih ruangan.</li>
+					</ol>
+				</div>
+				<div class="shot"><figure><div class="window"><img class="zoomable" src="/img/windows-configurator-locations.webp" alt="Locations and computers"></div><figcaption>Configurator → Locations &amp; computers</figcaption></figure></div>
+			</div>
+		</div>
+
+		<!-- ---------- macOS ---------- -->
+		<div class="panel" role="tabpanel" id="p-mac" aria-labelledby="t-mac" hidden>
+			<div class="guide-step">
+				<div>
+					<span class="num"><b>1</b>Instal</span>
+					<h3>Pindahkan ke Applications</h3>
+					<ol>
+						<li>Unduh <b>AruniControl-…-macOS-arm64.zip</b>, lalu klik dua kali untuk mengekstrak.</li>
+						<li>Seret <b>AruniControl.app</b> ke folder <b>Applications</b>.</li>
+						<li>Buka aplikasinya. Jika macOS menolak (<i>“cannot be opened because the developer cannot be verified”</i>), buka <b>System Settings → Privacy &amp; Security</b>, gulir ke bawah, lalu klik <b>Open Anyway</b>.</li>
+					</ol>
+					<div class="callout info"><svg><use href="#i-info"/></svg><p>Cara cepat lewat Terminal: <code>xattr -dr com.apple.quarantine /Applications/AruniControl.app</code></p></div>
+					<p>Tidak perlu password admin. Semua pengaturan tersimpan per pengguna.</p>
+				</div>
+				<div class="shot"><figure><div class="window"><img class="zoomable" src="/img/mac-configurator-general.webp" alt="Configurator di macOS"></div><figcaption>AruniControl Configurator di macOS</figcaption></figure></div>
+			</div>
+
+			<div class="guide-step flip">
+				<div>
+					<span class="num"><b>2</b>Aplikasi</span>
+					<h3>Master &amp; Configurator</h3>
+					<ul>
+						<li><b>AruniControl.app</b> membuka <b>Master</b> (untuk memantau komputer lain).</li>
+						<li><b>Configurator</b> ada di dalam paket aplikasi: klik kanan <b>AruniControl.app</b> → <b>Show Package Contents</b> → <b>Contents</b> → <b>MacOS</b> → klik dua kali <b>veyon-configurator</b>.<br>Atau lewat Terminal: <code>/Applications/AruniControl.app/Contents/MacOS/veyon-configurator</code></li>
+					</ul>
+				</div>
+				<div class="shot"><figure><div class="window"><img class="zoomable" src="/img/mac-configurator-master.webp" alt="Pengaturan Master di macOS"></div><figcaption>Configurator → Master</figcaption></figure></div>
+			</div>
+
+			<div class="guide-step">
+				<div>
+					<span class="num"><b>3</b>Agar Mac bisa dipantau</span>
+					<h3>Nyalakan layanan &amp; beri 2 izin</h3>
+					<ol>
+						<li>Di Configurator buka <b>Service</b>, lalu klik <b>Start service</b>. Layanan jalan otomatis setiap login (LaunchAgent, tanpa admin).</li>
+						<li>Buka <b>System Settings → Privacy &amp; Security → Screen Recording</b>. Klik <b>+</b>, tekan <kbd>⌘</kbd><kbd>⇧</kbd><kbd>G</kbd>, ketik <code>/Applications/AruniControl.app/Contents/MacOS/veyon-server</code>, lalu nyalakan.</li>
+						<li>Ulangi di <b>Accessibility</b> untuk file yang sama. Izin ini yang membuat klik &amp; ketikan dari Master/HP bisa masuk.</li>
+						<li>Kembali ke Configurator → Service → <b>Stop service</b> lalu <b>Start service</b> agar izin baru terbaca.</li>
+					</ol>
+					<div class="callout"><svg><use href="#i-error"/></svg><p><b>Layar hitam?</b> Izin Screen Recording belum aktif. <b>Bisa lihat tapi tidak bisa klik?</b> Izin Accessibility belum aktif. Setelah mengubah izin, selalu restart layanan.</p></div>
+				</div>
+				<div class="shot"><figure><div class="window"><img class="zoomable" src="/img/mac-configurator-service.webp" alt="Halaman Service di macOS"></div><figcaption>Configurator → Service</figcaption></figure></div>
+			</div>
+
+			<div class="guide-step flip">
+				<div>
+					<span class="num"><b>4</b>Kunci</span>
+					<h3>Pasang kunci akses</h3>
+					<p>Sama seperti di Windows: ikuti tab <a href="#panduan" data-tab="t-kunci">Kunci akses</a>. Mac dan Windows bisa saling memantau selama kuncinya sama.</p>
+				</div>
+				<div class="shot"><figure><div class="window"><img class="zoomable" src="/img/mac-configurator-aruni-gateway.webp" alt="Aruni Gateway di macOS"></div><figcaption>Configurator → Aruni Gateway</figcaption></figure></div>
+			</div>
+		</div>
+
+		<!-- ---------- ANDROID ---------- -->
+		<div class="panel" role="tabpanel" id="p-android" aria-labelledby="t-android" hidden>
+			<div class="guide-step">
+				<div>
+					<span class="num"><b>1</b>Instal</span>
+					<h3>Pasang APK</h3>
+					<ol>
+						<li>Buka halaman ini di HP, lalu ketuk <a href="/unduh/android">Unduh APK</a>.</li>
+						<li>Setelah selesai, ketuk file <b>AruniControl-…-Android-arm64.apk</b>.</li>
+						<li>Jika muncul <i>“Untuk keamanan, HP Anda tidak diizinkan menginstal aplikasi tidak dikenal”</i>, ketuk <b>Setelan</b> → aktifkan <b>Izinkan dari sumber ini</b> → kembali → <b>Instal</b>.</li>
+						<li>Jika Play Protect memberi peringatan, pilih <b>Detail lainnya → Tetap instal</b>.</li>
+					</ol>
+				</div>
+				<div class="shot"><figure><div class="phone"><img class="zoomable" src="/img/android-welcome.webp" alt="Layar sambutan"></div><figcaption>Layar pertama saat aplikasi dibuka</figcaption></figure></div>
+			</div>
+
+			<div class="guide-step flip">
+				<div>
+					<span class="num"><b>2</b>Akses</span>
+					<h3>Hubungkan akses</h3>
+					<p>Ketuk <b>Mulai</b>, lalu pilih salah satu cara berikut:</p>
+					<ul>
+						<li><b>Punya kode QR Aruni Gateway?</b> Ini paling mudah. Sekali pindai, lokasi dan kunci akses terpasang otomatis dan bisa dipakai dari mana saja. Lihat <a href="#jarak-jauh">Akses jarak jauh</a>.</li>
+						<li><b>Kunci akses</b>: pilih file <code>…_private_key.pem</code> yang diekspor dari Configurator (tab <a href="#panduan" data-tab="t-kunci">Kunci akses</a>, langkah 4). Nama kunci harus sama persis dengan nama di komputer.</li>
+						<li><b>Akun komputer</b>: nama pengguna &amp; kata sandi yang terdaftar di komputer siswa, jika sekolah memakai metode login.</li>
+					</ul>
+					<div class="callout ok"><svg><use href="#i-shield"/></svg><p>Kunci dan kata sandi hanya disimpan di HP ini dan tidak pernah dikirim ke internet.</p></div>
+				</div>
+				<div class="shot"><figure><div class="phone"><img class="zoomable" src="/img/android-auth.webp" alt="Hubungkan akses"></div><figcaption>Pilih cara menghubungkan akses</figcaption></figure></div>
+			</div>
+
+			<div class="guide-step">
+				<div>
+					<span class="num"><b>3</b>Pantau</span>
+					<h3>Semua komputer dalam satu grid</h3>
+					<ul>
+						<li>Jika HP satu Wi-Fi dengan komputer, komputer ditemukan otomatis. Ketuk <b>↻</b> untuk memperbarui daftar.</li>
+						<li>Geser chip di atas untuk memilih <b>ruangan</b>. Pakai kotak cari untuk mencari nama komputer atau pengguna.</li>
+						<li>Titik warna menunjukkan status: <span style="color:var(--success)">●</span> online, <span style="color:var(--warning)">●</span> sedang menghubungkan, <span style="color:var(--danger)">●</span> kunci ditolak, <span style="color:var(--faint)">●</span> mati.</li>
+						<li>Tombol bawah: <b>Kunci</b>, <b>Buka</b>, <b>Pesan</b>, dan <b>Semua</b> untuk seluruh aksi.</li>
+					</ul>
+				</div>
+				<div class="shot"><figure><div class="phone"><img class="zoomable" src="/img/android-home.webp" alt="Grid komputer"></div><figcaption>Beranda: grid semua komputer</figcaption></figure></div>
+			</div>
+
+			<div class="guide-step flip">
+				<div>
+					<span class="num"><b>4</b>Aksi</span>
+					<h3>Satu ketuk untuk semua</h3>
+					<p>Ketuk <b>Semua</b> untuk semua komputer yang tampil, atau tahan satu kartu untuk mulai memilih beberapa komputer lalu ketuk aksinya. Aksi yang tersedia:</p>
+					<ul>
+						<li><b>Kelas</b>: kunci/buka layar, kirim pesan, tangkap layar, buka website, jalankan aplikasi, kunci keyboard &amp; mouse.</li>
+						<li><b>Demo &amp; file</b>: tampilkan layar siswa ke semua, hentikan demo, kirim file, kumpulkan file.</li>
+						<li><b>Pembatasan</b>: blokir/buka internet, bisukan/nyalakan suara.</li>
+						<li><b>Daya &amp; sesi</b>: nyalakan (Wake-on-LAN), login pengguna, mulai ulang, matikan, keluarkan pengguna.</li>
+					</ul>
+				</div>
+				<div class="shot"><figure><div class="phone"><img class="zoomable" src="/img/android-actions.webp" alt="Lembar aksi"></div><figcaption>Lembar aksi</figcaption></figure></div>
+			</div>
+
+			<div class="guide-step">
+				<div>
+					<span class="num"><b>5</b>Kendalikan</span>
+					<h3>Lihat &amp; kendalikan dari jauh</h3>
+					<ul>
+						<li>Ketuk satu kartu untuk membuka layar penuh. Mode <b>Lihat</b> hanya menonton.</li>
+						<li>Ketuk <b>Kendalikan</b> atau pilih <b>Kontrol</b> untuk mengambil alih: ketuk = klik, ketuk dua kali = klik ganda, tahan = klik kanan, geser satu jari = menyeret, dua jari = zoom &amp; geser layar, strip di kanan = scroll.</li>
+						<li>Baris tombol di bawah: keyboard HP, <kbd>Esc</kbd> <kbd>Tab</kbd> <kbd>Enter</kbd>, serta pintasan seperti <kbd>Ctrl+Alt+Del</kbd>, <kbd>Win</kbd>, <kbd>Alt+Tab</kbd>, <kbd>Alt+F4</kbd>, <kbd>Ctrl+C</kbd>.</li>
+						<li>Ikon kamera menyimpan tangkapan layar ke HP.</li>
+					</ul>
+				</div>
+				<div class="shot"><figure><div class="phone"><img class="zoomable" src="/img/android-remote.webp" alt="Layar jarak jauh"></div><figcaption>Layar jarak jauh (isi layar disamarkan)</figcaption></figure></div>
+			</div>
+
+			<div class="guide-step flip">
+				<div>
+					<span class="num"><b>6</b>Pengaturan</span>
+					<h3>Ruangan, tema &amp; lainnya</h3>
+					<p>Ketuk ikon ⚙ di kanan atas untuk:</p>
+					<ul>
+						<li>Mengganti atau menghapus kunci akses.</li>
+						<li><b>Akses dari mana saja</b>: Aruni Gateway, VPN WireGuard, ZeroTier.</li>
+						<li><b>Ruangan &amp; komputer</b>: menambah komputer lewat alamat IP dan mengelompokkannya.</li>
+						<li>Melihat file terkumpul &amp; tangkapan layar, memilih tema terang/gelap, dan ukuran kartu.</li>
+					</ul>
+				</div>
+				<div class="shot"><figure><div class="phone"><img class="zoomable" src="/img/android-settings.webp" alt="Pengaturan"></div><figcaption>Pengaturan</figcaption></figure></div>
+			</div>
+
+			<div class="guide-step">
+				<div>
+					<span class="num"><b>7</b>Baru di 1.4.0</span>
+					<h3>Chat, bicara &amp; pantau aplikasi</h3>
+					<ul>
+						<li><b>Chat</b>: kirim pesan dan terima balasan dari pengguna komputer, tampil sebagai gelembung percakapan. Bila ada balasan saat chat tertutup, muncul banner dan tanda di kartu komputer.</li>
+						<li><b>Bicara (AruniVoice)</b>: tahan tombol besar untuk berbicara ke pengguna komputer, atau aktifkan <i>Interkom dua arah</i>. Izinkan mikrofon saat diminta. Gunakan headset agar tidak berdengung.</li>
+						<li><b>Aplikasi berjalan</b>: lihat aplikasi yang sedang dibuka, aplikasi yang sedang dipakai ditandai paling atas, dan tutup aplikasi dari jauh (dengan konfirmasi).</li>
+						<li>Semuanya ada di menu <b>⋮</b> saat membuka satu komputer, dan di lembar <b>Aksi</b> ketika satu komputer dipilih.</li>
+					</ul>
+				</div>
+				<div class="shot pair">
+					<figure><div class="phone"><img class="zoomable" src="/img/android-chat.webp" alt="Chat"></div><figcaption>Chat</figcaption></figure>
+					<figure><div class="phone"><img class="zoomable" src="/img/android-apps.webp" alt="Aplikasi berjalan"></div><figcaption>Aplikasi berjalan</figcaption></figure>
+				</div>
+			</div>
+
+			<div class="guide-step flip">
+				<div>
+					<span class="num"><b>8</b>Bicara</span>
+					<h3>Tahan untuk bicara</h3>
+					<p>Suara Anda terdengar langsung di speaker komputer. Pengguna komputer membalas dengan menahan tombol di jendela AruniVoice yang muncul di layarnya. Indikator level menunjukkan suara kedua pihak.</p>
+					<p><b>Pembaruan aplikasi:</b> bila ada versi baru, beranda menampilkan banner <i>"Versi … tersedia"</i>. Ketuk <b>Perbarui</b>, aplikasi mengunduh dan memverifikasinya, lalu Android meminta konfirmasi pemasangan. Pertama kali, izinkan AruniControl <i>memasang aplikasi</i>.</p>
+				</div>
+				<div class="shot"><figure><div class="phone"><img class="zoomable" src="/img/android-voice.webp" alt="Bicara"></div><figcaption>AruniVoice</figcaption></figure></div>
+			</div>
+		</div>
+
+		<!-- ---------- KUNCI AKSES ---------- -->
+		<div class="panel" role="tabpanel" id="p-kunci" aria-labelledby="t-kunci" hidden>
+			<div class="guide-step">
+				<div>
+					<span class="num"><b>1</b>Konsep</span>
+					<h3>Kenapa perlu kunci?</h3>
+					<p>Agar tidak sembarang orang bisa mengendalikan komputer. Kunci terdiri dari dua bagian:</p>
+					<ul>
+						<li><b>Kunci private</b>: hanya dipegang komputer guru/admin (dan HP guru). Jangan dibagikan.</li>
+						<li><b>Kunci publik</b>: dipasang di <b>semua</b> komputer yang dipantau.</li>
+					</ul>
+					<p>Komputer hanya menerima perintah dari Master yang memegang kunci private pasangan dari kunci publiknya.</p>
+				</div>
+				<div class="shot"><figure><div class="window"><img class="zoomable" src="/img/mac-configurator-general.webp" alt="Metode autentikasi"></div><figcaption>General → Authentication → <i>Key file authentication</i></figcaption></figure></div>
+			</div>
+			<div class="guide-step flip">
+				<div>
+					<span class="num"><b>2</b>Buat</span>
+					<h3>Buat pasangan kunci (sekali saja)</h3>
+					<ol>
+						<li>Di <b>komputer guru/admin</b>, buka Configurator → <b>Authentication keys</b>.</li>
+						<li>Klik <b>Create key pair</b> dan beri nama, misalnya <code>sekolah</code> atau <code>lab1</code>.</li>
+						<li>Klik <b>Apply</b>.</li>
+					</ol>
+				</div>
+				<div class="shot"><figure><div class="window"><img class="zoomable" src="/img/mac-configurator-authentication.webp" alt="Authentication keys"></div><figcaption>Configurator → Authentication keys</figcaption></figure></div>
+			</div>
+			<div class="guide-step">
+				<div>
+					<span class="num"><b>3</b>Sebarkan</span>
+					<h3>Pasang kunci publik di semua komputer</h3>
+					<ol>
+						<li>Di komputer guru: pilih kunci bertipe <b>public</b> → <b>Export key</b>. Simpan file <code>sekolah_public_key.pem</code> ke flashdisk atau folder bersama.</li>
+						<li>Di setiap komputer siswa: Configurator → <b>Authentication keys</b> → <b>Import key</b> → pilih file tadi → isi nama yang <b>sama persis</b> (<code>sekolah</code>) → <b>Apply</b>.</li>
+					</ol>
+					<div class="callout info"><svg><use href="#i-info"/></svg><p><b>Lebih cepat:</b> pakai <a href="#otomatis">kode pemasangan</a> (tab Pemasangan), sehingga kunci terpasang saat instalasi tanpa impor manual. Cara lama lewat perintah: <code>veyon-cli authkeys import sekolah/public sekolah_public_key.pem</code> (di Windows: <code>veyon-wcli.exe</code> dari folder instalasi).</p></div>
+				</div>
+				<div class="shot"><figure><div class="window"><img class="zoomable" src="/img/mac-configurator-authentication.webp" alt="Import dan export kunci"></div><figcaption>Nama kunci harus sama di semua komputer</figcaption></figure></div>
+			</div>
+			<div class="guide-step flip">
+				<div>
+					<span class="num"><b>4</b>HP guru</span>
+					<h3>Kunci untuk aplikasi Android</h3>
+					<p><b>Cara termudah:</b> pakai Aruni Gateway dan pilih kunci di kolom <i>“Give new phones this access key”</i>. HP akan menerima kuncinya otomatis saat memindai QR. Lihat <a href="#jarak-jauh">Akses jarak jauh</a>.</p>
+					<p><b>Cara manual:</b> di komputer guru pilih kunci bertipe <b>private</b> → <b>Export key</b>. Kirim file <code>.pem</code> ke HP (kabel USB, Drive, WhatsApp ke diri sendiri), lalu di aplikasi pilih <b>Kunci akses → Pilih file kunci</b> dan isi nama kunci yang sama.</p>
+				</div>
+				<div class="shot"><figure><div class="phone"><img class="zoomable" src="/img/android-auth.webp" alt="Pasang kunci di HP"></div><figcaption>Pasang kunci di aplikasi</figcaption></figure></div>
+			</div>
+		</div>
+	</div>
+</section>
+
+<!-- ================= JARAK JAUH ================= -->
+<section id="jarak-jauh" style="padding-top:0">
+	<div class="wrap">
+		<div class="section-head center">
+			<span class="kicker">Akses jarak jauh</span>
+			<h2>Pakai paket data? Tetap bisa.</h2>
+			<p><b>Aruni Gateway</b> menghubungkan HP Anda ke semua komputer kantor lewat internet. Tidak perlu VPN, tidak perlu mengatur router atau port forwarding.</p>
+		</div>
+
+		<div class="card diagram">
+			<div class="node"><svg><use href="#i-computer"/></svg><b>HP guru</b><small>Wi-Fi atau paket data</small></div>
+			<div class="link"><svg viewBox="0 0 40 20"><path d="M2 10h32m-6-6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>terenkripsi</div>
+			<div class="node"><svg><use href="#i-cloud"/></svg><b>Aruni Relay</b><small>AruniCloud, hanya meneruskan data</small></div>
+			<div class="link"><svg viewBox="0 0 40 20"><path d="M38 10H6m6-6-6 6 6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>koneksi keluar</div>
+			<div class="node"><svg><use href="#i-router"/></svg><b>PC Gateway di kantor</b><small>meneruskan ke semua komputer LAN</small></div>
+		</div>
+		<p style="text-align:center;color:var(--muted);font-size:.92rem;margin-top:14px">Data dienkripsi dari HP sampai PC gateway (X25519 + ChaCha20-Poly1305), sehingga relay tidak bisa membaca isinya. Gateway hanya meneruskan ke alamat jaringan lokal di port AruniControl.</p>
+
+		<div class="guide-step" style="margin-top:30px">
+			<div>
+				<span class="num"><b>1</b>Di kantor</span>
+				<h3>Aktifkan Aruni Gateway di satu PC</h3>
+				<ol>
+					<li>Pilih satu PC yang <b>selalu menyala</b> dan terhubung ke jaringan kantor/lab. Boleh komputer guru, server, atau PC mana saja yang sudah terpasang AruniControl.</li>
+					<li>Buka Configurator → <b>Aruni Gateway</b>.</li>
+					<li>Centang <b>Use this computer as Aruni Gateway</b>, isi <b>Location name</b> (mis. <i>Lab Komputer 1</i>), lalu klik <b>Apply</b>.</li>
+					<li>Tunggu sampai <b>Status</b> menjadi <span style="color:var(--success)">● Online</span>.</li>
+					<li>Di <b>Give new phones this access key</b>, pilih kunci (mis. <code>sekolah</code>) agar HP langsung mendapat kunci akses.</li>
+				</ol>
+				<div class="callout info"><svg><use href="#i-info"/></svg><p>Relay server bawaan sudah terisi. Biarkan saja kecuali Anda menjalankan relay sendiri.</p></div>
+			</div>
+			<div class="shot"><figure><div class="window"><img class="zoomable" src="/img/mac-configurator-aruni-gateway.webp" alt="Aruni Gateway aktif"></div><figcaption>Configurator → Aruni Gateway</figcaption></figure></div>
+		</div>
+
+		<div class="guide-step flip">
+			<div>
+				<span class="num"><b>2</b>Di HP</span>
+				<h3>Pindai kode QR</h3>
+				<ol>
+					<li>Di Configurator klik <b>Show pairing QR code</b>. Kode berlaku sekali pakai selama 15 menit.</li>
+					<li>Di aplikasi: ⚙ Pengaturan → <b>Akses dari mana saja</b> → <b>Pindai kode QR</b>, arahkan kamera ke layar. Bisa juga memakai kamera bawaan HP: link <code>arunicontrol://pair…</code> langsung membuka aplikasi.</li>
+					<li>Selesai. Lokasi baru muncul sebagai ruangan dan semua komputer di kantor tampil, baik lewat Wi-Fi maupun paket data.</li>
+				</ol>
+				<p>HP yang terhubung tercatat di <b>Connected phones</b> pada Configurator dan aksesnya bisa dicabut kapan saja dengan <b>Remove access</b>.</p>
+			</div>
+			<div class="shot pair">
+				<figure><div class="phone"><img class="zoomable" src="/img/android-remote-access.webp" alt="Akses dari mana saja"></div><figcaption>Akses dari mana saja</figcaption></figure>
+			</div>
+		</div>
+
+		<div class="section-head center" id="laptop-jelajah" style="margin-top:70px">
+			<span class="kicker">Laptop jelajah</span>
+			<h2>Laptop dibawa pulang? Tetap terpantau.</h2>
+			<p>Laptop yang didaftarkan sebagai <b>laptop jelajah</b> menyambung sendiri ke Aruni Gateway kantor dari mana pun: Wi-Fi rumah, hotspot, atau jaringan kafe. Guru/admin tetap bisa melihat dan mengendalikannya dari HP maupun dari Master di kantor.</p>
+		</div>
+
+		<div class="card diagram">
+			<div class="node"><svg><use href="#i-computer"/></svg><b>Laptop di rumah</b><small>menyambung keluar, tanpa port forwarding</small></div>
+			<div class="link"><svg viewBox="0 0 40 20"><path d="M2 10h32m-6-6 6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>terenkripsi</div>
+			<div class="node"><svg><use href="#i-cloud"/></svg><b>Aruni Relay</b><small>AruniCloud</small></div>
+			<div class="link"><svg viewBox="0 0 40 20"><path d="M38 10H6m6-6-6 6 6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>24 jam</div>
+			<div class="node"><svg><use href="#i-router"/></svg><b>Aruni Gateway kantor</b><small>meneruskan ke HP &amp; Master</small></div>
+		</div>
+
+		<div class="guide-step" style="margin-top:30px">
+			<div>
+				<span class="num"><b>1</b>Di gateway kantor</span>
+				<h3>Salin kode pendaftaran laptop</h3>
+				<ol>
+					<li>Di PC gateway buka Configurator → <b>Aruni Gateway</b>. Gateway harus sudah aktif, lihat bagian atas.</li>
+					<li>Di bagian <b>Laptops outside the office</b>, klik <b>Copy</b> untuk menyalin kode pendaftaran (diawali <code>ARUNIL1:</code>).</li>
+					<li>Kode ini bisa dipakai untuk banyak laptop sekaligus. Klik <b>New code</b> kalau kode sempat tersebar; laptop yang sudah terdaftar tetap jalan.</li>
+				</ol>
+				<p>Tabel di bawahnya menampilkan semua laptop: <b>Online, away</b> (sedang di luar), <b>In the office</b>, atau <b>Offline</b>, beserta port-nya. Laptop yang hilang atau dijual cukup dipilih lalu klik <b>Remove laptop</b>.</p>
+			</div>
+			<div class="shot"><figure><div class="window"><img class="zoomable" src="/img/mac-roaming-gateway.webp" alt="Daftar laptop jelajah di gateway"></div><figcaption>Configurator (gateway) → Laptops outside the office</figcaption></figure></div>
+		</div>
+
+		<div class="guide-step flip">
+			<div>
+				<span class="num"><b>2</b>Di laptop</span>
+				<h3>Aktifkan mode laptop jelajah</h3>
+				<ol>
+					<li>Di laptop buka Configurator → <b>Aruni Gateway</b>.</li>
+					<li>Di bagian <b>This laptop outside the office</b>, tempel kode pada <b>Enrollment code</b>, lalu centang <b>Keep this laptop monitored outside the office</b>.</li>
+					<li>Tunggu sampai status menjadi <span style="color:var(--success)">● Connected to "…"</span>.</li>
+				</ol>
+				<div class="callout info"><svg><use href="#i-info"/></svg><p><b>Banyak laptop sekaligus?</b> Pasang installer dengan <code>AruniControl-Setup-….exe /S /ENROLL=ARUNIL1:…</code>, atau di laptop yang sudah terpasang jalankan <code>veyon-wcli gateway enroll ARUNIL1:…</code> sebagai administrator. Di Mac: <code>…/veyon-cli gateway enroll ARUNIL1:…</code>.</p></div>
+			</div>
+			<div class="shot"><figure><div class="window"><img class="zoomable" src="/img/mac-roaming-laptop.webp" alt="Mode laptop jelajah di laptop"></div><figcaption>Configurator (laptop) → This laptop outside the office</figcaption></figure></div>
+		</div>
+
+		<div class="guide-step">
+			<div>
+				<span class="num"><b>3</b>Pantau</span>
+				<h3>Lihat laptop dari HP atau Master kantor</h3>
+				<ul>
+					<li><b>Aplikasi HP</b> (yang sudah dipasangkan dengan gateway): laptop yang sedang di luar muncul di ruangan <b>"&lt;lokasi&gt; · Di luar kantor"</b>, lengkap dengan layar live, kontrol, kunci layar, dan pesan.</li>
+					<li><b>Master di kantor</b> (backend <i>Network discovery</i>): muncul otomatis di lokasi <b>"&lt;lokasi&gt; - outside the office"</b>. Dengan backend <i>Builtin</i>, tambahkan komputer dengan alamat <code>IP-gateway:port</code> (port ada di tabel langkah 1, mis. <code>192.168.1.10:11601</code>).</li>
+					<li>Begitu laptop kembali ke kantor, ia tampil lagi seperti komputer biasa di jaringan lokal.</li>
+				</ul>
+				<div class="callout"><svg><use href="#i-error"/></svg><p>Selama di luar kantor, <b>Demo</b> (menampilkan layar guru ke laptop) dan <b>Nyalakan (Wake-on-LAN)</b> tidak bisa dipakai, karena laptop tidak bisa dijangkau langsung. Fitur lain tetap jalan: pantau, kendalikan, kunci layar, pesan, kirim file, dan blokir internet.</p></div>
+				<p style="font-size:.9rem">Pengguna laptop sebaiknya diberi tahu bahwa laptop kantor tetap dapat dipantau di luar jam dan lokasi kantor.</p>
+			</div>
+			<div class="shot"><figure><div class="phone"><img class="zoomable" src="/img/android-roaming.webp" alt="Laptop di luar kantor di aplikasi HP"></div><figcaption>Ruangan "Di luar kantor" di aplikasi HP</figcaption></figure></div>
+		</div>
+
+		<div class="guide-step">
+			<div>
+				<span class="num"><b>+</b>Alternatif</span>
+				<h3>Sudah punya VPN?</h3>
+				<ul>
+					<li><b>WireGuard / MikroTik (RouterOS 7)</b>: impor file <code>.conf</code> di <i>Akses dari mana saja → VPN WireGuard</i>. Hanya lalu lintas AruniControl yang lewat VPN, aplikasi lain tetap memakai internet biasa. Ketuk <i>Cara membuat di MikroTik</i> untuk panduan singkat.</li>
+					<li><b>ZeroTier</b>: pasang ZeroTier One dari Play Store, gabung ke Network ID kantor, lalu minta admin menyetujui HP Anda.</li>
+					<li><b>Subnet tambahan</b>: di <i>Ruangan &amp; komputer</i>, tambahkan subnet (mis. <code>192.168.10.0/24</code>) agar komputer di balik VPN ikut ditemukan.</li>
+				</ul>
+			</div>
+			<div class="shot"><figure><div class="phone"><img class="zoomable" src="/img/android-remote-access.webp" alt="VPN"></div><figcaption>WireGuard &amp; ZeroTier</figcaption></figure></div>
+		</div>
+	</div>
+</section>
+
+<!-- ================= ADMIN ================= -->
+<section id="admin" style="padding-top:0">
+	<div class="wrap">
+		<div class="section-head center">
+			<span class="kicker">Admin &amp; notifikasi</span>
+			<h2>Lebih ringan untuk admin</h2>
+			<p>Semua komputer memperbarui dirinya sendiri, admin langsung tahu saat ada masalah, dan setiap laptop punya catatan yang bisa diekspor ke Excel. Semuanya dalam Bahasa Indonesia.</p>
+		</div>
+
+		<div class="guide-step">
+			<div>
+				<span class="num"><b>1</b>Pembaruan otomatis</span>
+				<h3>Rilis sekali, semua komputer ikut</h3>
+				<ul>
+					<li>Layanan AruniControl di setiap PC Windows dan Mac memeriksa versi baru setiap <b>6 jam</b>, mengunduhnya, mencocokkan <b>checksum SHA-256</b>, lalu memasangnya sendiri. Pengaturan, kunci, dan gateway tidak berubah.</li>
+					<li>Status dan tombol <b>Periksa sekarang</b> ada di Configurator → <b>Pembaruan</b>. Hilangkan centang bila ingin memperbarui secara manual.</li>
+					<li>Aplikasi Android memberi tahu bila ada versi baru dan memasangnya dengan satu ketukan.</li>
+				</ul>
+				<div class="callout info"><svg><use href="#i-info"/></svg><p><b>Mac:</b> mulai 1.4.0 aplikasi ditandatangani dengan identitas tetap, sehingga izin Screen Recording &amp; Accessibility <b>tidak hilang</b> saat update. Hanya saat pindah dari 1.3.x ke 1.4.0 izin perlu diberikan sekali lagi.</p></div>
+			</div>
+			<div class="shot"><figure><div class="window"><img class="zoomable" src="/img/mac-cfg-pembaruan.webp" alt="Halaman Pembaruan"></div><figcaption>Configurator → Pembaruan</figcaption></figure></div>
+		</div>
+
+		<div class="guide-step flip">
+			<div>
+				<span class="num"><b>2</b>Notifikasi</span>
+				<h3>Peringatan langsung ke Telegram</h3>
+				<ol>
+					<li>Di Telegram, buka <b>@BotFather</b>, kirim <code>/newbot</code>, ikuti langkahnya, lalu salin <b>token bot</b>.</li>
+					<li>Di PC gateway: Configurator → Aruni Gateway → tab <b>Notifikasi</b>, tempel token. Buka bot baru Anda di Telegram dan kirim <code>/start</code>.</li>
+					<li>Klik <b>Deteksi</b> untuk mengisi Chat ID, klik <b>Kirim tes</b>, lalu <b>Terapkan</b>.</li>
+				</ol>
+				<p>Peringatan yang tersedia: laptop jelajah <b>offline lebih dari N jam</b> (disertai kabar saat kembali online), <b>percobaan akses ditolak</b>, dan <b>laptop baru mendaftar</b>. Tambahkan bot ke grup Telegram agar seluruh tim IT ikut menerima.</p>
+			</div>
+			<div class="shot"><figure><div class="window"><img class="zoomable" src="/img/mac-cfg-notifikasi.webp" alt="Tab Notifikasi"></div><figcaption>Aruni Gateway → Notifikasi</figcaption></figure></div>
+		</div>
+
+		<div class="guide-step">
+			<div>
+				<span class="num"><b>3</b>Riwayat</span>
+				<h3>Catatan setiap laptop, siap Excel</h3>
+				<ul>
+					<li>Tab <b>Riwayat</b> mencatat kapan laptop online atau offline, di kantor atau di luar, siapa yang login, dan <b>aplikasi apa yang sedang dibuka</b>. Juga dicatat HP yang terhubung dan percobaan akses yang ditolak.</li>
+					<li>Pilih rentang waktu (24 jam, 7 hari, 30 hari, semua), lalu klik <b>Ekspor ke Excel (CSV)</b>. File langsung terbuka rapi di Excel.</li>
+					<li>Lewat perintah: <code>veyon-cli gateway activity laporan.csv 30</code>.</li>
+				</ul>
+			</div>
+			<div class="shot"><figure><div class="window"><img class="zoomable" src="/img/mac-cfg-riwayat.webp" alt="Tab Riwayat"></div><figcaption>Aruni Gateway → Riwayat</figcaption></figure></div>
+		</div>
+
+		<div class="guide-step flip">
+			<div>
+				<span class="num"><b>4</b>Tangkapan layar terjadwal</span>
+				<h3>Bukti audit otomatis</h3>
+				<ul>
+					<li>Tab <b>Laptop</b> → <b>Tangkapan layar terjadwal</b>: pilih setiap 5, 10, 15, 30, atau 60 menit, lalu lama penyimpanannya (bawaan 30 hari).</li>
+					<li>Gambar tersimpan per laptop dan per tanggal di PC gateway. Klik <b>Buka folder tangkapan layar</b> untuk melihatnya.</li>
+					<li>PC gateway membutuhkan <b>kunci autentikasi privat</b> yang kunci publiknya terpasang di laptop (kunci yang sama dengan Master). Statusnya ditampilkan di tab tersebut.</li>
+				</ul>
+				<p style="font-size:.9rem">Beri tahu pengguna laptop bahwa layar mereka dapat direkam berkala sesuai kebijakan kantor.</p>
+			</div>
+			<div class="shot"><figure><div class="window"><img class="zoomable" src="/img/mac-cfg-laptop.webp" alt="Tab Laptop"></div><figcaption>Aruni Gateway → Laptop</figcaption></figure></div>
+		</div>
+	</div>
+</section>
+
+<!-- ================= PENGAWASAN ================= -->
+<section id="pengawasan" style="padding-top:0">
+	<div class="wrap">
+		<div class="section-head center">
+			<span class="kicker">Pengawasan</span>
+			<h2>Pengawasan yang lebih lengkap</h2>
+			<p>Blokir situs per komputer, catatan siapa mengakses komputer mana, rekaman layar semua komputer dalam bentuk timelapse, siaran suara ke seluruh kelas, dan impor daftar komputer langsung dari Excel.</p>
+		</div>
+
+		<div class="guide-step">
+			<div>
+				<span class="num"><b>1</b>Blokir situs</span>
+				<h3>Situs terlarang, per komputer atau per ruangan</h3>
+				<ul>
+					<li>Di Master pilih komputer (atau satu ruangan), klik <b>Blokir situs</b>. Centang pilihan cepat (<i>Media sosial, Video, Game online, Chat</i>) atau ketik sendiri, satu situs per baris.</li>
+					<li>Klik <b>Blokir</b>. Blokir tetap berlaku setelah komputer dinyalakan ulang, sampai Anda klik <b>Buka semua blokir</b>.</li>
+					<li>Di aplikasi HP: menu <b>Aksi → Blokir situs</b>.</li>
+				</ul>
+				<div class="callout info"><svg><use href="#i-info"/></svg><p><b>Windows:</b> langsung berlaku, dan fitur DNS aman di Chrome, Edge, dan Firefox dimatikan agar tidak bisa diakali. <b>Mac:</b> pengguna Mac akan dimintai password administrator sekali setiap daftar berubah. VPN pribadi di komputer pengguna dapat menembus blokir ini.</p></div>
+			</div>
+			<div class="shot"><figure><div class="phone"><img class="zoomable" src="/img/android-siteblock.webp" alt="Blokir situs di HP"></div><figcaption>Blokir situs dari HP</figcaption></figure></div>
+		</div>
+
+		<div class="guide-step flip">
+			<div>
+				<span class="num"><b>2</b>Log akses</span>
+				<h3>Siapa mengakses komputer mana, kapan</h3>
+				<ul>
+					<li>Setiap komputer mencatat Master atau HP yang tersambung (alamat dan pengguna), berapa lama, fungsi yang dipakai (kunci layar, kendalikan, kirim file, matikan, …), serta percobaan akses yang gagal atau ditolak.</li>
+					<li>Di Master: pilih komputer → <b>Log akses</b>, lalu ekspor ke Excel. Di HP: menu komputer → <b>Log akses</b>.</li>
+					<li>Di PC gateway: tab <b>Riwayat</b> mengumpulkan log akses <b>semua komputer</b> setiap 15 menit, jadi bisa dilihat dan diekspor dari satu tempat. Kunjungan otomatis gateway sendiri tidak ikut dicatat di sana.</li>
+				</ul>
+			</div>
+			<div class="shot"><figure><div class="window"><img class="zoomable" src="/img/mac-cfg-log-akses.webp" alt="Log akses di Riwayat"></div><figcaption>Aruni Gateway → Riwayat</figcaption></figure></div>
+		</div>
+
+		<div class="guide-step">
+			<div>
+				<span class="num"><b>3</b>Rekaman timelapse</span>
+				<h3>Rekam layar semua komputer, putar per hari</h3>
+				<ul>
+					<li>Aruni Gateway → tab <b>Laptop</b> → <b>Tangkapan layar terjadwal</b>: pilih interval (5–60 menit) dan centang <b>Semua komputer kantor</b>.</li>
+					<li>Tab <b>Rekaman</b>: pilih komputer dan hari, lalu klik <b>Putar</b>. Kecepatan bisa diatur, dan slider bisa digeser ke jam tertentu.</li>
+					<li>Untuk merekam video penuh saat itu juga, pakai tombol <b>Record screen</b> di Master.</li>
+				</ul>
+			</div>
+			<div class="shot"><figure><div class="window"><img class="zoomable" src="/img/mac-cfg-rekaman.webp" alt="Rekaman timelapse"></div><figcaption>Aruni Gateway → Rekaman (isi layar disamarkan)</figcaption></figure></div>
+		</div>
+
+		<div class="guide-step flip">
+			<div>
+				<span class="num"><b>4</b>Siaran suara</span>
+				<h3>Bicara ke seluruh kelas sekaligus</h3>
+				<ul>
+					<li>Pilih komputer (atau semua), klik <b>Siaran suara</b>, lalu tahan tombol untuk bicara. Suara terdengar di semua komputer terpilih, dan di layar mereka muncul pemberitahuan kecil "Guru sedang berbicara".</li>
+					<li>Dari HP: <b>Aksi → Siaran suara</b>. Untuk percakapan dua arah dengan satu pengguna, pakai <b>Bicara (AruniVoice)</b>.</li>
+				</ul>
+			</div>
+			<div class="shot pair">
+				<figure><div class="phone"><img class="zoomable" src="/img/android-broadcast.webp" alt="Siaran suara"></div><figcaption>Siaran suara</figcaption></figure>
+				<figure><div class="phone"><img class="zoomable" src="/img/android-accesslog.webp" alt="Log akses di HP"></div><figcaption>Log akses di HP</figcaption></figure>
+			</div>
+		</div>
+
+		<div class="guide-step">
+			<div>
+				<span class="num"><b>5</b>Impor dari Excel</span>
+				<h3>Daftar komputer tanpa mengetik satu per satu</h3>
+				<ol>
+					<li>Buat tabel di Excel dengan kolom <b>Ruangan | Nama | Alamat IP | MAC</b> (MAC boleh kosong). Klik <b>Templat…</b> untuk contoh siap isi.</li>
+					<li>Configurator → <b>Lokasi &amp; komputer</b> → <b>Impor dari berkas…</b> (simpan Excel sebagai CSV), atau blok barisnya di Excel, tekan Ctrl+C, lalu klik <b>Tempel dari Excel</b>.</li>
+					<li>Pilih <b>Tambahkan</b> atau <b>Ganti semua</b>, lalu klik <b>Terapkan</b>. Baris yang bermasalah dilaporkan, dan komputer yang sudah ada diperbarui tanpa dobel.</li>
+				</ol>
+				<p><b>Ekspor…</b> menyimpan daftar saat ini ke CSV. Di aplikasi HP: Pengaturan → Ruangan &amp; komputer → ikon impor.</p>
+			</div>
+			<div class="shot"><figure><div class="window"><img class="zoomable" src="/img/mac-cfg-impor.webp" alt="Impor dan ekspor"></div><figcaption>Configurator → Lokasi &amp; komputer</figcaption></figure></div>
+		</div>
+	</div>
+</section>
+
+<!-- ================= LAB & LAPORAN (1.8.0) ================= -->
+<section id="lab" style="padding-top:0">
+	<div class="wrap">
+		<div class="section-head center">
+			<span class="kicker">Laporan &amp; lab</span>
+			<h2>Lab lebih tertib, laporan lebih lengkap</h2>
+			<p>Perintah ke banyak PC sekaligus, absensi dan pemakaian aplikasi, browser ujian kiosk, blokir USB &amp; printer, mode lab bersih, dan info komputer di HP. Setiap rilis kini <b>diuji otomatis di Windows sungguhan</b> sebelum diterbitkan.</p>
+		</div>
+
+		<div class="guide-step">
+			<div>
+				<span class="num"><b>1</b>Laporan</span>
+				<h3>Absensi, pemakaian aplikasi &amp; laporan harian</h3>
+				<ul>
+					<li>Configurator → <b>Aruni Gateway</b> → tab <b>Laporan</b>.</li>
+					<li><b>Absensi</b>: siapa login di PC mana, jam masuk dan keluar, serta durasinya. Bisa dipilih hari ini, kemarin, 7 hari, atau 30 hari, lalu diekspor ke Excel. Logout yang terlewat karena PC dimatikan paksa tetap tercatat dari waktu aktivitas terakhir.</li>
+					<li><b>Pemakaian aplikasi</b>: berapa lama setiap aplikasi dipakai (hanya saat aktif, tanpa waktu diam), per PC atau semua PC. <b>Hanya nama aplikasi</b> yang dicatat, tanpa judul jendela dan tanpa ketikan.</li>
+					<li><b>Laporan harian</b>: setiap sore Telegram menerima ringkasan: PC online, disk hampir penuh, PC yang lama tidak online, jadwal yang berjalan, absensi, akses yang ditolak, dan aplikasi terbanyak.</li>
+				</ul>
+			</div>
+			<div class="shot pair">
+				<figure><div class="window"><img class="zoomable" src="/img/mac-cfg-absensi.webp" alt="Absensi"></div><figcaption>Laporan → Absensi (data contoh)</figcaption></figure>
+			</div>
+		</div>
+
+		<div class="guide-step flip">
+			<div>
+				<span class="num"><b>2</b>Perintah massal</span>
+				<h3>Satu perintah, semua komputer</h3>
+				<ul>
+					<li>Di Master pilih komputer, lalu klik <b>Jalankan perintah</b>. Pilih PowerShell/CMD (Windows) atau sh (Mac), tulis perintah atau skrip, dan klik <b>Jalankan</b>. Hasil tiap komputer tampil lengkap dengan kode keluarnya.</li>
+					<li>Tersedia contoh siap pakai: pengaturan jaringan, sisa ruang disk, bersihkan file sementara, <code>gpupdate</code>, mulai ulang printer, dan daftar update Windows.</li>
+					<li>Setiap perintah dicatat lengkap di log akses komputer. Guru dengan peran terbatas baru bisa memakainya kalau diberi izin <b>Perintah</b>.</li>
+				</ul>
+			</div>
+			<div class="shot"><figure><div class="window"><img class="zoomable" src="/img/mac-cfg-pemakaian-aplikasi.webp" alt="Pemakaian aplikasi"></div><figcaption>Laporan → Pemakaian aplikasi (data contoh)</figcaption></figure></div>
+		</div>
+
+		<div class="guide-step">
+			<div>
+				<span class="num"><b>3</b>Kiosk, USB &amp; lab bersih</span>
+				<h3>Ujian lebih ketat, lab selalu rapi</h3>
+				<ul>
+					<li><b>Browser ujian kiosk</b>: di Mode ujian centang <i>Layar penuh tanpa address bar</i>. Situs CBT terbuka di Edge/Chrome layar penuh, dan dibuka lagi otomatis kalau ditutup, sampai ujian diakhiri. Browser berjalan dengan hak pengguna biasa.</li>
+					<li><b>USB &amp; printer</b> (Windows): blokir flashdisk/hard disk eksternal dan pencetakan per komputer, atau lewat <b>Jadwal</b> (mis. blokir USB 07:00, buka 15:00). Keyboard dan mouse USB tetap berfungsi.</li>
+					<li><b>Mode lab bersih</b>: setiap restart, isi Desktop, Unduhan, Dokumen, dan folder lain milik akun siswa (mis. <code>siswa</code>) dipindah ke karantina lalu otomatis dihapus setelah 7 hari. Akun administrator tidak pernah disentuh, program tidak diubah, dan file yang sedang terbuka dibiarkan. Ini bukan “freeze” disk; aman dan bisa dipulihkan.</li>
+					<li><b>Info &amp; program di HP</b>: menu komputer → <b>Info &amp; program</b> menampilkan spesifikasi, disk, dan jaringan, serta bisa menghapus program langsung dari HP.</li>
+				</ul>
+			</div>
+			<div class="shot"><figure><div class="phone"><img class="zoomable" src="/img/android-exam.webp" alt="Mode ujian"></div><figcaption>Mode ujian di HP, kini dengan kiosk</figcaption></figure></div>
+		</div>
+	</div>
+</section>
+
+<!-- ================= MANAJEMEN (1.7.0) ================= -->
+<section id="manajemen" style="padding-top:0">
+	<div class="wrap">
+		<div class="section-head center">
+			<span class="kicker">Manajemen</span>
+			<h2>Kelola semua komputer dari satu tempat</h2>
+			<p>Inventaris lengkap semua PC, pasang dan hapus software ke banyak komputer sekaligus, dan hak akses terpisah untuk setiap guru atau admin.</p>
+		</div>
+
+		<div class="guide-step">
+			<div>
+				<span class="num"><b>1</b>Inventaris</span>
+				<h3>Spesifikasi, disk, dan software setiap komputer</h3>
+				<ul>
+					<li>Configurator → <b>Aruni Gateway</b> → tab <b>Inventaris</b>. Gateway mengumpulkan data semua komputer <b>setiap 6 jam</b>: model, nomor seri, prosesor, RAM, disk, alamat MAC, pengguna, versi AruniControl, dan <b>semua program terpasang</b>.</li>
+					<li>Klik salah satu komputer untuk melihat rinciannya. Kolom cari juga mencari nama program (mis. “Office 2016” untuk mencari PC yang belum di-upgrade).</li>
+					<li><b>Ekspor komputer…</b> dan <b>Ekspor software…</b> menghasilkan file Excel untuk data aset atau audit lisensi.</li>
+					<li>Peringatan Telegram muncul jika <b>disk hampir penuh</b> (default &lt;10% kosong) atau <b>PC tidak online beberapa hari</b> (default 3 hari). Keduanya juga tercatat di tab Riwayat.</li>
+				</ul>
+			</div>
+			<div class="shot"><figure><div class="window"><img class="zoomable" src="/img/mac-cfg-inventaris.webp" alt="Tab Inventaris"></div><figcaption>Aruni Gateway → Inventaris (data contoh)</figcaption></figure></div>
+		</div>
+
+		<div class="guide-step flip">
+			<div>
+				<span class="num"><b>2</b>Pasang software</span>
+				<h3>Satu installer, puluhan komputer, tanpa pertanyaan</h3>
+				<ol>
+					<li>Di Master pilih ruangan atau komputer, lalu klik <b>Pasang software</b>.</li>
+					<li>Tab <b>Pasang</b>: pilih installer (<code>.msi</code>/<code>.exe</code> untuk Windows, <code>.pkg</code> untuk Mac). Parameter senyap terisi otomatis (MSI <code>/qn</code>, NSIS <code>/S</code>, atau pilih Inno Setup/InstallShield). Klik <b>Pasang</b>.</li>
+					<li>Installer dikirim ke setiap komputer, diperiksa keutuhannya (SHA-256), lalu dipasang tanpa jendela. Status tampil per komputer: <i>Menerima 45%</i> → <i>Berjalan…</i> → <b>Selesai</b> / Gagal beserta alasannya.</li>
+					<li>Tab <b>Hapus</b>: daftar program dari komputer terpilih. Pilih program lalu klik <b>Hapus</b> untuk meng-uninstall di semua komputer yang memilikinya.</li>
+				</ol>
+				<div class="callout info"><svg><use href="#i-info"/></svg><p>Coba dulu di satu komputer. Di Windows pemasangan berjalan sebagai sistem, jadi tidak ada UAC. Di Mac pengguna diminta memasukkan password administrator. Bisa juga lewat skrip: <code>veyon-cli softwaredeploy install pc1,pc2 setup.msi</code>.</p></div>
+			</div>
+			<div class="shot"><div class="terminal"><span class="c"># pasang ke banyak PC sekaligus dari Terminal/CMD</span>
+veyon-wcli softwaredeploy install 192.168.10.11,192.168.10.12 C:\Installer\7z2408-x64.msi
+<span class="ok">[INFO] 192.168.10.11: done</span>
+<span class="ok">[INFO] 192.168.10.12: done</span>
+
+<span class="c"># lihat program yang terpasang di satu PC</span>
+veyon-wcli softwaredeploy list 192.168.10.11</div></div>
+		</div>
+
+		<div class="guide-step">
+			<div>
+				<span class="num"><b>3</b>Peran admin</span>
+				<h3>Setiap guru pegang kunci sendiri, dengan batas yang jelas</h3>
+				<ol>
+					<li>Di komputer admin: Configurator → <b>Aruni Gateway</b> → tab <b>Peran admin</b> → <b>Tambah</b>. Isi nama (mis. <i>Guru Lab 1</i>), pilih <b>ruangan</b> yang boleh diakses, dan centang <b>fungsi</b> yang diizinkan: kunci layar &amp; pesan, pembatasan (internet/situs/ujian), aplikasi &amp; file, daya (matikan/restart), software.</li>
+					<li>Klik <b>Kirim peran sekarang</b>. Kebijakan dan kunci publik guru dikirim ke semua komputer sekaligus, tanpa impor kunci manual.</li>
+					<li>Klik <b>Kode pemasangan untuk guru…</b> dan pasang kode itu di laptop/PC guru. Master di sana otomatis memakai kunci peran tersebut.</li>
+				</ol>
+				<ul>
+					<li>Kunci guru <b>tidak bisa tersambung</b> ke komputer di luar ruangannya. Fungsi yang tidak diizinkan ditolak, dan Master guru menampilkan pemberitahuan.</li>
+					<li>Melihat layar, chat, dan tangkapan layar selalu diizinkan. Kunci admin (tanpa peran) tetap punya semua hak, dan hanya kunci admin yang bisa mengubah peran.</li>
+					<li><b>Log akses</b> dan <b>Riwayat</b> kini mencatat <b>nama kunci</b> setiap tindakan, termasuk yang ditolak, sehingga jelas siapa melakukan apa.</li>
+				</ul>
+			</div>
+			<div class="shot"><figure><div class="window"><img class="zoomable" src="/img/mac-cfg-peran.webp" alt="Tab Peran admin"></div><figcaption>Aruni Gateway → Peran admin</figcaption></figure></div>
+		</div>
+	</div>
+</section>
+
+<!-- ================= OTOMATIS (1.6.0) ================= -->
+<section id="otomatis" style="padding-top:0">
+	<div class="wrap">
+		<div class="section-head center">
+			<span class="kicker">Otomatis &amp; ujian</span>
+			<h2>Pasang sekali jadi, jalan otomatis, ujian sekali klik</h2>
+			<p>Satu kode untuk menyiapkan semua komputer, jadwal yang menyalakan, mengunci, dan mematikan komputer sendiri, serta mode ujian yang mengunci komputer untuk CBT dengan satu klik.</p>
+		</div>
+
+		<div class="guide-step">
+			<div>
+				<span class="num"><b>1</b>Kode pemasangan</span>
+				<h3>Satu kode untuk semua komputer, tanpa impor kunci satu per satu</h3>
+				<ol>
+					<li>Di komputer admin: Configurator → <b>Aruni Gateway</b> → tab <b>Pemasangan</b>. Centang kunci yang dipakai, dan jika perlu <b>daftar ruangan &amp; komputer</b> serta <b>laptop jelajah</b>. Klik <b>Buat kode</b>.</li>
+					<li>Klik <b>Simpan sebagai aruni-setup.txt…</b> dan letakkan file itu <b>di samping</b> <code>AruniControl-Setup-….exe</code> (flashdisk atau folder bersama di jaringan).</li>
+					<li>Paling mudah: klik <b>Salin perintah</b> lalu jalankan perintah satu baris itu di setiap komputer (lihat <a href="#panduan" data-tab="t-windows">Panduan Windows</a>, langkah 0). Tanpa internet: jalankan installer di samping <code>aruni-setup.txt</code> dengan <code>AruniControl-Setup-….exe /S /AGENT</code>.</li>
+				</ol>
+				<div class="callout info"><svg><use href="#i-info"/></svg><p><b>Mac:</b> tempel kode di tab yang sama (bagian <i>Siapkan komputer ini dengan kode</i>), atau jalankan <code>veyon-cli gateway setup kode</code>. <b>Kunci privat</b> hanya disertakan untuk komputer guru/Master. Kode yang berisi kunci privat harus dirahasiakan.</p></div>
+			</div>
+			<div class="shot"><figure><div class="window"><img class="zoomable" src="/img/mac-cfg-pemasangan.webp" alt="Tab Pemasangan"></div><figcaption>Aruni Gateway → Pemasangan</figcaption></figure></div>
+		</div>
+
+		<div class="guide-step flip">
+			<div>
+				<span class="num"><b>2</b>Jadwal otomatis</span>
+				<h3>Komputer menyala, terkunci, dan mati sendiri</h3>
+				<ul>
+					<li>Configurator → <b>Aruni Gateway</b> → tab <b>Jadwal</b> → <b>Tambah</b>. Pilih aksi, jam, hari, dan ruangan (atau semua komputer). Klik <b>Tambah contoh</b> untuk jadwal siap pakai: nyala 07:00, kunci layar 12:00–13:00, mati 17:00.</li>
+					<li>Aksi yang tersedia: <b>nyalakan</b> (Wake-on-LAN), <b>matikan</b> (pengguna diberi peringatan 2 menit), mulai ulang, kunci/buka layar, blokir/buka internet, blokir/buka situs, kirim pesan, mulai/akhiri <b>mode ujian</b>.</li>
+					<li><b>Jalankan sekarang</b> untuk mencoba. Hasil setiap jadwal (mis. “29 dari 30 komputer, tidak terjangkau: PC-07”) tampil di daftar, di tab Riwayat, dan di Telegram jika notifikasi diaktifkan.</li>
+				</ul>
+				<div class="callout info"><svg><use href="#i-info"/></svg><p>Jadwal dijalankan oleh komputer admin itu sendiri, jadi komputer ini harus tetap menyala dan memiliki <b>kunci autentikasi privat</b>. Agar bisa dinyalakan otomatis, Wake-on-LAN harus aktif di BIOS dan alamat MAC tercatat di daftar komputer. Jadwal yang terlewat lebih dari 10 menit (misalnya karena komputer admin mati) tidak dijalankan belakangan.</p></div>
+			</div>
+			<div class="shot"><figure><div class="window"><img class="zoomable" src="/img/mac-cfg-jadwal.webp" alt="Tab Jadwal"></div><figcaption>Aruni Gateway → Jadwal</figcaption></figure></div>
+		</div>
+
+		<div class="guide-step">
+			<div>
+				<span class="num"><b>3</b>Mode ujian</span>
+				<h3>Kunci komputer untuk ujian CBT dengan satu klik</h3>
+				<ul>
+					<li>Di Master pilih ruangan/komputer, lalu klik <b>Mode ujian</b>. Isi situs ujian (satu per baris) dan, jika perlu, alamat yang langsung dibuka di komputer siswa. Klik <b>Mulai ujian</b>. Dari HP: <b>Aksi → Mode ujian</b>.</li>
+					<li>Selama ujian: <b>internet hanya bisa ke situs ujian</b>, aplikasi chat, video call, remote, dan game (WhatsApp, Telegram, Discord, Zoom, AnyDesk, TeamViewer, Steam, …) <b>ditutup dan tetap tertutup</b>, serta tombol Windows, Alt+Tab, Alt+F4, Ctrl+Esc, dan Task Manager dikunci.</li>
+					<li>Klik tombol yang sama (<b>Akhiri mode ujian</b>) untuk mengembalikan semuanya. Mode ujian tetap aktif walaupun komputer dinyalakan ulang, dan bisa dijadwalkan (mis. Rabu 08:00–10:00).</li>
+				</ul>
+				<div class="callout"><svg><use href="#i-error"/></svg><p>Jika situs ujian memuat file dari alamat lain (mis. <code>fonts.googleapis.com</code> atau CDN), tambahkan juga alamat itu. Jaringan kantor selalu tetap bisa diakses. <b>Mac:</b> pengguna diminta memasukkan password administrator untuk memblokir internet. Ctrl+Alt+Del tidak bisa dikunci oleh aplikasi apa pun, tetapi Task Manager tetap terkunci.</p></div>
+			</div>
+			<div class="shot"><figure><div class="phone"><img class="zoomable" src="/img/android-exam.webp" alt="Mode ujian di HP"></div><figcaption>Mode ujian dari HP</figcaption></figure></div>
+		</div>
+	</div>
+</section>
+
+<!-- ================= BANTUAN ================= -->
+<section id="bantuan" style="padding-top:0">
+	<div class="wrap">
+		<div class="section-head center">
+			<span class="kicker">Bantuan</span>
+			<h2>Masalah yang sering ditemui</h2>
+		</div>
+		<div class="faq">
+			<details class="card"><summary>Komputer tidak muncul di Master / aplikasi</summary><div>
+				<p>Pastikan layanan AruniControl berjalan di komputer tersebut (Configurator → Service → <b>Running</b>) dan komputer ada di jaringan yang sama. Firewall harus mengizinkan port TCP <code>11100</code>. Installer Windows sudah menambahkan aturan ini otomatis.</p>
+				<p>Jika komputer berada di subnet lain, tambahkan manual lewat Configurator → <b>Locations &amp; computers</b>, atau di aplikasi HP → Pengaturan → <b>Ruangan &amp; komputer</b>.</p>
+			</div></details>
+			<details class="card"><summary>Muncul “Kunci akses ditolak” / “Authentication failed”</summary><div>
+				<p>Kunci di Master/HP tidak cocok dengan kunci publik di komputer tersebut. Periksa bahwa <b>nama kunci</b> sama persis di kedua sisi dan kunci publik sudah di-<b>Import</b> di komputer itu. Setelah mengubah kunci, klik <b>Apply</b>.</p>
+			</div></details>
+			<details class="card"><summary>Mac: layar hitam, atau bisa lihat tapi tidak bisa diklik</summary><div>
+				<p>macOS mewajibkan dua izin untuk <code>veyon-server</code>: <b>Screen Recording</b> (agar layar terlihat) dan <b>Accessibility</b> (agar klik/ketikan masuk). Tambahkan keduanya di System Settings → Privacy &amp; Security, lalu <b>restart layanan</b> (Configurator → Service → Stop, lalu Start).</p>
+			</div></details>
+			<details class="card"><summary>Windows: “Windows protected your PC”</summary><div>
+				<p>Peringatan SmartScreen muncul karena installer belum memakai sertifikat tanda tangan berbayar. Klik <b>More info</b> → <b>Run anyway</b>. Anda bisa memastikan file asli dengan mencocokkan <a href="/unduh/sha256" target="_blank" rel="noopener">checksum SHA-256</a>.</p>
+			</div></details>
+			<details class="card"><summary>Android: “Aplikasi tidak terinstal” atau diblokir</summary><div>
+				<p>Izinkan instalasi dari browser/file manager yang dipakai (<i>Instal aplikasi tidak dikenal</i>). APK ini untuk HP 64-bit (ARM64) dengan Android 9 ke atas. Jika sebelumnya ada versi lain dengan tanda tangan berbeda, hapus dulu versi lama.</p>
+			</div></details>
+			<details class="card"><summary>Aruni Gateway “offline”</summary><div>
+				<p>PC gateway harus menyala dan terhubung internet, dan layanan AruniControl harus berjalan di sana. Buka Configurator → Aruni Gateway dan pastikan status <b>Online</b>. Di HP, buka Akses dari mana saja → ⋮ → <b>Sambungkan ulang</b>. Jika gateway dipasang ulang, pindai kode QR yang baru.</p>
+			</div></details>
+			<details class="card"><summary>Tampilan patah-patah saat lewat paket data</summary><div>
+				<p>Lewat internet, gambar otomatis dikompres ke kualitas sedang agar hemat kuota (sekitar 35 KB/detik per layar yang dibuka). Thumbnail grid diperbarui lebih jarang. Untuk kontrol yang lebih lancar, buka satu komputer saja dalam mode layar penuh.</p>
+			</div></details>
+			<details class="card"><summary>Laptop di rumah tidak muncul</summary><div>
+				<p>Cek di laptop: Configurator → Aruni Gateway → status <b>This laptop outside the office</b>.</p>
+				<ul>
+					<li><b>"The office gateway is offline"</b>: PC gateway kantor mati atau tidak terhubung internet.</li>
+					<li><b>"The office gateway refused this laptop"</b>: laptop sudah dihapus dari daftar, atau kode diganti sebelum laptop sempat terdaftar. Masukkan kode terbaru dari gateway.</li>
+					<li>Laptop harus menyala dan terhubung internet, dan layanan AruniControl harus berjalan (Configurator → Service).</li>
+				</ul>
+				<p>Di Master kantor, laptop hanya muncul otomatis bila backend direktori adalah <i>Network discovery</i> dan port <code>11601</code>–<code>11699</code> di PC gateway tidak diblokir firewall. Installer Windows versi 1.3.1 sudah membukanya.</p>
+			</div></details>
+			<details class="card"><summary>Port apa saja yang dipakai?</summary><div>
+				<div class="table-wrap"><table class="table">
+					<tr><th>Port</th><th>Fungsi</th></tr>
+					<tr><td><code>11100</code> TCP</td><td>Koneksi Master → komputer (wajib dibuka di firewall)</td></tr>
+					<tr><td><code>11200</code> TCP</td><td>Server layar internal (hanya lokal)</td></tr>
+					<tr><td><code>11300</code> TCP</td><td>Fitur internal (hanya lokal)</td></tr>
+					<tr><td><code>11601</code>–<code>11698</code> TCP</td><td>Di PC gateway: penerusan ke laptop jelajah (satu port per laptop)</td></tr>
+					<tr><td><code>11699</code> TCP</td><td>Di PC gateway: daftar laptop jelajah untuk Master di kantor</td></tr>
+					<tr><td><code>443</code> keluar</td><td>Aruni Gateway &amp; laptop jelajah → relay (tidak perlu port forwarding)</td></tr>
+				</table></div>
+			</div></details>
+		</div>
+	</div>
+</section>
+
+	</div>
+</div>
+</main>
+<!--FOOTER-->
+<script src="/site.js" defer></script>
+</body>
+</html>

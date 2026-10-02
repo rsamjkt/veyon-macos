@@ -396,3 +396,16 @@ Laptops taken home stay monitored through the office Aruni Gateway (hub).
 - Configurator Pemasangan shows the commands (PowerShell/CMD/Mac); not for codes with private keys (PSReadLine history).
 - CI: the smoke test installs, updates and uninstalls through pasang.ps1; `gh workflow run windows-test.yml -f online=true`
   also tests the website one-liner. PowerShell gotcha: `cli` is an alias of Clear-Item (aliases beat functions).
+
+## Website (since 2026-10-03): two pages, apple.com style
+
+- `website/index.src.html` (story-telling home) and `website/panduan.src.html` (all guides, sticky TOC) →
+  `python3 build.py` → `public/index.html`, `public/panduan.html` (served at /panduan). Shared `partials/nav.html`
+  (`<!--NAV-->`: global nav + sticky local nav + mobile sheet) and `partials/footer.html` (`<!--FOOTER-->`),
+  icon sprite per page (`<!--SPRITE-->`, icon names may contain digits). Behaviour in `public/site.js`
+  (reveal, pinned story `.story` zoom/lock driven by scroll progress, carousel, typing terminal, copy buttons,
+  download recommendation, guide tabs/TOC, lightbox) - transform/opacity only, one rAF per frame.
+- `public/img/hero-master.webp` is composed from product screenshots WITH SAMPLE DATA ONLY (never riwayat/log-akses
+  screenshots: they contain real LAN addresses).
+- Preview: `python3 -m http.server` in public/ + puppeteer-core (/tmp/pp/shot.js scrolls step by step; plain
+  headless `--screenshot` does not run scroll-driven scenes).

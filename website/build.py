@@ -19,19 +19,28 @@ OS_ICONS = {
     "os-android": ('0 0 24 24', '<path fill="currentColor" d="M17.6 9.5 19.4 6.4a.4.4 0 0 0-.7-.4l-1.9 3.2A11.2 11.2 0 0 0 12 8.2c-1.7 0-3.3.4-4.8 1L5.3 6a.4.4 0 1 0-.7.4l1.8 3.1A10.5 10.5 0 0 0 1 18h22a10.5 10.5 0 0 0-5.4-8.5zM7 15.3a1 1 0 1 1 0-2 1 1 0 0 1 0 2zm10 0a1 1 0 1 1 0-2 1 1 0 0 1 0 2z"/>'),
 }
 
-src = (HERE / "index.src.html").read_text()
-used = sorted(set(re.findall(r'href="#i-([a-z0-9_]+)"', src)))
+def sprite_for(src):
+    used = sorted(set(re.findall(r'href="#i-([a-z0-9_]+)"', src)))
+    symbols = []
+    for name in used:
+        svg = (ICONS / f"{name}.svg").read_text()
+        viewbox = re.search(r'viewBox="([^"]+)"', svg).group(1)
+        body = re.search(r"<svg[^>]*>(.*)</svg>", svg, re.S).group(1)
+        body = body.replace("<path ", '<path fill="currentColor" ')
+        symbols.append(f'<symbol id="i-{name}" viewBox="{viewbox}">{body}</symbol>')
+    for name, (viewbox, body) in OS_ICONS.items():
+        symbols.append(f'<symbol id="{name}" viewBox="{viewbox}">{body}</symbol>')
+    return used, '<svg width="0" height="0" style="position:absolute" aria-hidden="true">' + "".join(symbols) + "</svg>"
 
-symbols = []
-for name in used:
-    svg = (ICONS / f"{name}.svg").read_text()
-    viewbox = re.search(r'viewBox="([^"]+)"', svg).group(1)
-    body = re.search(r"<svg[^>]*>(.*)</svg>", svg, re.S).group(1)
-    body = body.replace("<path ", '<path fill="currentColor" ')
-    symbols.append(f'<symbol id="i-{name}" viewBox="{viewbox}">{body}</symbol>')
-for name, (viewbox, body) in OS_ICONS.items():
-    symbols.append(f'<symbol id="{name}" viewBox="{viewbox}">{body}</symbol>')
 
-sprite = '<svg width="0" height="0" style="position:absolute" aria-hidden="true">' + "".join(symbols) + "</svg>"
-(HERE / "public" / "index.html").write_text(src.replace("<!--SPRITE-->", sprite))
-print(f"public/index.html: {len(used)} icons")
+# every page: <name>.src.html -> public/<name>.html, with the shared
+# navigation and footer (partials/) and the icons it uses
+partials = {p.stem.upper(): p.read_text() for p in (HERE / "partials").glob("*.html")}
+for page in sorted(HERE.glob("*.src.html")):
+    src = page.read_text()
+    for name, html in partials.items():
+        src = src.replace(f"<!--{name}-->", html)
+    used, sprite = sprite_for(src)
+    out = HERE / "public" / page.name.replace(".src.html", ".html")
+    out.write_text(src.replace("<!--SPRITE-->", sprite))
+    print(f"public/{out.name}: {len(used)} icons")
