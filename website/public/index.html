@@ -183,6 +183,22 @@
 		<div class="panel" role="tabpanel" id="p-windows" aria-labelledby="t-windows">
 			<div class="guide-step">
 				<div>
+					<span class="num"><b>0</b>Cara cepat</span>
+					<h3>Pasang agent dengan satu baris (seperti agent Wazuh)</h3>
+					<p>Untuk komputer client (siswa/karyawan) tidak perlu klik installer. Di komputer admin buka Configurator → <b>Aruni Gateway</b> → tab <b>Pemasangan</b> → <b>Buat kode</b>, lalu klik <b>Salin perintah</b>. Di setiap komputer client, buka <b>PowerShell sebagai Administrator</b> dan tempel:</p>
+					<div class="terminal">$env:ARUNI_KEY='ARUNISETUP1:…'; irm https://arunicontrol.arunihealth.id/pasang.ps1 | iex</div>
+					<ul>
+						<li>Perintah ini mengunduh versi terbaru dari situs resmi, <b>memeriksa SHA-256</b>-nya, lalu memasang agent tanpa jendela dan <b>tanpa shortcut</b> Master/Configurator. Kunci akses langsung terpasang dan layanan langsung berjalan.</li>
+						<li>Dari <b>Command Prompt</b>: <code>powershell -NoProfile -ExecutionPolicy Bypass -Command "$env:ARUNI_KEY='ARUNISETUP1:…'; irm https://arunicontrol.arunihealth.id/pasang.ps1 | iex"</code>. Bisa juga lewat GPO, RMM, atau <a href="#lab">perintah massal</a>.</li>
+						<li><b>Mac</b> (Terminal, tanpa sudo): <code>curl -fsSL https://arunicontrol.arunihealth.id/pasang.sh | ARUNI_KEY='ARUNISETUP1:…' bash</code></li>
+						<li>Untuk menghapus: <code>$env:ARUNI_UNINSTALL='1'; irm https://arunicontrol.arunihealth.id/pasang.ps1 | iex</code></li>
+					</ul>
+					<div class="callout ok"><svg><use href="#i-shield"/></svg><p>Kode pemasangan tidak dikirim ke server mana pun; kode hanya dipakai di komputer itu. Untuk kode berisi <b>kunci privat</b> (PC guru), perintah satu baris tidak ditawarkan karena PowerShell menyimpan riwayat perintah; pakai file <code>aruni-setup.txt</code>.</p></div>
+				</div>
+				<div class="shot"><figure><div class="window"><img class="zoomable" src="/img/mac-cfg-pemasangan.webp" alt="Tab Pemasangan"></div><figcaption>Aruni Gateway → Pemasangan</figcaption></figure></div>
+			</div>
+			<div class="guide-step">
+				<div>
 					<span class="num"><b>1</b>Instal</span>
 					<h3>Jalankan installer</h3>
 					<ol>
@@ -870,7 +886,7 @@ veyon-wcli softwaredeploy list 192.168.10.11</div></div>
 				<ol>
 					<li>Di komputer admin: Configurator → <b>Aruni Gateway</b> → tab <b>Pemasangan</b>. Centang kunci yang dipakai, dan jika perlu <b>daftar ruangan &amp; komputer</b> serta <b>laptop jelajah</b>. Klik <b>Buat kode</b>.</li>
 					<li>Klik <b>Simpan sebagai aruni-setup.txt…</b> dan letakkan file itu <b>di samping</b> <code>AruniControl-Setup-….exe</code> (flashdisk atau folder bersama di jaringan).</li>
-					<li>Jalankan installer di setiap komputer, bisa senyap: <code>AruniControl-Setup-….exe /S</code>. Kunci, metode autentikasi, dan pengaturan lainnya langsung terpasang. Untuk kode pendek bisa juga <code>/S /SETUP=ARUNISETUP1:…</code>.</li>
+					<li>Paling mudah: klik <b>Salin perintah</b> lalu jalankan perintah satu baris itu di setiap komputer (lihat <a href="#panduan" data-tab="t-windows">Panduan Windows</a>, langkah 0). Tanpa internet: jalankan installer di samping <code>aruni-setup.txt</code> dengan <code>AruniControl-Setup-….exe /S /AGENT</code>.</li>
 				</ol>
 				<div class="callout info"><svg><use href="#i-info"/></svg><p><b>Mac:</b> tempel kode di tab yang sama (bagian <i>Siapkan komputer ini dengan kode</i>), atau jalankan <code>veyon-cli gateway setup kode</code>. <b>Kunci privat</b> hanya disertakan untuk komputer guru/Master. Kode yang berisi kunci privat harus dirahasiakan.</p></div>
 			</div>

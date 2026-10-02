@@ -64,26 +64,40 @@ function Access-Log {
 }
 
 # ---------------------------------------------------------------- install
-Write-Host "=== install"
-Start-Process -FilePath $Setup -ArgumentList '/S' -Wait
+# like an administrator would: the one-line agent installation (pasang.ps1),
+# fed with the installer of this build instead of the one of the website
+Write-Host "=== install (one-line agent)"
+$agentScript = Join-Path $PSScriptRoot "..\website\public\pasang.ps1"
+$env:ARUNI_INSTALLER = (Resolve-Path $Setup).Path
+Get-Content $agentScript -Raw | Invoke-Expression
 Check "installed" { Test-Path $cli }
 Check "server listening" { Wait-Server }
+Check "agent mode: no Master shortcut" { -not (Test-Path "$env:ProgramData\Microsoft\Windows\Start Menu\Programs\AruniControl\AruniControl Master.lnk") }
+Check "agent mode remembered" {
+	(Get-ItemProperty "HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\AruniControl" -ErrorAction SilentlyContinue).Agent -eq 1 -or
+	(Get-ItemProperty "HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\AruniControl" -ErrorAction SilentlyContinue).Agent -eq 1
+}
 
 Aruni authkeys create ci | Out-Null
 Check "key created" { Test-Path "$data\keys\private\ci\key" }
 
-# installation code: remove the public key, install again with aruni-setup.txt
-# next to the installer (also tests updating over an installed version)
+# installation code: remove the public key, run the one-liner again with the
+# code (also tests updating over an installed version)
 $code = (Aruni gateway setupcode computers).Trim().Split("`n")[-1].Trim()
 Check "setup code created" { $code.StartsWith("ARUNISETUP1:") }
-$setupDir = Split-Path -Parent (Resolve-Path $Setup)
-Set-Content -Path "$setupDir\aruni-setup.txt" -Value $code -Encoding ascii
 Remove-Item -Recurse -Force "$data\keys\public\ci"
-Start-Process -FilePath $Setup -ArgumentList '/S' -Wait
-Remove-Item "$setupDir\aruni-setup.txt"
-Check "setup code applied by the installer" { Test-Path "$data\keys\public\ci\key" }
+$env:ARUNI_KEY = $code
+Get-Content $agentScript -Raw | Invoke-Expression
+Remove-Item Env:\ARUNI_KEY
+Check "setup code applied by the one-liner" { Test-Path "$data\keys\public\ci\key" }
 Check "key authentication configured" { (Aruni config get Authentication/Method).Trim().EndsWith("1") }
 Check "server listening after update" { Wait-Server }
+Check "still an agent after the update" { -not (Test-Path "$env:ProgramData\Microsoft\Windows\Start Menu\Programs\AruniControl\AruniControl Master.lnk") }
+$env:ARUNI_KEY = "bukan-kode"
+$invalid = $false
+try { Get-Content $agentScript -Raw | Invoke-Expression } catch { $invalid = $true }
+Remove-Item Env:\ARUNI_KEY
+Check "invalid code refused" { $invalid }
 $env:VEYON_AUTH_KEY_NAME = "ci"
 
 $plugins = Aruni plugin list
@@ -257,6 +271,30 @@ Aruni feature start 127.0.0.1 DeviceControl '{"usb":"allow"}' | Out-Null
 # ---------------------------------------------------------------- attendance and usage
 Write-Host "=== attendance"
 Warn "logon recorded" { (Access-Log | Where-Object { $_.e -eq "user_login" }).Count -ge 1 }
+
+# ---------------------------------------------------------------- uninstall
+Write-Host "=== uninstall (one line)"
+$env:ARUNI_UNINSTALL = "1"
+Get-Content $agentScript -Raw | Invoke-Expression
+Remove-Item Env:\ARUNI_UNINSTALL
+Check "program removed" { -not (Test-Path $cli) }
+Check "service removed" { -not (Get-Service | Where-Object { $_.Name -match "veyon|aruni" }) }
+Check "port closed" { -not (Get-NetTCPConnection -LocalPort 11100 -State Listen -ErrorAction SilentlyContinue) }
+
+# the real thing from the website (release version), when asked for
+if ($env:ARUNI_TEST_ONLINE -eq "1") {
+	Write-Host "=== one-line installation from the website"
+	Remove-Item Env:\ARUNI_INSTALLER
+	$env:ARUNI_KEY = $code
+	Invoke-Expression (Invoke-RestMethod https://arunicontrol.arunihealth.id/pasang.ps1)
+	Remove-Item Env:\ARUNI_KEY
+	Check "installed from the website" { Test-Path $cli }
+	Check "website installation listening" { Wait-Server }
+	$env:ARUNI_UNINSTALL = "1"
+	Invoke-Expression (Invoke-RestMethod https://arunicontrol.arunihealth.id/pasang.ps1)
+	Remove-Item Env:\ARUNI_UNINSTALL
+	Check "website installation removed" { -not (Test-Path $cli) }
+}
 
 # ---------------------------------------------------------------- result
 Write-Host ""

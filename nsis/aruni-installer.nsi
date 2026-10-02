@@ -6,11 +6,13 @@
 ;   OUTFILE  - output installer path
 ;   ICON     - .ico used for the installer/uninstaller
 ; Optional:
-;   VERSION  - product version string (default 1.8.0)
+;   VERSION  - product version string (default 1.8.1)
 ;
 ; Command line of the installer (besides /S for a silent install):
 ;   /ENROLL=<code> - make this laptop a roaming laptop of the office gateway
 ;                    with the given enrollment code (ARUNIL1:...)
+;   /AGENT         - client only ("agent"): no Start Menu shortcuts for the
+;                    Master and the Configurator (used by pasang.ps1)
 ;   /SETUP=<code>  - installation code from the admin computer (ARUNISETUP1:...,
 ;                    or the path of a file containing it): authentication
 ;                    keys, rooms/computers, roaming laptop - see SetupCode.h.
@@ -22,7 +24,7 @@ Unicode true
 !define PRODUCT "AruniControl"
 !define PUBLISHER "Arunika"
 !ifndef VERSION
-  !define VERSION "1.8.0"
+  !define VERSION "1.8.1"
 !endif
 !ifndef ICON
   !define ICON "installer.ico"
@@ -120,11 +122,25 @@ Section "AruniControl Server" SecMain
     nsExec::ExecToLog '"$INSTDIR\veyon-wcli.exe" gateway enroll "$1"'
   ${EndIf}
 
-  ; Start Menu shortcuts
-  CreateDirectory "$SMPROGRAMS\${PRODUCT}"
-  CreateShortcut "$SMPROGRAMS\${PRODUCT}\AruniControl Configurator.lnk" "$INSTDIR\veyon-configurator.exe"
-  CreateShortcut "$SMPROGRAMS\${PRODUCT}\AruniControl Master.lnk" "$INSTDIR\veyon-master.exe"
-  CreateShortcut "$SMPROGRAMS\${PRODUCT}\Uninstall AruniControl.lnk" "$INSTDIR\uninstall.exe"
+  ; Start Menu shortcuts - an agent (client) installation shows nothing to
+  ; the users of the computer
+  ; (remembered, so the automatic update keeps an agent an agent)
+  ReadRegDWORD $2 HKLM "${ARP}" "Agent"
+  ${GetParameters} $0
+  ClearErrors
+  ${GetOptions} $0 "/AGENT" $1
+  ${IfNot} ${Errors}
+    StrCpy $2 1
+  ${EndIf}
+  ${If} $2 != 1
+    CreateDirectory "$SMPROGRAMS\${PRODUCT}"
+    CreateShortcut "$SMPROGRAMS\${PRODUCT}\AruniControl Configurator.lnk" "$INSTDIR\veyon-configurator.exe"
+    CreateShortcut "$SMPROGRAMS\${PRODUCT}\AruniControl Master.lnk" "$INSTDIR\veyon-master.exe"
+    CreateShortcut "$SMPROGRAMS\${PRODUCT}\Uninstall AruniControl.lnk" "$INSTDIR\uninstall.exe"
+  ${Else}
+    DetailPrint "Mode agent: tanpa shortcut Master/Configurator"
+    RMDir /r "$SMPROGRAMS\${PRODUCT}"
+  ${EndIf}
 
   ; uninstaller + Add/Remove Programs entry
   WriteUninstaller "$INSTDIR\uninstall.exe"
@@ -133,6 +149,9 @@ Section "AruniControl Server" SecMain
   WriteRegStr HKLM "${ARP}" "Publisher" "${PUBLISHER}"
   WriteRegStr HKLM "${ARP}" "DisplayIcon" "$INSTDIR\veyon-configurator.exe"
   WriteRegStr HKLM "${ARP}" "UninstallString" "$INSTDIR\uninstall.exe"
+  ${If} $2 == 1
+    WriteRegDWORD HKLM "${ARP}" "Agent" 1
+  ${EndIf}
   WriteRegDWORD HKLM "${ARP}" "NoModify" 1
   WriteRegDWORD HKLM "${ARP}" "NoRepair" 1
 SectionEnd

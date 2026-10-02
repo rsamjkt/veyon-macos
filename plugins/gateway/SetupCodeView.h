@@ -46,6 +46,11 @@ private:
 	void createCode();
 	void saveFile();
 	void applyCode();
+	void updateCommand();
+
+public:
+	// the one-line agent installation like a Wazuh agent: "powershell", "cmd", "mac"
+	static QString installCommand( const QString& kind, const QString& code );
 
 	QListWidget* m_keys;
 	QCheckBox* m_privateKeys;
@@ -55,6 +60,9 @@ private:
 	QPushButton* m_copyButton;
 	QPushButton* m_saveButton;
 	QLabel* m_codeHint;
+	class QComboBox* m_commandKind;
+	QPlainTextEdit* m_command;
+	QPushButton* m_copyCommandButton;
 	QPlainTextEdit* m_input;
 
 };

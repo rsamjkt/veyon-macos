@@ -53,8 +53,8 @@ make_app() { # <App display name> <primary executable> <bundle id suffix>
 	<key>CFBundleExecutable</key>      <string>${mainexe}</string>
 	<key>CFBundleIconFile</key>        <string>AruniControl</string>
 	<key>CFBundlePackageType</key>     <string>APPL</string>
-	<key>CFBundleVersion</key>         <string>1.8.0</string>
-	<key>CFBundleShortVersionString</key> <string>1.8.0</string>
+	<key>CFBundleVersion</key>         <string>1.8.1</string>
+	<key>CFBundleShortVersionString</key> <string>1.8.1</string>
 	<key>LSMinimumSystemVersion</key>  <string>14.0</string>
 	<key>NSHighResolutionCapable</key> <true/>
 	<key>NSPrincipalClass</key>        <string>NSApplication</string>

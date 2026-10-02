@@ -21,7 +21,7 @@ routes = [
 directory = "./public"
 binding = "ASSETS"
 not_found_handling = "404-page"
-run_worker_first = ["/unduh/*"]
+run_worker_first = ["/unduh/*", "/pasang.ps1", "/pasang.sh"]
 
 [[r2_buckets]]
 binding = "FILES"

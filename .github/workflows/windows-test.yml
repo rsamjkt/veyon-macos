@@ -16,6 +16,10 @@ on:
       tag:
         description: Release to test
         default: ci-build
+      online:
+        description: Also test the one-line installation from the website
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -38,6 +42,8 @@ jobs:
           Get-ChildItem installer
 
       - name: Test
+        env:
+          ARUNI_TEST_ONLINE: ${{ inputs.online && '1' || '0' }}
         run: |
           $setup = (Get-ChildItem installer\*Setup*.exe | Select-Object -First 1).FullName
           ./ci/windows-smoke-test.ps1 -Setup $setup

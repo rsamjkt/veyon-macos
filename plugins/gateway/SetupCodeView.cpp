@@ -26,7 +26,9 @@
 #include <QCheckBox>
 #include <QClipboard>
 #include <QFile>
+#include <QComboBox>
 #include <QFileDialog>
+#include <QFontDatabase>
 #include <QGroupBox>
 #include <QHBoxLayout>
 #include <QLabel>
@@ -40,16 +42,6 @@
 #include "SetupCode.h"
 #include "SetupCodeView.h"
 #include "VeyonServiceControl.h"
-
-
-namespace {
-
-// Windows limits a command line to 8191 characters, the installer's options
-// to 1024 - longer codes go into aruni-setup.txt next to the installer
-constexpr int MaxCommandLineCode = 1000;
-
-}
-
 
 
 SetupCodeView::SetupCodeView( QWidget* parent ) :
@@ -95,6 +87,22 @@ SetupCodeView::SetupCodeView( QWidget* parent ) :
 	codeButtons->addStretch( 1 );
 	createLayout->addLayout( codeButtons );
 
+	auto commandRow = new QHBoxLayout;
+	commandRow->addWidget( new QLabel( tr( "One-line installation (agent):" ) ) );
+	m_commandKind = new QComboBox;
+	m_commandKind->addItem( tr( "Windows - PowerShell (Administrator)" ), QStringLiteral("powershell") );
+	m_commandKind->addItem( tr( "Windows - Command Prompt (Administrator)" ), QStringLiteral("cmd") );
+	m_commandKind->addItem( tr( "Mac - Terminal" ), QStringLiteral("mac") );
+	commandRow->addWidget( m_commandKind, 1 );
+	m_copyCommandButton = new QPushButton( tr( "Copy command" ) );
+	commandRow->addWidget( m_copyCommandButton );
+	createLayout->addLayout( commandRow );
+	m_command = new QPlainTextEdit;
+	m_command->setReadOnly( true );
+	m_command->setMaximumHeight( 70 );
+	m_command->setFont( QFontDatabase::systemFont( QFontDatabase::FixedFont ) );
+	createLayout->addWidget( m_command );
+
 	m_codeHint = new QLabel;
 	m_codeHint->setWordWrap( true );
 	m_codeHint->setTextInteractionFlags( Qt::TextSelectableByMouse );
@@ -121,6 +129,10 @@ SetupCodeView::SetupCodeView( QWidget* parent ) :
 		QApplication::clipboard()->setText( m_code->toPlainText() );
 	} );
 	connect( m_saveButton, &QPushButton::clicked, this, &SetupCodeView::saveFile );
+	connect( m_commandKind, &QComboBox::currentIndexChanged, this, &SetupCodeView::updateCommand );
+	connect( m_copyCommandButton, &QPushButton::clicked, this, [this]() {
+		QApplication::clipboard()->setText( m_command->toPlainText() );
+	} );
 	connect( applyButton, &QPushButton::clicked, this, &SetupCodeView::applyCode );
 	for( auto checkBox : { m_privateKeys, m_computers, m_roaming } )
 	{
@@ -130,6 +142,8 @@ SetupCodeView::SetupCodeView( QWidget* parent ) :
 		const bool haveCode = m_code->toPlainText().isEmpty() == false;
 		m_copyButton->setEnabled( haveCode );
 		m_saveButton->setEnabled( haveCode );
+		m_copyCommandButton->setEnabled( haveCode );
+		updateCommand();
 		if( haveCode == false )
 		{
 			m_codeHint->clear();
@@ -139,6 +153,38 @@ SetupCodeView::SetupCodeView( QWidget* parent ) :
 	refresh();
 	m_copyButton->setEnabled( false );
 	m_saveButton->setEnabled( false );
+	m_copyCommandButton->setEnabled( false );
+}
+
+
+
+QString SetupCodeView::installCommand( const QString& kind, const QString& code )
+{
+	const auto site = QStringLiteral("https://arunicontrol.arunihealth.id");
+	if( kind == QStringLiteral("cmd") )
+	{
+		return QStringLiteral("powershell -NoProfile -ExecutionPolicy Bypass -Command \"$env:ARUNI_KEY='%1'; irm %2/pasang.ps1 | iex\"").arg( code, site );
+	}
+	if( kind == QStringLiteral("mac") )
+	{
+		return QStringLiteral("curl -fsSL %2/pasang.sh | ARUNI_KEY='%1' bash").arg( code, site );
+	}
+	return QStringLiteral("$env:ARUNI_KEY='%1'; irm %2/pasang.ps1 | iex").arg( code, site );
+}
+
+
+
+void SetupCodeView::updateCommand()
+{
+	const auto code = m_code->toPlainText().trimmed();
+	// PowerShell keeps a plain text history of commands - a secret code must
+	// not end up there
+	const bool secret = code.isEmpty() == false && m_privateKeys->isChecked();
+	m_copyCommandButton->setEnabled( code.isEmpty() == false && secret == false );
+	m_command->setPlainText( code.isEmpty() ? QString{}
+							 : secret ? tr( "Not offered for codes with private keys (the command would stay in the "
+											"command history). Use aruni-setup.txt instead." )
+									  : installCommand( m_commandKind->currentData().toString(), code ) );
 }
 
 
@@ -210,20 +256,11 @@ void SetupCodeView::createCode()
 
 	m_code->setPlainText( code );
 
-	QString hint;
-	if( code.size() <= MaxCommandLineCode )
-	{
-		hint = tr( "Install silently on each computer (e.g. from a network share):\n"
-				   "AruniControl-Setup.exe /S /SETUP=%1\n\n"
-				   "Or save the code as aruni-setup.txt next to AruniControl-Setup.exe - the installer uses it "
-				   "automatically." ).arg( code.left( 24 ) + QStringLiteral("…") );
-	}
-	else
-	{
-		hint = tr( "The code is long: save it as aruni-setup.txt next to AruniControl-Setup.exe (e.g. on a USB stick "
-				   "or network share) - the installer uses it automatically, also with /S for a silent installation." );
-	}
-	hint += QLatin1Char('\n') + tr( "Macs: veyon-cli gateway setup <code> or paste it below on the Mac." );
+	QString hint = tr( "Easiest: run the one-line command above on each computer, like installing an agent. It downloads "
+					   "the latest version, checks it and installs it without windows and without shortcuts. The code "
+					   "stays on the computers - it is not sent anywhere." );
+	hint += QLatin1Char('\n') + tr( "Without internet: save the code as aruni-setup.txt next to AruniControl-Setup.exe and run "
+									"\"AruniControl-Setup.exe /S /AGENT\"." );
 	if( options.includePrivateKeys )
 	{
 		hint.prepend( tr( "Keep this code secret: whoever has it can control the computers." ) + QLatin1Char('\n') );

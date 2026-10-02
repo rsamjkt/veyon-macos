@@ -2290,7 +2290,9 @@ Pastikan nama kunci milik satu sama lain sama di semua komputer.</translation>
     </message>
     <message numerus="yes">
         <source>%n selected computer(s) (Windows):</source>
-        <translation><numerusform>%n komputer terpilih (Windows):</numerusform></translation>
+        <translation>
+            <numerusform>%n komputer terpilih (Windows):</numerusform>
+        </translation>
     </message>
     <message>
         <source>Block USB flash drives and external disks</source>
@@ -4108,7 +4110,9 @@ Tips: tambahkan bot ke grup dan kirim /start di sana agar seluruh tim IT mendapa
     </message>
     <message numerus="yes">
         <source>At every restart of the %n selected computer(s), the files in the chosen folders of the student accounts are moved to a safe place and deleted from there after the chosen days. Programs and settings stay as they are. Accounts of administrators are never cleaned.</source>
-        <translation><numerusform>Setiap %n komputer terpilih di-restart, file di folder pilihan pada akun siswa dipindahkan ke tempat aman dan dihapus dari sana setelah jumlah hari yang dipilih. Program dan pengaturan tetap seperti semula. Akun administrator tidak pernah dibersihkan.</numerusform></translation>
+        <translation>
+            <numerusform>Setiap %n komputer terpilih di-restart, file di folder pilihan pada akun siswa dipindahkan ke tempat aman dan dihapus dari sana setelah jumlah hari yang dipilih. Program dan pengaturan tetap seperti semula. Akun administrator tidak pernah dibersihkan.</numerusform>
+        </translation>
     </message>
     <message>
         <source>e.g. siswa, murid</source>
@@ -6139,7 +6143,9 @@ Simpan pekerjaan Anda dan tutup semua program.</translation>
     </message>
     <message numerus="yes">
         <source>%n selected computer(s). Windows runs the command as the system account, macOS as the logged-on user.</source>
-        <translation><numerusform>%n komputer terpilih. Windows menjalankan perintah sebagai akun sistem, macOS sebagai pengguna yang login.</numerusform></translation>
+        <translation>
+            <numerusform>%n komputer terpilih. Windows menjalankan perintah sebagai akun sistem, macOS sebagai pengguna yang login.</numerusform>
+        </translation>
     </message>
     <message>
         <source>Examples...</source>
@@ -6181,7 +6187,9 @@ ipconfig /all</translation>
     </message>
     <message numerus="yes">
         <source>Run this command on %n computer(s) now?</source>
-        <translation><numerusform>Jalankan perintah ini di %n komputer sekarang?</numerusform></translation>
+        <translation>
+            <numerusform>Jalankan perintah ini di %n komputer sekarang?</numerusform>
+        </translation>
     </message>
     <message>
         <source>Running...</source>
@@ -7537,12 +7545,36 @@ Contoh: [^-]*-(PC[0-9]*)</translation>
         <translation>Simpan sebagai aruni-setup.txt...</translation>
     </message>
     <message>
+        <source>One-line installation (agent):</source>
+        <translation>Pasang satu baris (agent):</translation>
+    </message>
+    <message>
+        <source>Windows - PowerShell (Administrator)</source>
+        <translation>Windows - PowerShell (Administrator)</translation>
+    </message>
+    <message>
+        <source>Windows - Command Prompt (Administrator)</source>
+        <translation>Windows - Command Prompt (Administrator)</translation>
+    </message>
+    <message>
+        <source>Mac - Terminal</source>
+        <translation>Mac - Terminal</translation>
+    </message>
+    <message>
+        <source>Copy command</source>
+        <translation>Salin perintah</translation>
+    </message>
+    <message>
         <source>Set up this computer with a code</source>
         <translation>Siapkan komputer ini dengan kode</translation>
     </message>
     <message>
         <source>Apply code</source>
         <translation>Terapkan kode</translation>
+    </message>
+    <message>
+        <source>Not offered for codes with private keys (the command would stay in the command history). Use aruni-setup.txt instead.</source>
+        <translation>Tidak tersedia untuk kode berisi kunci privat (perintah akan tersimpan di riwayat perintah). Pakai aruni-setup.txt.</translation>
     </message>
     <message>
         <source>No keys yet - create them on the "Authentication keys" page.</source>
@@ -7561,22 +7593,12 @@ Contoh: [^-]*-(PC[0-9]*)</translation>
         <translation>Pilih paling sedikit satu kunci atau pilihan.</translation>
     </message>
     <message>
-        <source>Install silently on each computer (e.g. from a network share):
-AruniControl-Setup.exe /S /SETUP=%1
-
-Or save the code as aruni-setup.txt next to AruniControl-Setup.exe - the installer uses it automatically.</source>
-        <translation>Pasang tanpa jendela di tiap komputer (mis. dari folder bersama di jaringan):
-AruniControl-Setup.exe /S /SETUP=%1
-
-Atau simpan kode sebagai aruni-setup.txt di samping AruniControl-Setup.exe - installer memakainya otomatis.</translation>
+        <source>Easiest: run the one-line command above on each computer, like installing an agent. It downloads the latest version, checks it and installs it without windows and without shortcuts. The code stays on the computers - it is not sent anywhere.</source>
+        <translation>Paling mudah: jalankan perintah satu baris di atas di setiap komputer, seperti memasang agent. Perintah itu mengunduh versi terbaru, memeriksanya, lalu memasangnya tanpa jendela dan tanpa shortcut. Kodenya tetap di komputer - tidak dikirim ke mana pun.</translation>
     </message>
     <message>
-        <source>The code is long: save it as aruni-setup.txt next to AruniControl-Setup.exe (e.g. on a USB stick or network share) - the installer uses it automatically, also with /S for a silent installation.</source>
-        <translation>Kodenya panjang: simpan sebagai aruni-setup.txt di samping AruniControl-Setup.exe (mis. di flashdisk atau folder bersama) - installer memakainya otomatis, juga dengan /S untuk pemasangan tanpa jendela.</translation>
-    </message>
-    <message>
-        <source>Macs: veyon-cli gateway setup &lt;code&gt; or paste it below on the Mac.</source>
-        <translation>Mac: veyon-cli gateway setup &lt;kode&gt; atau tempel kode di bawah ini pada Mac tersebut.</translation>
+        <source>Without internet: save the code as aruni-setup.txt next to AruniControl-Setup.exe and run "AruniControl-Setup.exe /S /AGENT".</source>
+        <translation>Tanpa internet: simpan kode sebagai aruni-setup.txt di samping AruniControl-Setup.exe lalu jalankan "AruniControl-Setup.exe /S /AGENT".</translation>
     </message>
     <message>
         <source>Keep this code secret: whoever has it can control the computers.</source>

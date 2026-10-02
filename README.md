@@ -7,7 +7,7 @@
 **Kendalikan banyak komputer dari satu layar — lintas macOS dan Windows.**
 
 [![Lisensi](https://img.shields.io/badge/lisensi-GPLv2-green.svg)](COPYING)
-[![Versi](https://img.shields.io/badge/versi-1.8.0_"Intan"-F2812F.svg)](https://github.com/rsamjkt/veyon-macos/releases)
+[![Versi](https://img.shields.io/badge/versi-1.8.1_"Intan"-F2812F.svg)](https://github.com/rsamjkt/veyon-macos/releases)
 [![Platform](https://img.shields.io/badge/platform-macOS_•_Windows-blue.svg)](#-platform-yang-didukung)
 
 </div>
@@ -61,6 +61,7 @@ AruniControl adalah bagian dari keluarga produk **Arunika** (AruniHealth, Arunik
 | 📥 **Impor/ekspor daftar komputer** *(baru 1.5.0)* | Dari/ke Excel (CSV) atau tempel langsung dari Excel | Configurator & HP |
 | 🔑 **Kode pemasangan** *(baru 1.6.0)* | Satu kode berisi kunci, daftar komputer & laptop jelajah: `Setup.exe /S /SETUP=kode` atau `aruni-setup.txt` di samping installer | Windows & macOS |
 | ⏰ **Jadwal otomatis** *(baru 1.6.0)* | Nyalakan (WoL), kunci/buka layar, blokir internet/situs, pesan, mode ujian, matikan pada jam & hari tertentu per ruangan | Gateway (komputer admin) |
+| ⚡ **Pasang agent satu baris** *(baru 1.8.1)* | `$env:ARUNI_KEY='ARUNISETUP1:…'; irm https://arunicontrol.arunihealth.id/pasang.ps1 \| iex` — unduh, cek SHA-256, pasang senyap tanpa shortcut (seperti agent Wazuh); Mac: `pasang.sh` | Windows & macOS |
 | 📊 **Absensi & pemakaian aplikasi** *(baru 1.8.0)* | Siapa login di PC mana & berapa lama; menit per aplikasi (tanpa judul jendela/ketikan); laporan harian ke Telegram | Gateway |
 | ⌨️ **Perintah massal** *(baru 1.8.0)* | PowerShell/CMD/sh di banyak PC sekaligus, hasil per komputer, tercatat di log | Master & `veyon-cli remotecommand` |
 | 🧹 **Mode lab bersih** *(baru 1.8.0)* | File akun siswa dipindah ke karantina setiap restart (7 hari), akun admin tidak disentuh | Windows (Mac saat login) |
@@ -87,14 +88,14 @@ AruniControl adalah bagian dari keluarga produk **Arunika** (AruniHealth, Arunik
 
 ## 📥 Download
 
-Ambil rilis terbaru di **[halaman Releases](https://github.com/rsamjkt/veyon-macos/releases/tag/v1.8.0)** — versi **1.8.0 "Intan"**:
+Ambil rilis terbaru di **[halaman Releases](https://github.com/rsamjkt/veyon-macos/releases/tag/v1.8.1)** — versi **1.8.1 "Intan"**:
 
 | Paket | Untuk |
 |-------|-------|
-| `AruniControl-1.8.0-Intan-macOS-arm64.zip` | Master & Configurator di **macOS** (Apple Silicon) |
-| `AruniControl-Setup-1.8.0-Intan-Windows-x64.exe` | Installer client **Windows** sekali klik |
-| `AruniControl-Server-1.8.0-Intan-Windows-x64.zip` | Client **Windows** lengkap (mandiri) |
-| `AruniControl-1.8.0-Intan-Android-arm64.apk` | **AruniControl Mobile**: Master di HP Android (layar live, kontrol sentuh, semua fitur) |
+| `AruniControl-1.8.1-Intan-macOS-arm64.zip` | Master & Configurator di **macOS** (Apple Silicon) |
+| `AruniControl-Setup-1.8.1-Intan-Windows-x64.exe` | Installer client **Windows** sekali klik |
+| `AruniControl-Server-1.8.1-Intan-Windows-x64.zip` | Client **Windows** lengkap (mandiri) |
+| `AruniControl-1.8.1-Intan-Android-arm64.apk` | **AruniControl Mobile**: Master di HP Android (layar live, kontrol sentuh, semua fitur) |
 
 ---
 
