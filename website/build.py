@@ -20,7 +20,7 @@ OS_ICONS = {
 }
 
 src = (HERE / "index.src.html").read_text()
-used = sorted(set(re.findall(r'href="#i-([a-z_]+)"', src)))
+used = sorted(set(re.findall(r'href="#i-([a-z0-9_]+)"', src)))
 
 symbols = []
 for name in used:
