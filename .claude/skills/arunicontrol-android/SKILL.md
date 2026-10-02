@@ -382,3 +382,17 @@ Laptops taken home stay monitored through the office Aruni Gateway (hub).
   check) to %GLOBALAPPDATA%/labclean/<stamp>/, pruned after keepDays; once per boot (bootId); switches fast startup
   off (HiberbootEnabled=0) while on.
 - **Mobile**: `ComputerInfoController` + `ComputerInfoPage.qml` (Inventory + SoftwareDeploy list/uninstall).
+
+## 1.8.1: one-line agent installation (like Wazuh)
+
+- `website/public/pasang.ps1` (Windows, `$env:ARUNI_KEY='ARUNISETUP1:…'; irm https://arunicontrol.arunihealth.id/pasang.ps1 | iex`)
+  and `pasang.sh` (Mac, `curl -fsSL …/pasang.sh | ARUNI_KEY='…' bash`, no sudo). They read `/unduh/versi.json`, download,
+  check SHA-256, write the code to aruni-setup.txt next to the installer, run `setup.exe /S /AGENT`, check port 11100.
+  `ARUNI_UNINSTALL=1` removes; `ARUNI_INSTALLER=<file>` uses a local installer (CI). Keep pasang.ps1 ASCII-only and
+  wrapped in `& { }` (works with `irm | iex` and as a file). The worker serves both as text/plain (run_worker_first),
+  otherwise `irm` gets bytes.
+- NSIS `/AGENT`: no Master/Configurator shortcuts; remembered as `Agent`=1 in the ARP key (WOW6432Node, 32-bit NSIS)
+  so `/S /UPDATE` keeps it.
+- Configurator Pemasangan shows the commands (PowerShell/CMD/Mac); not for codes with private keys (PSReadLine history).
+- CI: the smoke test installs, updates and uninstalls through pasang.ps1; `gh workflow run windows-test.yml -f online=true`
+  also tests the website one-liner. PowerShell gotcha: `cli` is an alias of Clear-Item (aliases beat functions).
