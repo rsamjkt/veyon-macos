@@ -17,8 +17,6 @@ if [ ! -f "${BUILD_DIR}/master/veyon-master" ]; then
 	echo "error: build/ not found - run ./build-macos.sh first" >&2; exit 1
 fi
 
-# remove the (self-contained) distribution bundle to avoid confusion on this host
-rm -rf "${DIST_DIR}/AruniControl.app"
 
 # build one thin .app per GUI tool. They share the same Veyon binaries and
 # plugins, and rely on the Homebrew Qt/QCA already installed on this machine
@@ -41,6 +39,9 @@ make_app() { # <App display name> <primary executable> <bundle id suffix>
 	find "${BUILD_DIR}/plugins" -name '*.so' -exec cp {} "${plugins}/" \;
 
 	cp "${SCRIPT_DIR}/master/data/AruniControl.icns" "${contents}/Resources/AruniControl.icns"
+	# Indonesian user interface
+	mkdir -p "${contents}/Resources/translations"
+	find "${BUILD_DIR}/translations" -name '*.qm' -exec cp {} "${contents}/Resources/translations/" \;
 
 	cat > "${contents}/Info.plist" <<PLIST
 <?xml version="1.0" encoding="UTF-8"?>
