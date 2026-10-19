@@ -157,7 +157,7 @@ $boot = Join-Path $PSScriptRoot "..\website\public\sebar.ps1"
 $work = Join-Path $env:USERPROFILE "AruniControl-Sebar"
 function Boot([hashtable]$vars) {
 	foreach ($k in $vars.Keys) { Set-Item "Env:$k" $vars[$k] }
-	try { Get-Content $boot -Raw | Invoke-Expression; $code = $LASTEXITCODE } catch { Write-Host "    $_"; $code = -1 }
+	try { Get-Content $boot -Raw | Invoke-Expression | Out-Host; $code = $LASTEXITCODE } catch { Write-Host "    $_"; $code = -1 }
 	foreach ($k in $vars.Keys) { Remove-Item "Env:$k" -ErrorAction SilentlyContinue }
 	return $code
 }
