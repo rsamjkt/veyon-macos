@@ -67,6 +67,33 @@
 				</div>
 				<div class="shot"><figure><div class="window"><img class="zoomable" src="/img/mac-cfg-pemasangan.webp" alt="Tab Pemasangan"></div><figcaption>Aruni Gateway → Pemasangan</figcaption></figure></div>
 			</div>
+			<div class="guide-step flip" id="sebar">
+				<div>
+					<span class="num"><b>0</b>Banyak PC</span>
+					<h3>Sebar agent dari satu komputer admin</h3>
+					<p>Tidak perlu mendatangi PC satu per satu. Unduh <a href="/unduh/sebar-agent"><b>AruniControl-SebarAgent.zip</b></a> dan ekstrak di komputer admin Windows.</p>
+					<ol>
+						<li>Simpan kode pemasangan ke folder itu sebagai <code>aruni-setup.txt</code> (Configurator → <b>Aruni Gateway</b> → <b>Pemasangan</b> → <b>Simpan sebagai aruni-setup.txt...</b>). Jangan centang <b>kunci privat</b>; kode berisi kunci privat ditolak.</li>
+						<li>Salin <code>komputer.contoh.txt</code> menjadi <code>komputer.txt</code>, lalu isi nama atau IP komputer client. Rentang juga bisa: <code>192.168.10.11-40</code>.</li>
+						<li>Jalankan <code>Sebar.cmd -Uji</code> untuk mengecek koneksi dan akun, lalu <code>Sebar.cmd</code> untuk memasang. Isi akun administrator client saat ditanya.</li>
+					</ol>
+					<ul>
+						<li>Pemasangan berjalan lewat <b>WinRM</b>, atau lewat <b>PsExec</b> resmi Microsoft (berbagi file/SMB) kalau WinRM tidak aktif. Delapan PC dikerjakan bersamaan, dan installer terbaru diunduh lalu dicek SHA-256-nya.</li>
+						<li>PC yang agent-nya sudah berjalan dilewati, jadi aman diulang. PC yang gagal dicatat di <code>hasil\gagal-….txt</code>; ulangi dengan <code>Sebar.cmd -Daftar hasil\gagal-….txt</code>.</li>
+						<li>PC yang tidak bisa dijangkau: <code>Sebar.cmd -Siapkan</code>, lalu bawa <code>agent.cmd</code> + installer + <code>aruni-setup.txt</code> lewat USB dan jalankan <code>agent.cmd</code> sebagai Administrator. Bisa juga lewat GPO startup script (<code>agent.cmd pasang</code>).</li>
+						<li>Hapus dari semua PC: <code>Sebar.cmd -Hapus</code>. Panduan lengkap ada di <code>README.md</code> di dalam zip.</li>
+					</ul>
+				</div>
+				<div class="shot"><div class="terminal"><span class="c"># di komputer admin, folder sebar-agent</span>
+C:\sebar-agent&gt; Sebar.cmd
+[AruniControl] 30 komputer dari komputer.txt
+[AruniControl] Installer 1.8.2 terverifikasi (SHA-256 cocok).
+<span class="ok">[1/30] 192.168.10.11   BERHASIL   Agent terpasang</span>
+<span class="ok">[2/30] 192.168.10.12   BERHASIL   Agent terpasang</span>
+<span class="c">[3/30] 192.168.10.13   DILEWATI   Agent sudah berjalan</span>
+...
+[AruniControl] Selesai dalam 04:12 - BERHASIL: 28, DILEWATI: 2</div></div>
+			</div>
 			<div class="guide-step">
 				<div>
 					<span class="num"><b>1</b>Instal</span>

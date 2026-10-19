@@ -7,6 +7,7 @@
 //   /unduh/windows-zip        versi portabel Windows (.zip)
 //   /unduh/macos              macOS Apple Silicon (.zip)
 //   /unduh/android            Android (.apk)
+//   /unduh/sebar-agent        pemasang agent massal untuk komputer admin (.zip)
 //   /unduh/sha256             daftar checksum SHA-256
 //   /unduh/versi.json         versi terbaru + URL + SHA-256 (update otomatis)
 //   /unduh/<tag>/<file>       file tertentu dari rilis mana pun
@@ -18,14 +19,16 @@
 // whose package belongs to the current tag, so older clients never
 // "update" to the version they already run.
 const RELEASE = {
-	tag: "v1.8.1",
+	tag: "v1.8.2",
 	codename: "Intan",
 	files: {
-		windows: { tag: "v1.8.1", name: "AruniControl-Setup-1.8.1-Intan-Windows-x64.exe" },
-		"windows-zip": { tag: "v1.8.1", name: "AruniControl-Server-1.8.1-Intan-Windows-x64.zip" },
-		macos: { tag: "v1.8.1", name: "AruniControl-1.8.1-Intan-macOS-arm64.zip" },
+		windows: { tag: "v1.8.2", name: "AruniControl-Setup-1.8.2-Intan-Windows-x64.exe" },
+		"windows-zip": { tag: "v1.8.2", name: "AruniControl-Server-1.8.2-Intan-Windows-x64.zip" },
+		macos: { tag: "v1.8.2", name: "AruniControl-1.8.2-Intan-macOS-arm64.zip" },
+		// unchanged in 1.8.2: not offered as an update
 		android: { tag: "v1.8.1", name: "AruniControl-1.8.1-Intan-Android-arm64.apk" },
-		sha256: { tag: "v1.8.1", name: "SHA256SUMS.txt" },
+		"sebar-agent": { tag: "v1.8.2", name: "AruniControl-SebarAgent-1.8.2.zip" },
+		sha256: { tag: "v1.8.2", name: "SHA256SUMS.txt" },
 	},
 };
 
