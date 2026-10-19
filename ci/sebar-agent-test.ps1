@@ -78,7 +78,7 @@ Check "invalid list entry refused" { (Sebar) -eq 1 }
 
 Set-List @("# komentar", "localhost  # di belakang komentar", "LOCALHOST", "")
 Check "-Uji succeeds" { (Sebar -Uji) -eq 0 }
-Check "-Uji: duplicates removed, ready" { $r = Last-Result; $r.Count -eq 1 -and $r[0].Status -eq "SIAP" }
+Check "-Uji: duplicates removed, ready" { $r = @(Last-Result); $r.Count -eq 1 -and $r[0].Status -eq "SIAP" }
 Check "-Uji installs nothing" { -not (Test-Path (Join-Path $dir "AruniControl-Setup.exe")) }
 
 Set-List @("10.255.255.1")
@@ -122,7 +122,9 @@ Write-Host "=== agent.cmd on its own"
 $agent = Join-Path $dir "agent.cmd"
 Remove-Item (Join-Path $dir "versi.txt") -ErrorAction SilentlyContinue
 Check "-Siapkan succeeds" { (Sebar -Siapkan) -eq 0 }
-$installed = (Get-ItemProperty "HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\AruniControl").DisplayVersion
+$installed = @("HKLM:\SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\AruniControl", "HKLM:\SOFTWARE\WOW6432Node\Microsoft\Windows\CurrentVersion\Uninstall\AruniControl" |
+	ForEach-Object { (Get-ItemProperty $_ -ErrorAction SilentlyContinue).DisplayVersion } | Where-Object { $_ })[0]
+Check "installed version known" { $installed }
 Check "-Siapkan wrote the release version" { (Get-Content (Join-Path $dir "versi.txt") -Raw).Trim() -eq $installed }
 $output = & cmd.exe /d /c "`"$agent`" pasang" 2>&1 | Out-String
 Write-Host $output

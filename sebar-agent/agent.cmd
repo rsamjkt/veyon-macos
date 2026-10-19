@@ -54,7 +54,8 @@ if not exist "%HERE%versi.txt" goto jalankan_setup
 set "BARU="
 set /p BARU=<"%HERE%versi.txt"
 set "LAMA="
-for /f "tokens=2,*" %%a in ('reg query "%ARP%" /v DisplayVersion /reg:32 2^>nul') do if /i "%%a"=="REG_SZ" set "LAMA=%%b"
+for /f "tokens=2,*" %%a in ('reg query "%ARP%" /v DisplayVersion /reg:64 2^>nul') do if /i "%%a"=="REG_SZ" set "LAMA=%%b"
+if not defined LAMA for /f "tokens=2,*" %%a in ('reg query "%ARP%" /v DisplayVersion /reg:32 2^>nul') do if /i "%%a"=="REG_SZ" set "LAMA=%%b"
 if not defined BARU goto jalankan_setup
 if not "%BARU%"=="%LAMA%" goto jalankan_setup
 echo [AruniControl] DILEWATI: versi %LAMA% sudah terpasang di %COMPUTERNAME% (pakai "agent.cmd paksa" untuk pasang ulang).

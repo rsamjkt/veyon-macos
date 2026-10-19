@@ -498,6 +498,7 @@ $worker = {
 # ===================================================================== utama
 $mode = if ($Uji) { 'uji' } elseif ($Hapus) { 'hapus' } else { 'paksa' }
 $action = @{ uji = 'UJI (tidak memasang apa pun)'; hapus = 'HAPUS agent'; paksa = 'PASANG agent' }[$mode]
+if ($Siapkan) { $action = 'SIAPKAN folder (tidak menghubungi komputer client)' }
 Write-Host ''
 Say "Sebar agent AruniControl - $action"
 
