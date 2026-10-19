@@ -1,0 +1,42 @@
+name: Sebar agent test (AruniControl)
+
+# Tests sebar-agent (mass installation of the agent through WinRM / PsExec
+# and agent.cmd) on a fresh Windows runner with a released installer
+# (ci/sebar-agent-test.ps1).
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - sebar-agent/**
+      - ci/sebar-agent-test.ps1
+      - .github/workflows/sebar-agent-test.yml
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Release whose installer is used (empty = latest)
+        default: ''
+
+permissions:
+  contents: read
+
+jobs:
+  test-sebar-agent:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Download installer
+        shell: pwsh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release download ${{ inputs.tag }} --repo ${{ github.repository }} --pattern "*Setup*.exe" --dir installer
+          Get-ChildItem installer
+
+      - name: Test (Windows PowerShell 5.1)
+        shell: powershell
+        run: |
+          $setup = (Get-ChildItem installer\*Setup*.exe | Select-Object -First 1).FullName
+          ./ci/sebar-agent-test.ps1 -Setup $setup

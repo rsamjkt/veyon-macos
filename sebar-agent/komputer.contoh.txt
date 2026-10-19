@@ -1,0 +1,10 @@
+# Daftar komputer client untuk sebar.ps1 - salin file ini menjadi komputer.txt
+# Satu nama komputer atau alamat IP per baris. Baris diawali # diabaikan.
+# Rentang IP boleh: 192.168.10.11-40 (= .11 sampai .40)
+
+# Lab 1
+192.168.10.11-40
+
+# Ruang guru
+PC-GURU-01
+PC-GURU-02

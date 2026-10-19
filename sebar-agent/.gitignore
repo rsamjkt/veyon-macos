@@ -1,0 +1,9 @@
+# kode pemasangan dan daftar komputer milik tiap lokasi - jangan di-commit
+aruni-setup.txt
+komputer.txt
+# diunduh / ditulis oleh sebar.ps1
+AruniControl-Setup*.exe
+AruniControl-Setup.exe.part
+versi.txt
+PsExec*.exe
+hasil/
