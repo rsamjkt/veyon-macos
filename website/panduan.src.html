@@ -71,7 +71,14 @@
 				<div>
 					<span class="num"><b>0</b>Banyak PC</span>
 					<h3>Sebar agent dari satu komputer admin</h3>
-					<p>Tidak perlu mendatangi PC satu per satu. Unduh <a href="/unduh/sebar-agent"><b>AruniControl-SebarAgent.zip</b></a> dan ekstrak di komputer admin Windows.</p>
+					<p>Tidak perlu mendatangi PC satu per satu. Di komputer admin Windows, buka <b>PowerShell</b> dan jalankan satu baris ini. Isi kode pemasangan dan daftar komputernya langsung di perintah:</p>
+					<div class="terminal">$env:ARUNI_KEY='ARUNISETUP1:…'; $env:ARUNI_KOMPUTER='192.168.10.11-40,PC-GURU-01'; irm https://arunicontrol.arunihealth.id/sebar.ps1 | iex</div>
+					<ul>
+						<li><b>ARUNI_KEY</b>: kode pemasangan berisi kunci publik, dari Configurator → <b>Aruni Gateway</b> → <b>Pemasangan</b> → <b>Buat kode</b> → <b>Salin</b>. Jangan centang <b>kunci privat</b>; kode berisi kunci privat ditolak.</li>
+						<li><b>ARUNI_KOMPUTER</b>: nama atau IP komputer client, dipisah koma. Rentang juga bisa: <code>192.168.10.11-40</code>.</li>
+						<li>Akun administrator client ditanyakan sekali, lalu muncul ringkasan untuk dikonfirmasi. Cek dulu tanpa memasang: tambahkan <code>$env:ARUNI_UJI='1';</code> di depan. Hapus: <code>$env:ARUNI_HAPUS='1';</code>.</li>
+					</ul>
+					<p>Lebih suka folder sendiri (untuk USB/GPO)? Unduh <a href="/unduh/sebar-agent"><b>AruniControl-SebarAgent.zip</b></a> dan ekstrak di komputer admin:</p>
 					<ol>
 						<li>Simpan kode pemasangan ke folder itu sebagai <code>aruni-setup.txt</code> (Configurator → <b>Aruni Gateway</b> → <b>Pemasangan</b> → <b>Simpan sebagai aruni-setup.txt...</b>). Jangan centang <b>kunci privat</b>; kode berisi kunci privat ditolak.</li>
 						<li>Salin <code>komputer.contoh.txt</code> menjadi <code>komputer.txt</code>, lalu isi nama atau IP komputer client. Rentang juga bisa: <code>192.168.10.11-40</code>.</li>

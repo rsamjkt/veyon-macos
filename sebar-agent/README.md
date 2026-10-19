@@ -17,6 +17,30 @@ installer, `PsExec64.exe`, `hasil\`) tidak ikut masuk git.
 
 ---
 
+## Cara tercepat: satu baris (tanpa unduh folder ini)
+
+Di komputer admin Windows, buka **PowerShell** dan jalankan:
+
+```powershell
+$env:ARUNI_KEY='ARUNISETUP1:...'; $env:ARUNI_KOMPUTER='192.168.10.11-40,PC-GURU-01'; irm https://arunicontrol.arunihealth.id/sebar.ps1 | iex
+```
+
+Perintah ini mengunduh Sebar Agent dari situs resmi, mengecek SHA-256-nya,
+menyimpannya di `%USERPROFILE%\AruniControl-Sebar`, lalu menjalankan `sebar.ps1`
+dengan kode dan daftar komputer dari perintah. Variabel tambahan (isi `'1'`)
+ditaruh di depan dengan cara yang sama: `ARUNI_UJI` (cek saja), `ARUNI_HAPUS`,
+`ARUNI_PAKSA`, `ARUNI_AKUNSAYA`, `ARUNI_YA`; `ARUNI_CARA='WinRM'` atau `'PsExec'`.
+
+Dari Command Prompt:
+
+```
+powershell -NoProfile -ExecutionPolicy Bypass -Command "$env:ARUNI_KEY='ARUNISETUP1:...'; $env:ARUNI_KOMPUTER='192.168.10.11-40'; irm https://arunicontrol.arunihealth.id/sebar.ps1 | iex"
+```
+
+Persiapan di komputer client tetap sama (bagian 2: WinRM atau berbagi file + akun admin).
+
+---
+
 ## 1. Kode pemasangan (key)
 
 Kode pemasangan berbentuk satu baris teks yang diawali `ARUNISETUP1:...`.
