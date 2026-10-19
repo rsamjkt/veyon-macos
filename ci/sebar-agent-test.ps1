@@ -149,6 +149,27 @@ Check "remove through WinRM" { (Sebar -Cara WinRM -Hapus) -eq 0 }
 Check "program removed (WinRM)" { -not (Test-Path $cli) }
 Check "service removed" { -not (Get-Service | Where-Object { $_.Name -match "veyon|aruni" }) }
 
+# ---------------------------------------------------------------- one line
+# the one-line mass installation from the website (website/public/sebar.ps1):
+# downloads Sebar Agent from the website, checks it, runs it
+Write-Host "=== one line (sebar.ps1 from the website)"
+$boot = Join-Path $PSScriptRoot "..\website\public\sebar.ps1"
+$work = Join-Path $env:USERPROFILE "AruniControl-Sebar"
+function Boot([hashtable]$vars) {
+	foreach ($k in $vars.Keys) { Set-Item "Env:$k" $vars[$k] }
+	try { Get-Content $boot -Raw | Invoke-Expression; $code = $LASTEXITCODE } catch { Write-Host "    $_"; $code = -1 }
+	foreach ($k in $vars.Keys) { Remove-Item "Env:$k" -ErrorAction SilentlyContinue }
+	return $code
+}
+Check "one line refuses a missing code" { (Boot @{ ARUNI_KOMPUTER = "localhost" }) -eq -1 }
+Check "one line installs" { (Boot @{ ARUNI_KEY = $normal; ARUNI_KOMPUTER = "localhost"; ARUNI_AKUNSAYA = "1"; ARUNI_YA = "1"; ARUNI_CARA = "WinRM" }) -eq 0 }
+Check "one line: Sebar Agent in the work folder" { Test-Path (Join-Path $work "sebar.ps1") }
+Check "one line: installed" { Test-Path $cli }
+Check "one line: key applied" { Test-Path "$data\keys\public\ci\key" }
+Check "one line: listening" { Wait-Until { Listening } 60 }
+Check "one line removes" { (Boot @{ ARUNI_HAPUS = "1"; ARUNI_KOMPUTER = "localhost"; ARUNI_AKUNSAYA = "1"; ARUNI_YA = "1" }) -eq 0 }
+Check "one line: removed" { -not (Test-Path $cli) }
+
 Check "no staging folder left on the admin computer" { -not (Get-ChildItem ([IO.Path]::GetTempPath()) -Filter "aruni-sebar-*" -ErrorAction SilentlyContinue) }
 
 Write-Host ""

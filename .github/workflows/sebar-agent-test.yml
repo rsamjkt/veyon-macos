@@ -10,6 +10,7 @@ on:
     paths:
       - sebar-agent/**
       - ci/sebar-agent-test.ps1
+      - website/public/sebar.ps1
       - .github/workflows/sebar-agent-test.yml
   workflow_dispatch:
     inputs:

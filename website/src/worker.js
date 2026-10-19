@@ -85,7 +85,7 @@ export default {
 		const url = new URL(request.url);
 		// the one-line agent installers: plain text, so "irm ... | iex" and
 		// "curl ... | bash" get a script, never a download
-		if (url.pathname === "/pasang.ps1" || url.pathname === "/pasang.sh") {
+		if (url.pathname === "/pasang.ps1" || url.pathname === "/pasang.sh" || url.pathname === "/sebar.ps1") {
 			const asset = await env.ASSETS.fetch(request);
 			const headers = new Headers(asset.headers);
 			headers.set("Content-Type", "text/plain; charset=utf-8");
