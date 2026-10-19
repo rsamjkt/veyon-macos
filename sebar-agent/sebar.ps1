@@ -50,6 +50,11 @@ param(
 
 $ErrorActionPreference = 'Stop'
 $ProgressPreference = 'SilentlyContinue'
+trap {
+	Write-Host "[AruniControl] GAGAL tak terduga: $($_.Exception.Message)" -ForegroundColor Red
+	Write-Host ($_.InvocationInfo.PositionMessage) -ForegroundColor DarkGray
+	exit 1
+}
 $site = 'https://arunicontrol.arunihealth.id'
 $folder = $PSScriptRoot
 $setup = Join-Path $folder 'AruniControl-Setup.exe'
