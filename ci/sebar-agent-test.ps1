@@ -107,7 +107,8 @@ Check "no files left on the client (WinRM)" { No-Leftovers }
 Write-Host "=== remove and install through PsExec"
 Check "remove through PsExec" { (Sebar -Cara PsExec -Hapus) -eq 0 }
 Check "PsExec downloaded and signed" { (Get-AuthenticodeSignature (Join-Path $dir "PsExec64.exe")).Status -eq "Valid" }
-Check "PsExec removal reported" { $r = (Last-Result)[0]; $r.Status -eq "BERHASIL" -and $r.Cara -eq "PsExec" }
+Check "PsExec removal reported" { $r = (Last-Result)[0]; $r.Status -eq "BERHASIL" -and $r.Cara -eq "PsExec" -and $r.Pesan -match "dihapus" }
+Check "no files left on the client (PsExec removal)" { No-Leftovers }
 Check "program removed" { -not (Test-Path $cli) }
 Check "port closed" { Wait-Until { -not (Listening) } 30 }
 
@@ -147,6 +148,8 @@ Write-Host "=== remove through WinRM"
 Check "remove through WinRM" { (Sebar -Cara WinRM -Hapus) -eq 0 }
 Check "program removed (WinRM)" { -not (Test-Path $cli) }
 Check "service removed" { -not (Get-Service | Where-Object { $_.Name -match "veyon|aruni" }) }
+
+Check "no staging folder left on the admin computer" { -not (Get-ChildItem ([IO.Path]::GetTempPath()) -Filter "aruni-sebar-*" -ErrorAction SilentlyContinue) }
 
 Write-Host ""
 if ($script:failures.Count -gt 0) {

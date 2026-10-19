@@ -53,19 +53,24 @@ $ProgressPreference = 'SilentlyContinue'
 trap {
 	Write-Host "[AruniControl] GAGAL tak terduga: $($_.Exception.Message)" -ForegroundColor Red
 	Write-Host ($_.InvocationInfo.PositionMessage) -ForegroundColor DarkGray
+	Remove-Stage
 	exit 1
 }
 $site = 'https://arunicontrol.arunihealth.id'
 $folder = $PSScriptRoot
 $setup = Join-Path $folder 'AruniControl-Setup.exe'
 $versionFile = Join-Path $folder 'versi.txt'
+$versionHashFile = Join-Path $folder 'versi.sha256'
 $keyFile = Join-Path $folder 'aruni-setup.txt'
 $agentCmd = Join-Path $folder 'agent.cmd'
 
 function Say($text) { Write-Host "[AruniControl] $text" -ForegroundColor Cyan }
 function Ok($text) { Write-Host "[AruniControl] $text" -ForegroundColor Green }
 function Warn($text) { Write-Host "[AruniControl] $text" -ForegroundColor Yellow }
-function Fail($text) { Write-Host "[AruniControl] GAGAL: $text" -ForegroundColor Red; exit 1 }
+# folder sementara di komputer admin (berisi salinan kode pemasangan)
+$stage = $null
+function Remove-Stage { if ($script:stage) { Remove-Item -LiteralPath $script:stage -Recurse -Force -ErrorAction SilentlyContinue } }
+function Fail($text) { Write-Host "[AruniControl] GAGAL: $text" -ForegroundColor Red; Remove-Stage; exit 1 }
 
 function Confirm-Step([string]$question) {
 	if ($Ya) { return $true }
@@ -192,13 +197,25 @@ function Get-SetupKey {
 
 # ---------------------------------------------------------------- installer
 function Get-Manifest {
-	try {
-		[Net.ServicePointManager]::SecurityProtocol = [Net.ServicePointManager]::SecurityProtocol -bor [Net.SecurityProtocolType]::Tls12
-		$manifest = Invoke-RestMethod -UseBasicParsing -TimeoutSec 20 -Uri "$site/unduh/versi.json" -Headers @{ 'User-Agent' = 'AruniControl-Sebar (windows)' }
-		$file = $manifest.files.windows
-		if ($manifest.version -and $file -and $file.url -and $file.sha256) { return $manifest }
-	} catch { }
+	[Net.ServicePointManager]::SecurityProtocol = [Net.ServicePointManager]::SecurityProtocol -bor [Net.SecurityProtocolType]::Tls12
+	$script:manifestError = 'manifest tidak lengkap'
+	for ($attempt = 1; $attempt -le 3; $attempt++) {
+		try {
+			$manifest = Invoke-RestMethod -UseBasicParsing -TimeoutSec 30 -Uri "$site/unduh/versi.json" -Headers @{ 'User-Agent' = 'AruniControl-Sebar (windows)' }
+			$file = $manifest.files.windows
+			if ($manifest.version -and $file -and $file.url -and $file.sha256) { return $manifest }
+		} catch {
+			$script:manifestError = $_.Exception.Message
+		}
+		if ($attempt -lt 3) { Start-Sleep -Seconds 3 }
+	}
 	return $null
+}
+
+# versi.txt berlaku untuk installer dengan SHA-256 di versi.sha256
+function Save-Version([string]$version, [string]$hash) {
+	Set-Content -LiteralPath $versionFile -Value $version -Encoding Ascii -NoNewline
+	Set-Content -LiteralPath $versionHashFile -Value $hash -Encoding Ascii -NoNewline
 }
 
 function Prepare-Installer {
@@ -224,20 +241,26 @@ function Prepare-Installer {
 			Fail 'Checksum installer tidak cocok - unduhan rusak atau diubah. Dibatalkan.'
 		}
 		Move-Item -LiteralPath $part -Destination $setup -Force
-		Set-Content -LiteralPath $versionFile -Value $manifest.version -Encoding Ascii -NoNewline
+		Save-Version $manifest.version $hash
 		Ok "Installer $($manifest.version) terverifikasi (SHA-256 cocok)."
 	} else {
 		$hash = (Get-FileHash -Algorithm SHA256 -LiteralPath $setup).Hash.ToLower()
+		$knownHash = $null
+		if ((Test-Path -LiteralPath $versionFile) -and (Test-Path -LiteralPath $versionHashFile)) {
+			$knownHash = (Get-Content -LiteralPath $versionHashFile -Raw).Trim().ToLower()
+		}
 		if ($manifest -and $hash -eq $manifest.files.windows.sha256.ToLower()) {
-			Set-Content -LiteralPath $versionFile -Value $manifest.version -Encoding Ascii -NoNewline
+			Save-Version $manifest.version $hash
 			Ok "Installer $($manifest.version) terverifikasi (SHA-256 cocok dengan rilis resmi)."
+		} elseif (-not $manifest -and $knownHash -eq $hash) {
+			Warn "Situs tidak bisa dihubungi ($script:manifestError). Installer sama dengan yang sudah diverifikasi sebelumnya (versi $((Get-Content -LiteralPath $versionFile -Raw).Trim()))."
 		} else {
 			# versi tidak diketahui: agent.cmd jangan sampai melewati pemasangan
-			Remove-Item -LiteralPath $versionFile -Force -ErrorAction SilentlyContinue
+			Remove-Item -LiteralPath $versionFile, $versionHashFile -Force -ErrorAction SilentlyContinue
 			if ($manifest) {
 				Warn "AruniControl-Setup.exe BUKAN rilis terbaru $($manifest.version) (SHA-256 $hash). Tetap dipakai; hapus file itu kalau mau mengunduh versi terbaru."
 			} else {
-				Warn "Situs tidak bisa dihubungi, installer tidak bisa dicek. Dipakai apa adanya (SHA-256 $hash)."
+				Warn "Situs tidak bisa dihubungi ($script:manifestError), installer tidak bisa dicek. Dipakai apa adanya (SHA-256 $hash)."
 			}
 		}
 	}
@@ -341,6 +364,15 @@ $worker = {
 		return $text
 	}
 
+	# antivirus / proses yang baru selesai bisa menahan file sebentar
+	function Remove-Folder([string]$path) {
+		for ($i = 0; $i -lt 20; $i++) {
+			Remove-Item -LiteralPath $path -Recurse -Force -ErrorAction SilentlyContinue
+			if (-not (Test-Path -LiteralPath $path)) { return }
+			Start-Sleep -Seconds 3
+		}
+	}
+
 	function Get-Summary([string]$output, [int]$code) {
 		$lines = @($output -split "`r?`n" | ForEach-Object { $_.Trim() } | Where-Object { $_ })
 		$own = @($lines | Where-Object { $_ -match '^\[AruniControl\]' }) | Select-Object -Last 1
@@ -376,7 +408,11 @@ $worker = {
 			} finally {
 				Invoke-Command -Session $session -ErrorAction SilentlyContinue -ArgumentList $dir -ScriptBlock {
 					param($d)
-					Remove-Item -LiteralPath $d -Recurse -Force -ErrorAction SilentlyContinue
+					for ($i = 0; $i -lt 20; $i++) {
+						Remove-Item -LiteralPath $d -Recurse -Force -ErrorAction SilentlyContinue
+						if (-not (Test-Path -LiteralPath $d)) { break }
+						Start-Sleep -Seconds 3
+					}
 				}
 			}
 			return [pscustomobject]@{ Code = [int]$result.Code; Out = [string]$result.Out }
@@ -401,14 +437,34 @@ $worker = {
 				foreach ($file in $files) { Copy-Item -LiteralPath $file -Destination $target -ErrorAction Stop }
 				$arguments = @("\\$pc", '-accepteula', '-nobanner', '-s')
 				if ($o.Cred) { $arguments += @('-u', $o.Cred.UserName, '-p', $o.Cred.GetNetworkCredential().Password) }
-				# %SystemRoot% diuraikan oleh cmd.exe di komputer client (= folder ADMIN$)
-				$arguments += @('cmd.exe', '/d', '/c', "%SystemRoot%\Temp\$sub\agent.cmd", $mode)
-				$text = & $o.PsExec @arguments 2>&1 | Out-String
-				$code = $LASTEXITCODE
+				# %SystemRoot% diuraikan oleh cmd.exe di komputer client (= folder ADMIN$);
+				# jalan.cmd menulis keluaran agent.cmd ke agent.log dan kode keluarnya
+				# ke selesai.txt - keluaran PsExec sendiri tidak selalu lengkap
+				$arguments += @('cmd.exe', '/d', '/c', "%SystemRoot%\Temp\$sub\jalan.cmd", $mode)
+				$psexecText = & $o.PsExec @arguments 2>&1 | Out-String
+				$psexecCode = $LASTEXITCODE
+
+				$log = "$target\agent.log"
+				$done = "$target\selesai.txt"
+				$deadline = (Get-Date).AddMinutes(15)
+				$startDeadline = (Get-Date).AddSeconds(20)
+				while (-not (Test-Path -LiteralPath $done)) {
+					if (-not (Test-Path -LiteralPath $log) -and (Get-Date) -gt $startDeadline) {
+						# agent.cmd tidak pernah mulai: PsExec gagal terhubung/menjalankan
+						return [pscustomobject]@{ Code = $(if ($psexecCode) { [int]$psexecCode } else { 1 }); Out = [string]$psexecText }
+					}
+					if ((Get-Date) -gt $deadline) {
+						return [pscustomobject]@{ Code = 1; Out = 'Waktu habis: agent.cmd belum selesai setelah 15 menit.' }
+					}
+					Start-Sleep -Seconds 2
+				}
+				Start-Sleep -Seconds 1
+				$code = [int]((Get-Content -LiteralPath $done -Raw).Trim())
+				$text = Get-Content -LiteralPath $log -Raw -ErrorAction SilentlyContinue
 			} finally {
-				Remove-Item -LiteralPath $target -Recurse -Force -ErrorAction SilentlyContinue
+				Remove-Folder $target
 			}
-			return [pscustomobject]@{ Code = [int]$code; Out = [string]$text }
+			return [pscustomobject]@{ Code = $code; Out = [string]$text }
 		} finally {
 			Remove-PSDrive -Name $drive -Force -ErrorAction SilentlyContinue
 		}
@@ -522,7 +578,15 @@ $targets = Read-Targets $listPath
 if ($targets.Count -eq 0) { Fail "Daftar komputer '$listPath' masih kosong." }
 Say "$($targets.Count) komputer dari $(Split-Path -Leaf $listPath)"
 
-$stage = $null
+$stage = Join-Path ([IO.Path]::GetTempPath()) ('aruni-sebar-' + [guid]::NewGuid().ToString('N'))
+New-Item -ItemType Directory -Path $stage -Force | Out-Null
+$runner = Join-Path $stage 'jalan.cmd'
+Set-Content -LiteralPath $runner -Encoding Ascii -Value (@(
+	'@echo off',
+	'rem dibuat oleh sebar.ps1: keluaran agent.cmd ke agent.log, kode keluar ke selesai.txt',
+	'call "%~dp0agent.cmd" %1 > "%~dp0agent.log" 2>&1',
+	'> "%~dp0selesai.txt" echo %ERRORLEVEL%'
+) -join "`r`n")
 $installFiles = @()
 if ($mode -eq 'paksa') {
 	$code = Get-SetupKey
@@ -530,11 +594,9 @@ if ($mode -eq 'paksa') {
 		Fail 'Kode pemasangan belum ada. Di komputer admin: Configurator > Aruni Gateway > Pemasangan > Buat kode > "Simpan sebagai aruni-setup.txt..." ke folder ini (lihat README).'
 	}
 	Prepare-Installer
-	$stage = Join-Path ([IO.Path]::GetTempPath()) ('aruni-sebar-' + [guid]::NewGuid().ToString('N'))
-	New-Item -ItemType Directory -Path $stage -Force | Out-Null
 	$stagedKey = Join-Path $stage 'aruni-setup.txt'
 	Set-Content -LiteralPath $stagedKey -Value $code -Encoding Ascii -NoNewline
-	$installFiles = @($setup, $agentCmd, $stagedKey)
+	$installFiles = @($setup, $agentCmd, $runner, $stagedKey)
 	if (Test-Path -LiteralPath $versionFile) { $installFiles += $versionFile }
 } elseif ($mode -eq 'uji') {
 	if ($env:ARUNI_KEY -or (Test-Path -LiteralPath $keyFile)) { [void](Get-SetupKey) }
@@ -569,7 +631,7 @@ Say "Komputer: $($targets.Count) ($(@($targets | Select-Object -First 5) -join '
 Say "Cara    : $Cara$(if ($Cara -ne 'WinRM') { if ($psexec) { ' (PsExec siap)' } else { ' (tanpa PsExec)' } })"
 Say "Akun    : $accountText"
 Say "Paralel : $Paralel"
-if (-not (Confirm-Step 'Lanjut?')) { Say 'Dibatalkan.'; if ($stage) { Remove-Item -LiteralPath $stage -Recurse -Force -ErrorAction SilentlyContinue }; exit 1 }
+if (-not (Confirm-Step 'Lanjut?')) { Say 'Dibatalkan.'; Remove-Item -LiteralPath $stage -Recurse -Force -ErrorAction SilentlyContinue; exit 1 }
 Write-Host ''
 
 $options = @{
@@ -579,7 +641,7 @@ $options = @{
 	Cred = $cred
 	PsExec = $psexec
 	InstallFiles = [string[]]$installFiles
-	RemoveFiles = [string[]]@($agentCmd)
+	RemoveFiles = [string[]]@($agentCmd, $runner)
 }
 
 $colors = @{ BERHASIL = 'Green'; SIAP = 'Green'; DILEWATI = 'DarkGray'; PERIKSA = 'Yellow'; GAGAL = 'Red'; 'TIDAK TERJANGKAU' = 'Red' }
