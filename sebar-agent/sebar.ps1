@@ -595,7 +595,7 @@ try {
 	}
 	$started = Get-Date
 	while ($jobs.Count -gt 0) {
-		foreach ($job in @($jobs)) {
+		foreach ($job in $jobs.ToArray()) {
 			if (-not $job.Handle.IsCompleted) { continue }
 			$result = $null
 			try {
