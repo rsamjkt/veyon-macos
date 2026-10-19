@@ -376,7 +376,7 @@ $worker = {
 	function Get-Summary([string]$output, [int]$code) {
 		$lines = @($output -split "`r?`n" | ForEach-Object { $_.Trim() } | Where-Object { $_ })
 		$own = @($lines | Where-Object { $_ -match '^\[AruniControl\]' }) | Select-Object -Last 1
-		if ($own) { return ($own -replace '^\[AruniControl\]\s*', '') }
+		if ($own) { return ($own -replace '^\[AruniControl\]\s*((BERHASIL|DILEWATI|GAGAL):\s*)?', '') }
 		$last = $lines | Select-Object -Last 1
 		if ($last) { return "$last (kode $code)" }
 		return "kode keluar $code"
